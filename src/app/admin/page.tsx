@@ -131,11 +131,11 @@ export default function AdminDashboard() {
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-2xl z-20">
-                <div className="flex items-center gap-3 mb-10 px-2">
-                    <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
+                <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-105 duration-300 cursor-pointer">
+                    <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_12px_rgba(253,114,2,0.6)]" />
                     <div>
                         <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Business Control</span>
+                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio</span>
                     </div>
                 </div>
 
@@ -216,28 +216,32 @@ export default function AdminDashboard() {
                             className="space-y-8"
                         >
                             {/* Hero Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                                 {[
-                                    { label: 'Total Llamadas', value: loading && calls.length <= 2 ? '1,284' : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
+                                    { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
                                     industry === 'barber' ?
-                                        { label: 'Citas Cerradas', value: loading && appointments.length <= 1 ? '342' : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
-                                        { label: 'Pedidos Hoy', value: loading && orders.length === 0 ? '42' : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
-                                    { label: 'Nuevos Leads', value: loading && leads.length <= 2 ? '89' : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
-                                    { label: 'Horas Ahorradas', value: `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
+                                        { label: 'Citas Cerradas', value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
+                                        { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
+                                    { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
+                                    { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setActiveTab(stat.tab as any)}
-                                        className="relative group p-8 rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5 hover:ring-[#FD7202]/30"
+                                        className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5 hover:ring-[#FD7202]/30"
                                     >
-                                        <div className={`w-12 h-12 rounded-2xl bg-${stat.color}-500/10 flex items-center justify-center mb-6 border border-${stat.color}-500/20 group-hover:scale-110 transition-transform duration-500`}>
-                                            <stat.icon size={24} className={`text-${stat.color}-400 group-hover:neon-text-${stat.color}`} />
+                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-${stat.color}-500/10 flex items-center justify-center mb-6 border border-${stat.color}-500/20 group-hover:scale-110 transition-transform duration-500`}>
+                                            <stat.icon size={20} className={`text-${stat.color}-400 lg:text-${stat.color}-400 group-hover:neon-text-${stat.color}`} />
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
                                             <div className="flex items-baseline gap-3">
-                                                <h3 className="text-3xl font-black italic">{stat.value}</h3>
-                                                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>
+                                                {stat.value === null ? (
+                                                    <div className="h-9 w-20 bg-white/5 animate-pulse rounded-lg"></div>
+                                                ) : (
+                                                    <h3 className="text-2xl lg:text-3xl font-black italic">{stat.value}</h3>
+                                                )}
+                                                {!loading && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>}
                                             </div>
                                         </div>
                                         <div className="absolute top-0 right-0 w-24 h-24 bg-[#FD7202]/5 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-[#FD7202]/10 transition-all"></div>
@@ -294,7 +298,7 @@ export default function AdminDashboard() {
                                             <Doughnut data={chartData} options={chartOptions} />
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
                                                 <span className="text-5xl font-black italic">84%</span>
-                                                <span className="text-[10px] font-black text-[#FD7202] uppercase tracking-[0.2em] mt-1">Precisión IA</span>
+                                                <span className="text-[10px] font-black text-[#FD7202] uppercase tracking-[0.2em] mt-1">Eficiencia Operativa</span>
                                             </div>
                                         </div>
                                         <div className="w-full space-y-4">
@@ -478,8 +482,8 @@ export default function AdminDashboard() {
                             <h2 className="text-2xl font-black uppercase italic mb-8">Configuración del Sistema</h2>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Vapi API Key</label>
-                                    <input type="password" placeholder="vapi-..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
+                                    <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>
@@ -508,6 +512,24 @@ export default function AdminDashboard() {
                     </div>
                 </footer>
             </main>
+
+            {/* Mobile Navigation Bar */}
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
+                {[
+                    { id: 'overview', icon: LayoutDashboard },
+                    { id: 'calls', icon: Phone },
+                    { id: 'leads', icon: Users },
+                    { id: 'settings', icon: Settings }
+                ].map((item) => (
+                    <button
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id as any)}
+                        className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
+                    >
+                        <item.icon size={24} />
+                    </button>
+                ))}
+            </nav>
         </div>
     );
 }
