@@ -53,7 +53,7 @@ export default function LandingPage() {
     const closeLegalModal = () => setActiveLegalModal(null);
 
     return (
-        <div className="relative min-h-screen">
+        <div className="relative min-h-screen bg-[#050505] text-white">
             <NavBar items={navItems} />
 
             {/* Hero Section */}
