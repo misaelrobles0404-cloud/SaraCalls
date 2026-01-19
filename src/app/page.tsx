@@ -29,7 +29,8 @@ import {
     Home,
     HelpCircle,
     MapPin,
-    ArrowRight
+    ArrowRight,
+    Waves
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
@@ -57,7 +58,7 @@ export default function LandingPage() {
         <div className="relative min-h-screen bg-[#050505] text-white">
             <div className="fixed top-8 left-8 z-50 flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,122,0,0.4)]">
-                    <BrainCircuit className="text-white w-6 h-6" />
+                    <Waves className="text-white w-6 h-6" />
                 </div>
                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
@@ -232,229 +233,231 @@ export default function LandingPage() {
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/30 mb-8">
                                 <Workflow className="w-8 h-8 text-orange-400" />
                             </div>
-                            <h4 className="text-xl font-black uppercase italic mb-4">Acciones Reales</h4>
+                            <h4 className="text-xl font-black uppercase italic mb-4'>Acciones Reales</h4>
                             <p className="text-sm text-slate-500 leading-relaxed">Conectamos la IA con tus herramientas favoritas para disparar acciones: agendar en Google Calendar, enviar SMS y actualizar tu CRM al instante.</p>
+                    </div>
+                    <div className="neon-card p-10 flex flex-col items-center text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/30 mb-8">
+                            <ShieldCheck className="w-8 h-8 text-green-400" />
                         </div>
-                        <div className="neon-card p-10 flex flex-col items-center text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center border border-green-500/30 mb-8">
-                                <ShieldCheck className="w-8 h-8 text-green-400" />
-                            </div>
-                            <h4 className="text-xl font-black uppercase italic mb-4">Control Total</h4>
-                            <p className="text-sm text-slate-500 leading-relaxed">Supervisa cada llamada, escucha grabaciones y ajusta la personalidad de tu asistente desde tu panel de administración privado.</p>
-                        </div>
+                        <h4 className="text-xl font-black uppercase italic mb-4">Control Total</h4>
+                        <p className="text-sm text-slate-500 leading-relaxed">Supervisa cada llamada, escucha grabaciones y ajusta la personalidad de tu asistente desde tu panel de administración privado.</p>
                     </div>
                 </div>
-            </section>
+        </div>
+            </section >
 
-            {/* Footer */}
-            <footer className="py-20 border-t border-white/5 bg-black/20">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
-                        {/* Column 1: Branding */}
-                        <div className="flex flex-col gap-6">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center">
-                                    <BrainCircuit className="text-white w-6 h-6" />
-                                </div>
-                                <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
+        {/* Footer */ }
+        < footer className = "py-20 border-t border-white/5 bg-black/20" >
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                    {/* Column 1: Branding */}
+                    <div className="flex flex-col gap-6">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center">
+                                <Waves className="text-white w-6 h-6" />
                             </div>
-                            <p className="text-sm text-slate-500 leading-relaxed max-w-xs font-medium">
-                                Transformando la comunicación empresarial con inteligencia artificial de voz ultra-rápida y humana.
-                            </p>
+                            <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
                         </div>
-
-                        {/* Column 2: Legal Links */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#FF7A00]">Legal</h4>
-                            <div className="flex flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-500">
-                                <button onClick={() => openLegalModal('privacy')} className="text-left hover:text-white transition-colors">Política Privacidad</button>
-                                <button onClick={() => openLegalModal('terms')} className="text-left hover:text-white transition-colors">Términos de Uso</button>
-                            </div>
-                        </div>
-
-                        {/* Column 3: Contact */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#FF7A00]">Contáctanos</h4>
-                            <div className="flex flex-col gap-4 text-sm font-medium text-slate-500">
-                                <div className="flex items-center gap-3">
-                                    <Mail className="w-4 h-4 text-orange-500" />
-                                    <a href="mailto:hola@saracalls.ai" className="hover:text-white transition-colors">hola@saracalls.ai</a>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <Phone className="w-4 h-4 text-orange-500" />
-                                    <a href="tel:+521234567890" className="hover:text-white transition-colors">+52 123 456 7890</a>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <MapPin className="w-4 h-4 text-orange-500" />
-                                    <span>Ciudad de México, México</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Column 4: Social Media */}
-                        <div className="flex flex-col gap-6">
-                            <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#00F0FF]">Redes Sociales</h4>
-                            <div className="flex gap-4">
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-orange-500/10 hover:border-orange-500/30 transition-all group">
-                                    <Instagram className="w-5 h-5 text-slate-500 group-hover:text-orange-500" />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-500/10 hover:border-blue-500/30 transition-all group">
-                                    <Facebook className="w-5 h-5 text-slate-500 group-hover:text-blue-400" />
-                                </a>
-                                <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/30 transition-all group">
-                                    <svg className="w-5 h-5 fill-slate-500 group-hover:fill-white transition-colors" viewBox="0 0 24 24">
-                                        <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.96-1.03 1.6-.14.69-.06 1.45.24 2.1.26.6.77 1.1 1.34 1.38.65.32 1.4.41 2.11.23 1.05-.26 1.88-1.12 2.09-2.18.16-.91.17-1.81.14-2.73L12.58 0l-.055.02z" />
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
-                            © 2026 SaraCalls.AI Voice Systems. All rights reserved.
+                        <p className="text-sm text-slate-500 leading-relaxed max-w-xs font-medium">
+                            Transformando la comunicación empresarial con inteligencia artificial de voz ultra-rápida y humana.
                         </p>
+                    </div>
+
+                    {/* Column 2: Legal Links */}
+                    <div className="flex flex-col gap-6">
+                        <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#FF7A00]">Legal</h4>
+                        <div className="flex flex-col gap-4 text-sm font-bold uppercase tracking-widest text-slate-500">
+                            <button onClick={() => openLegalModal('privacy')} className="text-left hover:text-white transition-colors">Política Privacidad</button>
+                            <button onClick={() => openLegalModal('terms')} className="text-left hover:text-white transition-colors">Términos de Uso</button>
+                        </div>
+                    </div>
+
+                    {/* Column 3: Contact */}
+                    <div className="flex flex-col gap-6">
+                        <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#FF7A00]">Contáctanos</h4>
+                        <div className="flex flex-col gap-4 text-sm font-medium text-slate-500">
+                            <div className="flex items-center gap-3">
+                                <Mail className="w-4 h-4 text-orange-500" />
+                                <a href="mailto:hola@saracalls.ai" className="hover:text-white transition-colors">hola@saracalls.ai</a>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <Phone className="w-4 h-4 text-orange-500" />
+                                <a href="tel:+521234567890" className="hover:text-white transition-colors">+52 123 456 7890</a>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <MapPin className="w-4 h-4 text-orange-500" />
+                                <span>Ciudad de México, México</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Column 4: Social Media */}
+                    <div className="flex flex-col gap-6">
+                        <h4 className="text-xs font-black uppercase tracking-[0.3em] text-[#00F0FF]">Redes Sociales</h4>
                         <div className="flex gap-4">
-                            <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
-                            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Network Status: Online</span>
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-orange-500/10 hover:border-orange-500/30 transition-all group">
+                                <Instagram className="w-5 h-5 text-slate-500 group-hover:text-orange-500" />
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-500/10 hover:border-blue-500/30 transition-all group">
+                                <Facebook className="w-5 h-5 text-slate-500 group-hover:text-blue-400" />
+                            </a>
+                            <a href="#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/30 transition-all group">
+                                <svg className="w-5 h-5 fill-slate-500 group-hover:fill-white transition-colors" viewBox="0 0 24 24">
+                                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.06-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.98-.23-2.81.36-.54.38-.89.96-1.03 1.6-.14.69-.06 1.45.24 2.1.26.6.77 1.1 1.34 1.38.65.32 1.4.41 2.11.23 1.05-.26 1.88-1.12 2.09-2.18.16-.91.17-1.81.14-2.73L12.58 0l-.055.02z" />
+                                </svg>
+                            </a>
                         </div>
                     </div>
                 </div>
-            </footer>
 
-            {/* Legal Modals */}
-            {activeLegalModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={closeLegalModal}
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="relative w-full max-w-4xl max-h-[80vh] bg-[#020617] border border-white/10 rounded-3xl overflow-hidden flex flex-col"
-                    >
-                        <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                            <div>
-                                <h3 className="text-2xl font-black uppercase italic text-white flex items-center gap-3">
-                                    {activeLegalModal === 'terms' ? (
-                                        <>Términos de <span className="neon-text-orange">Uso</span></>
-                                    ) : (
-                                        <>Política de <span className="neon-text-blue">Privacidad</span></>
-                                    )}
-                                </h3>
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Última actualización: 14 de Enero, 2026</p>
-                            </div>
-                            <button onClick={closeLegalModal} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
-                                <X className="w-5 h-5 text-white" />
-                            </button>
-                        </div>
-
-                        <div className="p-8 overflow-y-auto custom-scrollbar">
-                            <div className="prose prose-invert prose-slate max-w-none space-y-8 text-slate-400 leading-relaxed font-medium">
-                                {activeLegalModal === 'terms' ? (
-                                    <>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">A. Aceptación de los Términos</h4>
-                                            <p>Al acceder o utilizar SaraCalls.AI, usted reconoce que ha leído, entendido y acepta estar sujeto a estos Términos en su totalidad. Si no está de acuerdo, debe abstenerse de utilizar el servicio.</p>
-                                        </section>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">B. Descripción de la Asistente "Sara"</h4>
-                                            <p>SaraCalls.AI ofrece una asistente virtual basada en inteligencia artificial. El Usuario reconoce que Sara es un software de IA y, como tal, sus respuestas están basadas en algoritmos probabilísticos. La Empresa no garantiza infalibilidad técnica.</p>
-                                        </section>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">C. Uso Permitido y Restricciones</h4>
-                                            <ul className="list-disc pl-5 space-y-4">
-                                                <li>Licencia limitada y no exclusiva para el uso de la plataforma.</li>
-                                                <li>Prohibido el uso para spam o ingeniería inversa sobre la IA.</li>
-                                                <li>Responsabilidad total sobre el entrenamiento proporcionado a Sara.</li>
-                                            </ul>
-                                        </section>
-                                        <section className="p-6 bg-orange-500/5 border border-orange-500/20 rounded-2xl italic">
-                                            "SaraCalls.AI no se hace responsable por promesas, precios erróneos o compromisos contractuales realizados por la IA Sara hacia terceros."
-                                        </section>
-                                    </>
-                                ) : (
-                                    <>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">A. Información Recopilada</h4>
-                                            <p>Recopilamos grabaciones y transcripciones de llamadas para la ejecución del servicio y mejora de calidad. También almacenamos datos compartidos por clientes finales durante la conversación.</p>
-                                        </section>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">B. Uso de los Datos</h4>
-                                            <p>Los datos se usan para suministrar el servicio, mejorar nuestros modelos de IA y facilitar integraciones con calendarios. Podemos compartir datos con proveedores de infraestructura críticos.</p>
-                                        </section>
-                                        <section className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl">
-                                            <h4 className="text-blue-400 font-black uppercase text-xs tracking-widest mb-2">Aviso Importante</h4>
-                                            <p className="italic text-sm">"Es responsabilidad exclusiva del Usuario informar a sus clientes que las llamadas están siendo grabadas y procesadas por una IA Sara."</p>
-                                        </section>
-                                        <section>
-                                            <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">C. Seguridad</h4>
-                                            <p>Empleamos medidas de cifrado industrial para proteger su información. Tiene derecho a solicitar la eliminación de grabaciones en cualquier momento.</p>
-                                        </section>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="p-6 border-t border-white/5 bg-white/[0.01] flex justify-end">
-                            <button onClick={closeLegalModal} className="px-8 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] transition-all">
-                                Entendido
-                            </button>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-
-            {/* Demo Request Modal */}
-            <div className={`modal-overlay ${isModalOpen ? 'active' : ''}`} onClick={(e) => e.target === e.currentTarget && closeModal()}>
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <div className="modal-close" onClick={closeModal}>
-                            <X className="w-6 h-6" />
-                        </div>
-                        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <PhoneCall className="w-8 h-8 text-white" />
-                        </div>
-                        <h2 className="text-4xl font-black uppercase italic mb-2">Agenda tu Demo Gratis</h2>
-                        <p className="text-white/80 font-medium">Te contactamos en menos de 24 horas</p>
-                    </div>
-                    <div className="modal-body">
-                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('¡Solicitud enviada!'); closeModal(); }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {[
-                                    { label: 'Nombre *', icon: User, placeholder: 'Tu nombre completo', type: 'text', required: true },
-                                    { label: 'Email *', icon: Mail, placeholder: 'tu@empresa.com', type: 'email', required: true },
-                                    { label: 'Teléfono *', icon: Phone, placeholder: '+52...', type: 'tel', required: true },
-                                    { label: 'Empresa', icon: Building2, placeholder: 'Nombre...', type: 'text' },
-                                    { label: 'Industria', icon: Briefcase, placeholder: 'Restaurante...', type: 'text' },
-                                    { label: 'Empleados', icon: Users, placeholder: '5, 10...', type: 'text' }
-                                ].map((field, i) => (
-                                    <div key={i} className="flex flex-col gap-2">
-                                        <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
-                                            <field.icon className="w-4 h-4" /> {field.label}
-                                        </label>
-                                        <input type={field.type} placeholder={field.placeholder} className="input-field" required={field.required} />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
-                                    <MessageSquare className="w-4 h-4" /> Mensaje (opcional)
-                                </label>
-                                <textarea rows={3} placeholder="Cuéntanos..." className="input-field resize-none"></textarea>
-                            </div>
-                            <button type="submit" className="btn-submit">
-                                <Send className="w-5 h-5" /> Solicitar Demo Gratis
-                            </button>
-                        </form>
+                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
+                        © 2026 SaraCalls.AI Voice Systems. All rights reserved.
+                    </p>
+                    <div className="flex gap-4">
+                        <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></span>
+                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Network Status: Online</span>
                     </div>
                 </div>
             </div>
+            </footer >
+
+        {/* Legal Modals */ }
+    {
+        activeLegalModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-12 overflow-hidden">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={closeLegalModal}
+                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                />
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    className="relative w-full max-w-4xl max-h-[80vh] bg-[#020617] border border-white/10 rounded-3xl overflow-hidden flex flex-col"
+                >
+                    <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                        <div>
+                            <h3 className="text-2xl font-black uppercase italic text-white flex items-center gap-3">
+                                {activeLegalModal === 'terms' ? (
+                                    <>Términos de <span className="neon-text-orange">Uso</span></>
+                                ) : (
+                                    <>Política de <span className="neon-text-blue">Privacidad</span></>
+                                )}
+                            </h3>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Última actualización: 14 de Enero, 2026</p>
+                        </div>
+                        <button onClick={closeLegalModal} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <X className="w-5 h-5 text-white" />
+                        </button>
+                    </div>
+
+                    <div className="p-8 overflow-y-auto custom-scrollbar">
+                        <div className="prose prose-invert prose-slate max-w-none space-y-8 text-slate-400 leading-relaxed font-medium">
+                            {activeLegalModal === 'terms' ? (
+                                <>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">A. Aceptación de los Términos</h4>
+                                        <p>Al acceder o utilizar SaraCalls.AI, usted reconoce que ha leído, entendido y acepta estar sujeto a estos Términos en su totalidad. Si no está de acuerdo, debe abstenerse de utilizar el servicio.</p>
+                                    </section>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">B. Descripción de la Asistente "Sara"</h4>
+                                        <p>SaraCalls.AI ofrece una asistente virtual basada en inteligencia artificial. El Usuario reconoce que Sara es un software de IA y, como tal, sus respuestas están basadas en algoritmos probabilísticos. La Empresa no garantiza infalibilidad técnica.</p>
+                                    </section>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">C. Uso Permitido y Restricciones</h4>
+                                        <ul className="list-disc pl-5 space-y-4">
+                                            <li>Licencia limitada y no exclusiva para el uso de la plataforma.</li>
+                                            <li>Prohibido el uso para spam o ingeniería inversa sobre la IA.</li>
+                                            <li>Responsabilidad total sobre el entrenamiento proporcionado a Sara.</li>
+                                        </ul>
+                                    </section>
+                                    <section className="p-6 bg-orange-500/5 border border-orange-500/20 rounded-2xl italic">
+                                        "SaraCalls.AI no se hace responsable por promesas, precios erróneos o compromisos contractuales realizados por la IA Sara hacia terceros."
+                                    </section>
+                                </>
+                            ) : (
+                                <>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">A. Información Recopilada</h4>
+                                        <p>Recopilamos grabaciones y transcripciones de llamadas para la ejecución del servicio y mejora de calidad. También almacenamos datos compartidos por clientes finales durante la conversación.</p>
+                                    </section>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">B. Uso de los Datos</h4>
+                                        <p>Los datos se usan para suministrar el servicio, mejorar nuestros modelos de IA y facilitar integraciones con calendarios. Podemos compartir datos con proveedores de infraestructura críticos.</p>
+                                    </section>
+                                    <section className="p-6 bg-blue-500/5 border border-blue-500/20 rounded-2xl">
+                                        <h4 className="text-blue-400 font-black uppercase text-xs tracking-widest mb-2">Aviso Importante</h4>
+                                        <p className="italic text-sm">"Es responsabilidad exclusiva del Usuario informar a sus clientes que las llamadas están siendo grabadas y procesadas por una IA Sara."</p>
+                                    </section>
+                                    <section>
+                                        <h4 className="text-white font-black uppercase text-sm tracking-widest mb-4">C. Seguridad</h4>
+                                        <p>Empleamos medidas de cifrado industrial para proteger su información. Tiene derecho a solicitar la eliminación de grabaciones en cualquier momento.</p>
+                                    </section>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="p-6 border-t border-white/5 bg-white/[0.01] flex justify-end">
+                        <button onClick={closeLegalModal} className="px-8 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] transition-all">
+                            Entendido
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        )
+    }
+
+    {/* Demo Request Modal */ }
+    <div className={`modal-overlay ${isModalOpen ? 'active' : ''}`} onClick={(e) => e.target === e.currentTarget && closeModal()}>
+        <div className="modal-content">
+            <div className="modal-header">
+                <div className="modal-close" onClick={closeModal}>
+                    <X className="w-6 h-6" />
+                </div>
+                <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <PhoneCall className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-4xl font-black uppercase italic mb-2">Agenda tu Demo Gratis</h2>
+                <p className="text-white/80 font-medium">Te contactamos en menos de 24 horas</p>
+            </div>
+            <div className="modal-body">
+                <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('¡Solicitud enviada!'); closeModal(); }}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {[
+                            { label: 'Nombre *', icon: User, placeholder: 'Tu nombre completo', type: 'text', required: true },
+                            { label: 'Email *', icon: Mail, placeholder: 'tu@empresa.com', type: 'email', required: true },
+                            { label: 'Teléfono *', icon: Phone, placeholder: '+52...', type: 'tel', required: true },
+                            { label: 'Empresa', icon: Building2, placeholder: 'Nombre...', type: 'text' },
+                            { label: 'Industria', icon: Briefcase, placeholder: 'Restaurante...', type: 'text' },
+                            { label: 'Empleados', icon: Users, placeholder: '5, 10...', type: 'text' }
+                        ].map((field, i) => (
+                            <div key={i} className="flex flex-col gap-2">
+                                <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
+                                    <field.icon className="w-4 h-4" /> {field.label}
+                                </label>
+                                <input type={field.type} placeholder={field.placeholder} className="input-field" required={field.required} />
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
+                            <MessageSquare className="w-4 h-4" /> Mensaje (opcional)
+                        </label>
+                        <textarea rows={3} placeholder="Cuéntanos..." className="input-field resize-none"></textarea>
+                    </div>
+                    <button type="submit" className="btn-submit">
+                        <Send className="w-5 h-5" /> Solicitar Demo Gratis
+                    </button>
+                </form>
+            </div>
         </div>
+    </div>
+        </div >
     );
 }
 
