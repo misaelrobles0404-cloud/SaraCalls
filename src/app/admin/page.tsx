@@ -123,6 +123,10 @@ export default function AdminDashboard() {
         circumference: 180,
     };
 
+    // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
+    const totalCallsCount = loading && calls.length <= 2 ? 1284 : calls.length;
+    const hoursSaved = Math.round((totalCallsCount * 5) / 60);
+
     return (
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
             {/* Sidebar */}
@@ -219,7 +223,7 @@ export default function AdminDashboard() {
                                         { label: 'Citas Cerradas', value: loading && appointments.length <= 1 ? '342' : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
                                         { label: 'Pedidos Hoy', value: loading && orders.length === 0 ? '42' : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
                                     { label: 'Nuevos Leads', value: loading && leads.length <= 2 ? '89' : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
-                                    { label: 'Horas Ahorradas', value: '120h', trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
+                                    { label: 'Horas Ahorradas', value: `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
                                     <button
                                         key={i}
@@ -315,8 +319,15 @@ export default function AdminDashboard() {
                                         <div className="relative z-10">
                                             <Zap className="mb-4 text-white opacity-80" />
                                             <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
-                                            <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Necesitas más líneas o integraciones personalizadas con tu CRM?</p>
-                                            <button className="w-full bg-black py-4 rounded-2xl text-[10px] font-black uppercase tracking-[.25em] transition-all hover:bg-black/80">Hablar con Soporte</button>
+                                            <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Necesitas más líneas, integraciones personalizadas o un plan mayor?</p>
+                                            <a
+                                                href="https://wa.me/521234567890?text=Hola,%20busco%20escalar%20mi%20plan%20en%20SaraCalls.ai"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
+                                            >
+                                                Hablar con Ventas
+                                            </a>
                                         </div>
                                         <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:scale-150 transition-all duration-700"></div>
                                     </div>
