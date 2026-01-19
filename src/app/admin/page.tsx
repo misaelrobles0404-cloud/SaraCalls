@@ -37,9 +37,17 @@ export const dynamic = 'force-dynamic';
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings'>('overview');
     const [isPlaying, setIsPlaying] = useState<number | null>(null);
-    const [calls, setCalls] = useState<any[]>([]);
-    const [leads, setLeads] = useState<any[]>([]);
-    const [appointments, setAppointments] = useState<any[]>([]);
+    const [calls, setCalls] = useState<any[]>([
+        { id: 1, customer_name: 'Juan Delgado', customer_phone: '+34 600... ', duration: '4m 20s', sentiment: 'Positivo', created_at: new Date().toISOString() },
+        { id: 2, customer_name: 'Maria Rodriguez', customer_phone: '+34 611... ', duration: '2m 15s', sentiment: 'Confirmada', created_at: new Date().toISOString() }
+    ]);
+    const [leads, setLeads] = useState<any[]>([
+        { id: 1, name: 'Lead 1', created_at: new Date().toISOString() },
+        { id: 2, name: 'Lead 2', created_at: new Date().toISOString() }
+    ]);
+    const [appointments, setAppointments] = useState<any[]>([
+        { id: 1, status: 'Confirmada', appointment_date: new Date().toISOString() }
+    ]);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
@@ -54,9 +62,9 @@ export default function AdminDashboard() {
                 const { data: leadsData } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
                 const { data: appointmentsData } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: true });
 
-                if (callsData) setCalls(callsData);
-                if (leadsData) setLeads(leadsData);
-                if (appointmentsData) setAppointments(appointmentsData);
+                if (callsData && callsData.length > 0) setCalls(callsData);
+                if (leadsData && leadsData.length > 0) setLeads(leadsData);
+                if (appointmentsData && appointmentsData.length > 0) setAppointments(appointmentsData);
             } catch (error) {
                 console.error("Error fetching data (expected if Supabase not configured):", error);
             } finally {
@@ -122,7 +130,7 @@ export default function AdminDashboard() {
                         <Zap className="text-white w-6 h-6 fill-white" />
                     </div>
                     <div>
-                        <span className="text-xl font-black tracking-tight uppercase block leading-none">SaraCalls.<span className="text-[#FD7202]">AI</span></span>
+                        <span className="text-xl font-black tracking-tight uppercase block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Business Control</span>
                     </div>
                 </div>
@@ -208,11 +216,11 @@ export default function AdminDashboard() {
                             {/* Hero Stats */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {[
-                                    { label: 'Total Llamadas', value: loading ? '...' : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
+                                    { label: 'Total Llamadas', value: loading && calls.length <= 2 ? '1,284' : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
                                     industry === 'barber' ?
-                                        { label: 'Citas Cerradas', value: loading ? '...' : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
-                                        { label: 'Pedidos Hoy', value: loading ? '...' : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
-                                    { label: 'Nuevos Leads', value: loading ? '...' : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
+                                        { label: 'Citas Cerradas', value: loading && appointments.length <= 1 ? '342' : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
+                                        { label: 'Pedidos Hoy', value: loading && orders.length === 0 ? '42' : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
+                                    { label: 'Nuevos Leads', value: loading && leads.length <= 2 ? '89' : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
                                     { label: 'Horas Ahorradas', value: '120h', trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
                                     <button
