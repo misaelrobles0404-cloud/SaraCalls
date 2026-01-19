@@ -56,9 +56,7 @@ export default function LandingPage() {
     return (
         <div className="relative min-h-screen bg-[#050505] text-white">
             <div className="fixed top-8 left-8 z-50 flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-[#FD7202] to-[#FF9031] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(253,114,2,0.4)]">
-                    <BotMessageSquare className="text-white w-6 h-6" />
-                </div>
+                <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
             <NavBar items={navItems} />
@@ -253,9 +251,7 @@ export default function LandingPage() {
                         {/* Column 1: Branding */}
                         <div className="flex flex-col gap-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-gradient-to-br from-[#FD7202] to-[#FF9031] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(253,114,2,0.4)] group-hover:scale-110 transition-transform duration-500">
-                                    <BotMessageSquare className="text-white w-6 h-6" />
-                                </div>
+                                <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
                             </div>
                             <p className="text-sm text-slate-500 leading-relaxed max-w-xs font-medium">
