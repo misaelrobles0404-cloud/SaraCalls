@@ -31,9 +31,8 @@ import {
 import { Doughnut } from 'react-chartjs-2';
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings'>('overview');
@@ -46,9 +45,11 @@ export default function AdminDashboard() {
     const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
 
     useEffect(() => {
+        ChartJS.register(ArcElement, Tooltip, Legend);
         const fetchData = async () => {
             setLoading(true);
             try {
+                const { supabase } = await import("@/lib/supabase");
                 const { data: callsData } = await supabase.from('calls').select('*').order('created_at', { ascending: false });
                 const { data: leadsData } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
                 const { data: appointmentsData } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: true });
@@ -71,15 +72,28 @@ export default function AdminDashboard() {
         fetchData();
 
         // Subscribe to real-time changes
-        const callsSubscription = supabase
-            .channel('public:calls')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, payload => {
-                setCalls(prev => [payload.new, ...prev.filter((c: any) => c.id !== (payload.new as any).id)].slice(0, 10));
-            })
-            .subscribe();
+        const setupSubscription = async () => {
+            const { supabase } = await import("@/lib/supabase");
+            const callsSubscription = supabase
+                .channel('public:calls')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, payload => {
+                    setCalls(prev => [payload.new, ...prev.filter((c: any) => c.id !== (payload.new as any).id)].slice(0, 10));
+                })
+                .subscribe();
+
+            return callsSubscription;
+        };
+
+        const subscriptionPromise = setupSubscription();
 
         return () => {
-            supabase.removeChannel(callsSubscription);
+            subscriptionPromise.then(sub => {
+                if (sub) {
+                    import("@/lib/supabase").then(({ supabase }) => {
+                        supabase.removeChannel(sub);
+                    });
+                }
+            });
         };
     }, []);
 

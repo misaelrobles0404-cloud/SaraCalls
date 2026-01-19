@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "SaraCalls.AI | Revolucionando la Voz con IA",
@@ -16,7 +13,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="es" className="dark">
-            <body className={`${inter.className} bg-[#050505] text-white antialiased`}>
+            <body className="bg-[#050505] text-white antialiased">
                 <div className="cyber-grid"></div>
                 {children}
             </body>

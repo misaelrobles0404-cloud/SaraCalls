@@ -69,7 +69,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Step specific styles */
 .step-number {
     width: 60px;
     height: 60px;
@@ -95,7 +94,6 @@ body {
     opacity: 0.3;
 }
 
-/* Modal Styles */
 .modal-overlay {
     position: fixed;
     top: 0;
