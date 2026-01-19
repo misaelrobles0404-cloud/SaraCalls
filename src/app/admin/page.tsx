@@ -18,6 +18,7 @@ import {
     Volume2,
     Database,
     Zap,
+    BrainCircuit,
     MoreVertical,
     Download,
     Eye
@@ -128,7 +129,7 @@ export default function AdminDashboard() {
             <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-2xl z-20">
                 <div className="flex items-center gap-3 mb-10 px-2">
                     <div className="w-10 h-10 bg-gradient-to-br from-[#FD7202] to-[#FF9031] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(253,114,2,0.4)]">
-                        <Zap className="text-white w-6 h-6 fill-white" />
+                        <BrainCircuit className="text-white w-6 h-6" />
                     </div>
                     <div>
                         <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
@@ -182,7 +183,7 @@ export default function AdminDashboard() {
                 <header className="flex justify-between items-center mb-10 glass p-6 rounded-[28px] border border-white/5 bg-white/[0.02]">
                     <div className="flex items-center gap-4">
                         <div className="lg:hidden w-10 h-10 bg-[#FD7202] rounded-xl flex items-center justify-center">
-                            <Zap className="text-white w-6 h-6" />
+                            <BrainCircuit className="text-white w-6 h-6" />
                         </div>
                         <div>
                             <h1 className="text-xl lg:text-2xl font-black uppercase italic tracking-tight">Panel de Control</h1>

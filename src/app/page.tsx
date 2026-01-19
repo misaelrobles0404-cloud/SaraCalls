@@ -28,7 +28,8 @@ import {
     Send,
     Home,
     HelpCircle,
-    MapPin
+    MapPin,
+    ArrowRight
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { NavBar } from "@/components/ui/tubelight-navbar";
@@ -56,7 +57,7 @@ export default function LandingPage() {
         <div className="relative min-h-screen bg-[#050505] text-white">
             <div className="fixed top-8 left-8 z-50 flex items-center gap-3">
                 <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,122,0,0.4)]">
-                    <Zap className="text-white w-6 h-6 fill-white" />
+                    <BrainCircuit className="text-white w-6 h-6" />
                 </div>
                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
@@ -253,7 +254,7 @@ export default function LandingPage() {
                         <div className="flex flex-col gap-6">
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center">
-                                    <Zap className="text-white w-6 h-6 fill-white" />
+                                    <BrainCircuit className="text-white w-6 h-6" />
                                 </div>
                                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
                             </div>
