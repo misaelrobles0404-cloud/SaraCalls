@@ -58,7 +58,7 @@ export default function LandingPage() {
                 <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,122,0,0.4)]">
                     <Zap className="text-white w-6 h-6 fill-white" />
                 </div>
-                <span className="text-2xl font-black tracking-tight uppercase">SaraCalls.<span className="neon-text-orange">ai</span></span>
+                <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
             <NavBar items={navItems} />
 
@@ -255,7 +255,7 @@ export default function LandingPage() {
                                 <div className="w-10 h-10 bg-[#FF7A00] rounded-xl flex items-center justify-center">
                                     <Zap className="text-white w-6 h-6 fill-white" />
                                 </div>
-                                <span className="text-2xl font-black tracking-tight uppercase">SaraCalls.<span className="neon-text-orange">ai</span></span>
+                                <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
                             </div>
                             <p className="text-sm text-slate-500 leading-relaxed max-w-xs font-medium">
                                 Transformando la comunicación empresarial con inteligencia artificial de voz ultra-rápida y humana.

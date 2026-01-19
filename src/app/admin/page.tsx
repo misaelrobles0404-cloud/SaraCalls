@@ -32,6 +32,8 @@ import { Doughnut } from 'react-chartjs-2';
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
+ChartJS.register(ArcElement, Tooltip, Legend);
+
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
@@ -53,7 +55,6 @@ export default function AdminDashboard() {
     const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
 
     useEffect(() => {
-        ChartJS.register(ArcElement, Tooltip, Legend);
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -130,7 +131,7 @@ export default function AdminDashboard() {
                         <Zap className="text-white w-6 h-6 fill-white" />
                     </div>
                     <div>
-                        <span className="text-xl font-black tracking-tight uppercase block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
+                        <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Business Control</span>
                     </div>
                 </div>
