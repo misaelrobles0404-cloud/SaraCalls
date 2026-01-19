@@ -319,9 +319,9 @@ export default function AdminDashboard() {
                                         <div className="relative z-10">
                                             <Zap className="mb-4 text-white opacity-80" />
                                             <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
-                                            <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Necesitas más líneas, integraciones personalizadas o un plan mayor?</p>
+                                            <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Tu negocio está creciendo? Activa más agentes, conecta tus herramientas de trabajo actuales o sube de nivel para no perder ninguna oportunidad.</p>
                                             <a
-                                                href="https://wa.me/521234567890?text=Hola,%20busco%20escalar%20mi%20plan%20en%20SaraCalls.ai"
+                                                href="https://wa.me/521234567890?text=Hola,%20mi%20negocio%20está%20creciendo%20y%20quiero%20mejorar%20mi%20plan%20de%20SaraCalls.ai"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
