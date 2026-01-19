@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --neon-orange: #FF7A00;
+    --neon-orange-glow: rgba(255, 122, 0, 0.4);
+    --neon-blue: #00F0FF;
+    --neon-blue-glow: rgba(0, 240, 255, 0.4);
+    --bg-dark: #050505;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --border-neon: rgba(255, 255, 255, 0.08);
+}
+
+body {
+    @apply bg-[#050505] text-white overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
+}
+
+.neon-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-neon);
+    border-radius: 24px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neon-card:hover {
+    border-color: var(--neon-orange);
+    box-shadow: 0 0 30px var(--neon-orange-glow);
+    transform: translateY(-8px);
+}
+
+.neon-text-orange {
+    color: var(--neon-orange);
+    text-shadow: 0 0 10px var(--neon-orange-glow), 0 0 20px var(--neon-orange-glow);
+}
+
+.neon-text-blue {
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--neon-blue-glow);
+}
+
+.btn-neon {
+    background: var(--neon-orange);
+    color: white;
+    font-weight: 900;
+    padding: 1.25rem 3rem;
+    border-radius: 16px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px var(--neon-orange-glow);
+    border: none;
+    cursor: pointer;
+}
+
+.btn-neon:hover {
+    box-shadow: 0 0 40px var(--neon-orange);
+    transform: scale(1.05);
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--neon-orange), #FFB800);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 900;
+    color: white;
+    box-shadow: 0 0 20px var(--neon-orange-glow);
+}
+
+.modal-overlay {
+    @apply fixed inset-0 bg-black/85 backdrop-blur-[10px] flex items-center justify-center z-[1000] opacity-0 invisible transition-all duration-300;
+}
+
+.modal-overlay.active {
+    @apply opacity-100 visible;
+}
+
+.modal-content {
+    @apply w-full max-w-[650px] bg-white rounded-[32px] overflow-hidden translate-y-5 transition-all duration-[400ms] text-[#1a1a1a];
+}
+
+.modal-overlay.active .modal-content {
+    @apply translate-y-0;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #FF7A00, #FFB800);
+    @apply pt-[60px] px-10 pb-10 text-center relative color-white;
+    color: white;
+}
+
+.modal-close {
+    @apply absolute top-5 right-5 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center cursor-pointer transition-all duration-200;
+}
+
+.modal-close:hover {
+    @apply bg-white/30 rotate-90;
+}
+
+.modal-body {
+    @apply p-10 max-h-[70vh] overflow-y-auto;
+}
+
+.input-field {
+    @apply p-4 rounded-xl border-2 border-[#f0f0f0] text-[15px] transition-all duration-200;
+}
+
+.input-field:focus {
+    @apply outline-none border-[#FF7A00] bg-[#fff9f5];
+}
+
+.btn-submit {
+    @apply w-full bg-[#FF7A00] text-white p-5 rounded-2xl font-black text-base uppercase tracking-widest mt-8 flex items-center justify-center gap-3 transition-all duration-300 border-none cursor-pointer;
+}
+
+.btn-submit:hover {
+    @apply bg-[#ef6b02] -translate-y-[2px] shadow-[0_10px_20px_rgba(255, 122, 0, 0.2)];
+}
+
+.cyber-grid {
+    @apply fixed inset-0 z-[-1];
+    background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+}

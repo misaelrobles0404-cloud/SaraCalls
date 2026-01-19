@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaraCalls.AI | Dashboard Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --neon-orange: #FD7202;
+            --neon-orange-glow: rgba(253, 114, 2, 0.4);
+            --bg-dark: #050505;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .neon-border {
+            box-shadow: 0 0 15px var(--neon-orange-glow);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-white/10 glass hidden lg:flex flex-col p-6 fixed h-full bg-black/20">
+        <div class="flex items-center gap-2 mb-10">
+            <div class="w-8 h-8 bg-[#FD7202] rounded flex items-center justify-center neon-border">
+                <i data-lucide="mic" class="text-white w-4 h-4"></i>
+            </div>
+            <span class="text-xl font-black tracking-tight text-white uppercase">SaraCalls.<span
+                    class="text-[#FD7202]">AI</span></span>
+        </div>
+
+        <nav class="space-y-2 flex-grow">
+            <button onclick="showTab('overview')" id="nav-overview"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5">
+                <i data-lucide="layout-dashboard" size="20"></i> Dashboard
+            </button>
+            <button onclick="showTab('calls')" id="nav-calls"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5">
+                <i data-lucide="phone" size="20"></i> Llamadas
+            </button>
+            <button onclick="showTab('leads')" id="nav-leads"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5">
+                <i data-lucide="users" size="20"></i> Leads
+            </button>
+            <button onclick="showTab('appointments')" id="nav-appointments"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5">
+                <i data-lucide="calendar" size="20"></i> Citas
+            </button>
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-white/10">
+            <button onclick="showTab('settings')" id="nav-settings"
+                class="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-gray-400 hover:bg-white/5">
+                <i data-lucide="settings" size="20"></i> Configuración
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow lg:ml-64 p-8 text-white min-h-screen">
+        <header class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-3xl font-bold">Bienvenido, Admin</h1>
+                <p class="text-gray-400 text-sm">Monitoreo de actividad en tiempo real.</p>
+            </div>
+            <div class="flex gap-4">
+                <div class="p-2 glass rounded-lg border border-white/10 relative">
+                    <i data-lucide="bell" class="text-gray-400"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-[#FD7202] rounded-full"></span>
+                </div>
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FD7202] to-orange-400 border-2 border-white/20">
+                </div>
+            </div>
+        </header>
+
+        <!-- Debug Indicator -->
+        <div
+            class="fixed top-4 right-4 z-[100] px-3 py-1 bg-white/10 backdrop-blur-md border border-white/20 rounded-full text-[10px] text-gray-400 font-mono uppercase tracking-widest pointer-events-none">
+            Active Tab: <span id="debug-tab" class="text-[#FD7202]">overview</span>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                <button onclick="showTab('calls')"
+                    class="glass p-6 rounded-2xl border border-white/10 bg-white/5 hover:border-[#FD7202]/30 hover:bg-white/10 transition-all group text-left w-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-blue-500/10 text-blue-500 rounded-xl group-hover:scale-110 transition-transform">
+                            <i data-lucide="phone-call" size="20"></i></div>
+                        <span class="text-green-500 text-xs font-bold">+12%</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-1">Total Llamadas</p>
+                    <h3 class="text-2xl font-bold">1,284</h3>
+                </button>
+                <button onclick="showTab('appointments')"
+                    class="glass p-6 rounded-2xl border border-white/10 bg-white/5 hover:border-[#FD7202]/30 hover:bg-white/10 transition-all group text-left w-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-green-500/10 text-green-500 rounded-xl group-hover:scale-110 transition-transform">
+                            <i data-lucide="calendar-check" size="20"></i></div>
+                        <span class="text-green-500 text-xs font-bold">+5%</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-1">Citas Agendadas</p>
+                    <h3 class="text-2xl font-bold">342</h3>
+                </button>
+                <button onclick="showTab('leads')"
+                    class="glass p-6 rounded-2xl border border-white/10 bg-white/5 hover:border-[#FD7202]/30 hover:bg-white/10 transition-all group text-left w-full">
+                    <div class="flex justify-between items-start mb-4">
+                        <div
+                            class="p-3 bg-purple-500/10 text-purple-500 rounded-xl group-hover:scale-110 transition-transform">
+                            <i data-lucide="user-plus" size="20"></i></div>
+                        <span class="text-gray-400 text-xs font-bold">-2%</span>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-1">Leads Nuevos</p>
+                    <h3 class="text-2xl font-bold">89</h3>
+                </button>
+                <div class="glass p-6 rounded-2xl border border-white/10 bg-white/5 text-left">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="p-3 bg-[#FD7202]/10 text-[#FD7202] rounded-xl"><i data-lucide="clock" size="20"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-400 text-sm mb-1">Ahorro Tiempo</p>
+                    <h3 class="text-2xl font-bold">120 hrs</h3>
+                </div>
+            </div>
+
+            <div class="glass rounded-3xl border border-white/10 p-6 bg-white/5">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold">Actividad Reciente</h2>
+                    <button onclick="showTab('calls')" class="text-[#FD7202] text-sm font-semibold hover:underline">Ver
+                        Todo</button>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                        <div
+                            class="w-12 h-12 rounded-full bg-[#FD7202]/20 flex items-center justify-center font-bold text-[#FD7202]">
+                            JD</div>
+                        <div class="flex-grow">
+                            <h4 class="font-semibold text-lg">Juan Delgado</h4>
+                            <p class="text-gray-400 text-sm">Servicio: Limpieza Dental • 4m 20s</p>
+                        </div>
+                        <span
+                            class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-green-500/10 text-green-400 border border-green-500/20">Cita
+                            Agendada</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALLS TAB -->
+        <div id="tab-calls" class="tab-content">
+            <div class="glass rounded-3xl border border-white/10 p-8 bg-white/5">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold">Registro de Llamadas</h2>
+                        <p class="text-gray-400 text-sm">Historial completo de interacciones.</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto">
+                        <input type="text" placeholder="Buscar cliente..."
+                            class="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm outline-none focus:border-[#FD7202] text-white">
+                        <button
+                            class="bg-white/10 px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 italic uppercase">
+                            <i data-lucide="file-text" size="16"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr
+                                class="border-b border-white/10 text-gray-400 text-xs uppercase tracking-widest font-black">
+                                <th class="py-4 px-4 leading-none">Cliente</th>
+                                <th class="py-4 px-4 leading-none">Estado</th>
+                                <th class="py-4 px-4 leading-none">Duración</th>
+                                <th class="py-4 px-4 leading-none text-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr>
+                                <td class="py-4 px-4 font-semibold">Juan Delgado</td>
+                                <td class="py-4 px-4"><span
+                                        class="px-2 py-1 bg-green-500/10 text-green-400 rounded text-[10px] font-black uppercase">Cita
+                                        Agendada</span></td>
+                                <td class="py-4 px-4 text-gray-400 text-sm">4m 20s</td>
+                                <td class="py-4 px-4 text-right">
+                                    <button
+                                        class="p-2 hover:bg-[#FD7202]/20 rounded-lg transition-colors text-gray-400 hover:text-[#FD7202]"><i
+                                            data-lucide="play" size="16"></i></button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-4 font-semibold">Maria Rodriguez</td>
+                                <td class="py-4 px-4"><span
+                                        class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-[10px] font-black uppercase">Consulta</span>
+                                </td>
+                                <td class="py-4 px-4 text-gray-400 text-sm">2m 15s</td>
+                                <td class="py-4 px-4 text-right">
+                                    <button
+                                        class="p-2 hover:bg-[#FD7202]/20 rounded-lg transition-colors text-gray-400 hover:text-[#FD7202]"><i
+                                            data-lucide="play" size="16"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEADS TAB -->
+        <div id="tab-leads" class="tab-content">
+            <div class="glass rounded-3xl border border-white/10 p-8 bg-white/5">
+                <h2 class="text-2xl font-bold mb-6">Gestión de Leads</h2>
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="p-6 rounded-2xl bg-[#FD7202]/10 border border-[#FD7202]/20">
+                        <p class="text-sm text-gray-400 mb-1">Total Leads</p>
+                        <h4 class="text-4xl font-black">2,490</h4>
+                    </div>
+                </div>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/10 text-gray-400 text-xs font-black">
+                            <th class="py-4 px-4">Nombre</th>
+                            <th class="py-4 px-4">Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-white/5">
+                            <td class="py-4 px-4">Roberto Jimenez</td>
+                            <td class="py-4 px-4 text-gray-400">+52 55 1234 5678</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- APPOINTMENTS TAB -->
+        <div id="tab-appointments" class="tab-content">
+            <div class="glass rounded-3xl border border-white/10 p-8 bg-white/5">
+                <h2 class="text-2xl font-bold mb-8">Agenda de Citas</h2>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-6 p-5 rounded-2xl bg-white/5 border border-white/5">
+                        <div class="text-lg font-black text-[#FD7202] w-24">09:00 AM</div>
+                        <div class="flex-grow">
+                            <h4 class="font-bold">Roberto Jimenez</h4>
+                            <p class="text-gray-400 text-sm">Limpieza Dental</p>
+                        </div>
+                        <span
+                            class="px-4 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-black">Confirmado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="tab-settings" class="tab-content">
+            <div class="glass rounded-3xl border border-white/10 p-8 bg-white/5 max-w-2xl">
+                <h2 class="text-2xl font-bold mb-8">Configuración</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-black uppercase text-[#FD7202] mb-2 tracking-widest">Vapi API
+                            Key</label>
+                        <input type="password" value="************************"
+                            class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#FD7202]">
+                    </div>
+                    <button
+                        class="bg-[#FD7202] px-8 py-4 rounded-xl font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-transform">Guardar
+                        Cambios</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show requested tab
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            // Update sidebar buttons
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('bg-[#FD7202]/10', 'text-[#FD7202]', 'font-semibold', 'border', 'border-[#FD7202]/20');
+                btn.classList.add('text-gray-400');
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-[#FD7202]/10', 'text-[#FD7202]', 'font-semibold', 'border', 'border-[#FD7202]/20');
+                activeBtn.classList.remove('text-gray-400');
+            }
+
+            // Update debug indicator
+            document.getElementById('debug-tab').innerText = tabId;
+
+            // Log for double confirmation
+            console.log('Navigated to:', tabId);
+        }
+
+        // Initialize icons and default tab
+        lucide.createIcons();
+        showTab('overview');
+    </script>
+</body>
+
+</html>
