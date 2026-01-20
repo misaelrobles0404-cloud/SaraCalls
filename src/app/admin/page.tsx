@@ -139,6 +139,7 @@ export default function AdminDashboard() {
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
     const totalCallsCount = loading && calls.length <= 2 ? 1284 : calls.length;
+    const hoursSaved = Math.round((totalCallsCount * 5) / 60);
     const handleLogout = () => {
         localStorage.removeItem("sara_demo_session");
         router.push("/login");
