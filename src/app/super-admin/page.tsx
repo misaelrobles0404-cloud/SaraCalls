@@ -55,7 +55,10 @@ export default function SuperAdminDashboard() {
 
                 // 1. Verificar Sesión de Super Admin
                 const { data: { session } } = await supabase.auth.getSession();
-                if (!session || session.user.email !== "misaerobles0404@gmail.com") {
+                const isAdmin = session?.user.email === "misaerobles0404@gmail.com" ||
+                    session?.user.email === "misaelrobles0404@gmail.com";
+
+                if (!session || !isAdmin) {
                     router.push("/admin");
                     return;
                 }

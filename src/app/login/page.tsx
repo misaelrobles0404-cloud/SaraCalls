@@ -17,11 +17,15 @@ export default function LoginPage() {
             const { supabase } = await import("@/lib/supabase");
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                if (session.user.email === "misaerobles0404@gmail.com") {
+                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
+                    session.user.email === "misaelrobles0404@gmail.com";
+                if (isAdmin) {
                     router.push("/super-admin");
                 } else {
                     router.push("/admin");
                 }
+            } else {
+                console.log("No hay sesión activa");
             }
         };
         checkSession();
@@ -48,7 +52,10 @@ export default function LoginPage() {
                 return;
             }
 
-            if (data.user?.email === "misaerobles0404@gmail.com") {
+            const isAdmin = data.user?.email === "misaerobles0404@gmail.com" ||
+                data.user?.email === "misaelrobles0404@gmail.com";
+
+            if (isAdmin) {
                 router.push("/super-admin");
             } else {
                 router.push("/admin");

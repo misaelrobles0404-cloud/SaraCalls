@@ -34,14 +34,18 @@ export async function middleware(req: NextRequest) {
 
     // Protección específica para Super Admin
     if (session && req.nextUrl.pathname.startsWith('/super-admin')) {
-        if (session.user.email !== "misaerobles0404@gmail.com") {
+        const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
+            session.user.email === "misaelrobles0404@gmail.com";
+        if (!isAdmin) {
             return NextResponse.redirect(new URL('/admin', req.url));
         }
     }
 
     // Si ya tiene sesión e intenta ir al login, mandarlo al lugar correcto
     if (session && req.nextUrl.pathname.startsWith('/login')) {
-        if (session.user.email === "misaerobles0404@gmail.com") {
+        const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
+            session.user.email === "misaelrobles0404@gmail.com";
+        if (isAdmin) {
             return NextResponse.redirect(new URL('/super-admin', req.url));
         }
         return NextResponse.redirect(new URL('/admin', req.url));
