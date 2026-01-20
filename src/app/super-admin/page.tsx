@@ -55,11 +55,13 @@ export default function SuperAdminDashboard() {
 
                 // 1. Verificar Sesión de Super Admin
                 const { data: { session } } = await supabase.auth.getSession();
+
                 const isAdmin = session?.user.email === "misaerobles0404@gmail.com" ||
                     session?.user.email === "misaelrobles0404@gmail.com";
 
                 if (!session || !isAdmin) {
-                    router.push("/admin");
+                    console.error("Acceso denegado: No hay sesión o no es admin");
+                    window.location.href = "/login";
                     return;
                 }
 

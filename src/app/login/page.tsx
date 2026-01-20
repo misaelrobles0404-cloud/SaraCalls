@@ -17,15 +17,14 @@ export default function LoginPage() {
             const { supabase } = await import("@/lib/supabase");
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
+                console.log("Sesión detectada para:", session.user.email);
                 const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
                     session.user.email === "misaelrobles0404@gmail.com";
                 if (isAdmin) {
-                    router.push("/super-admin");
+                    window.location.href = "/super-admin";
                 } else {
                     router.push("/admin");
                 }
-            } else {
-                console.log("No hay sesión activa");
             }
         };
         checkSession();
@@ -39,30 +38,32 @@ export default function LoginPage() {
         try {
             const { supabase } = await import("@/lib/supabase");
             const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email,
+                email: email.trim(),
                 password,
             });
 
             if (authError) {
-                if (authError.message === "Invalid login credentials") {
-                    setError("Credenciales inválidas. Revisa tu email y contraseña.");
-                } else {
-                    setError(authError.message);
-                }
+                console.error("Auth Error:", authError);
+                setError(authError.message === "Invalid login credentials"
+                    ? "Credenciales inválidas. Revisa tu email y contraseña."
+                    : authError.message);
                 return;
             }
 
-            const isAdmin = data.user?.email === "misaerobles0404@gmail.com" ||
-                data.user?.email === "misaelrobles0404@gmail.com";
+            if (data.user) {
+                const isAdmin = data.user.email === "misaerobles0404@gmail.com" ||
+                    data.user.email === "misaelrobles0404@gmail.com";
 
-            if (isAdmin) {
-                router.push("/super-admin");
-            } else {
-                router.push("/admin");
+                if (isAdmin) {
+                    console.log("Redirigiendo a Super Admin...");
+                    window.location.href = "/super-admin";
+                } else {
+                    router.push("/admin");
+                }
             }
-            router.refresh();
         } catch (err: any) {
-            setError("Ocurrió un error inesperado al intentar iniciar sesión.");
+            console.error("Catch Error:", err);
+            setError("Ocurrió un error inesperado. Revisa tu conexión.");
         } finally {
             setIsLoading(false);
         }
