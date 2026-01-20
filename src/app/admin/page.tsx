@@ -59,56 +59,85 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
 
-    useEffect(() => {
-        const checkAuth = () => {
-            const session = localStorage.getItem("sara_demo_session");
-            if (session !== "authorized") {
-                router.push("/login");
-            } else {
-                setIsAuthorized(true);
-            }
-        };
+    const [clientId, setClientId] = useState<string | null>(null);
+    const [clientName, setClientName] = useState<string>("Admin");
 
-        const fetchData = async () => {
+    useEffect(() => {
+        const checkAuthAndFetch = async () => {
             setLoading(true);
             try {
                 const { supabase } = await import("@/lib/supabase");
-                const { data: callsData } = await supabase.from('calls').select('*').order('created_at', { ascending: false });
-                const { data: leadsData } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
-                const { data: appointmentsData } = await supabase.from('appointments').select('*').order('appointment_date', { ascending: true });
 
-                if (callsData && callsData.length > 0) setCalls(callsData);
-                if (leadsData && leadsData.length > 0) setLeads(leadsData);
-                if (appointmentsData && appointmentsData.length > 0) setAppointments(appointmentsData);
-            } catch (error) {
-                console.error("Error fetching data (expected if Supabase not configured):", error);
-            } finally {
-                // Mock orders for restaurant demo - always load for visualization
-                setOrders([
-                    { id: 1, customer_name: 'Juan Pérez', items: '3x Spicy Tuna, 1x Miso', status: 'Preparando', order_number: 1024 },
-                    { id: 2, customer_name: 'Maria Garcia', items: '2x California Roll', status: 'Listo', order_number: 1025 }
+                // 1. Verificar Sesión Real
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    router.push("/login");
+                    return;
+                }
+
+                setIsAuthorized(true);
+
+                // 2. Obtener Client ID vinculado al Auth User ID
+                const { data: clientData, error: clientError } = await supabase
+                    .from('clients')
+                    .select('id, business_name, industry')
+                    .eq('auth_user_id', session.user.id)
+                    .single();
+
+                if (clientError || !clientData) {
+                    console.error("Cliente no vinculado o no encontrado:", clientError);
+                    // Si el usuario existe pero no tiene empresa vinculada, podemos mostrar un estado vacío o error
+                    setLoading(false);
+                    return;
+                }
+
+                const currentClientId = clientData.id;
+                setClientId(currentClientId);
+                setClientName(clientData.business_name);
+                if (clientData.industry) setIndustry(clientData.industry as any);
+
+                // 3. Cargar Datos Filtrados por Cliente
+                const [callsRes, leadsRes, appointmentsRes] = await Promise.all([
+                    supabase.from('calls').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
+                    supabase.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
+                    supabase.from('appointments').select('*').eq('client_id', currentClientId).order('appointment_date', { ascending: true })
                 ]);
+
+                if (callsRes.data) setCalls(callsRes.data);
+                if (leadsRes.data) setLeads(leadsRes.data);
+                if (appointmentsRes.data) setAppointments(appointmentsRes.data);
+
+                // Mock orders for restaurant demo
+                if (clientData.industry === 'restaurant') {
+                    setOrders([
+                        { id: 1, customer_name: 'Juan Pérez', items: '3x Spicy Tuna, 1x Miso', status: 'Preparando', order_number: 1024 },
+                        { id: 2, customer_name: 'Maria Garcia', items: '2x California Roll', status: 'Listo', order_number: 1025 }
+                    ]);
+                }
+
+                // 4. Suscripción Realtime Filtrada (Canal por Cliente)
+                const channelId = `client_data_${currentClientId}`;
+                const subscription = supabase
+                    .channel(channelId)
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'calls',
+                        filter: `client_id=eq.${currentClientId}`
+                    }, payload => {
+                        setCalls(prev => [payload.new, ...prev.filter((c: any) => c.id !== (payload.new as any).id)].slice(0, 10));
+                    })
+                    .subscribe();
+
+                return subscription;
+            } catch (error) {
+                console.error("Error crítico en Dashboard:", error);
+            } finally {
                 setLoading(false);
             }
         };
 
-        checkAuth();
-        fetchData();
-
-        // Subscribe to real-time changes
-        const setupSubscription = async () => {
-            const { supabase } = await import("@/lib/supabase");
-            const callsSubscription = supabase
-                .channel('public:calls')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, payload => {
-                    setCalls(prev => [payload.new, ...prev.filter((c: any) => c.id !== (payload.new as any).id)].slice(0, 10));
-                })
-                .subscribe();
-
-            return callsSubscription;
-        };
-
-        const subscriptionPromise = setupSubscription();
+        const subscriptionPromise = checkAuthAndFetch();
 
         return () => {
             subscriptionPromise.then(sub => {
@@ -120,6 +149,12 @@ export default function AdminDashboard() {
             });
         };
     }, [router]);
+
+    const handleLogout = async () => {
+        const { supabase } = await import("@/lib/supabase");
+        await supabase.auth.signOut();
+        router.push("/login");
+    };
 
     const chartData = {
         datasets: [{
@@ -138,14 +173,10 @@ export default function AdminDashboard() {
     };
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
-    const totalCallsCount = loading && calls.length <= 2 ? 1284 : calls.length;
+    const totalCallsCount = loading ? 0 : calls.length;
     const hoursSaved = Math.round((totalCallsCount * 5) / 60);
-    const handleLogout = () => {
-        localStorage.removeItem("sara_demo_session");
-        router.push("/login");
-    };
 
-    if (!isAuthorized) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div></div>;
+    if (!isAuthorized && !loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div></div>;
 
     return (
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
@@ -215,8 +246,8 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="hidden md:block text-right">
-                            <p className="text-sm font-bold">Admin Demo</p>
-                            <p className="text-[10px] text-[#FD7202] font-black uppercase">Role: Owner</p>
+                            <p className="text-sm font-bold">{clientName}</p>
+                            <p className="text-[10px] text-[#FD7202] font-black uppercase">Role: Cliente Enterprise</p>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FD7202] to-orange-400 p-0.5 shadow-[0_0_20px_rgba(253,114,2,0.3)]">
                             <div className="w-full h-full rounded-[14px] bg-black flex items-center justify-center overflow-hidden">
