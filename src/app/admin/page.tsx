@@ -76,7 +76,10 @@ export default function AdminDashboard() {
                 }
 
                 // Si es el Super Admin, mandarlo a su panel central
-                if (session.user.email === "misaerobles0404@gmail.com") {
+                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
+                    session.user.email === "misaelrobles0404@gmail.com";
+
+                if (isAdmin) {
                     router.push("/super-admin");
                     return;
                 }
