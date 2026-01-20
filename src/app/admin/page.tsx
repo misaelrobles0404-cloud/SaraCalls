@@ -32,12 +32,16 @@ import {
 import { Doughnut } from 'react-chartjs-2';
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
+    const router = useRouter();
+    const [isAuthorized, setIsAuthorized] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings'>('overview');
     const [isPlaying, setIsPlaying] = useState<number | null>(null);
     const [calls, setCalls] = useState<any[]>([
@@ -56,6 +60,15 @@ export default function AdminDashboard() {
     const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
 
     useEffect(() => {
+        const checkAuth = () => {
+            const session = localStorage.getItem("sara_demo_session");
+            if (session !== "authorized") {
+                router.push("/login");
+            } else {
+                setIsAuthorized(true);
+            }
+        };
+
         const fetchData = async () => {
             setLoading(true);
             try {
@@ -79,6 +92,7 @@ export default function AdminDashboard() {
             }
         };
 
+        checkAuth();
         fetchData();
 
         // Subscribe to real-time changes
@@ -105,7 +119,7 @@ export default function AdminDashboard() {
                 }
             });
         };
-    }, []);
+    }, [router]);
 
     const chartData = {
         datasets: [{
@@ -125,7 +139,12 @@ export default function AdminDashboard() {
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
     const totalCallsCount = loading && calls.length <= 2 ? 1284 : calls.length;
-    const hoursSaved = Math.round((totalCallsCount * 5) / 60);
+    const handleLogout = () => {
+        localStorage.removeItem("sara_demo_session");
+        router.push("/login");
+    };
+
+    if (!isAuthorized) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div></div>;
 
     return (
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
@@ -509,6 +528,12 @@ export default function AdminDashboard() {
                             <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
                             <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
                         </div>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
+                        >
+                            <LogOut size={12} /> Salir
+                        </button>
                     </div>
                 </footer>
             </main>
