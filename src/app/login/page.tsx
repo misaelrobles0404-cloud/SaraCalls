@@ -17,7 +17,11 @@ export default function LoginPage() {
             const { supabase } = await import("@/lib/supabase");
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                router.push("/admin");
+                if (session.user.email === "misaerobles0404@gmail.com") {
+                    router.push("/super-admin");
+                } else {
+                    router.push("/admin");
+                }
             }
         };
         checkSession();
@@ -30,7 +34,7 @@ export default function LoginPage() {
 
         try {
             const { supabase } = await import("@/lib/supabase");
-            const { error: authError } = await supabase.auth.signInWithPassword({
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
@@ -44,7 +48,11 @@ export default function LoginPage() {
                 return;
             }
 
-            router.push("/admin");
+            if (data.user?.email === "misaerobles0404@gmail.com") {
+                router.push("/super-admin");
+            } else {
+                router.push("/admin");
+            }
             router.refresh();
         } catch (err: any) {
             setError("Ocurrió un error inesperado al intentar iniciar sesión.");

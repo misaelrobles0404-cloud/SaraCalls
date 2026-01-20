@@ -75,6 +75,12 @@ export default function AdminDashboard() {
                     return;
                 }
 
+                // Si es el Super Admin, mandarlo a su panel central
+                if (session.user.email === "misaerobles0404@gmail.com") {
+                    router.push("/super-admin");
+                    return;
+                }
+
                 setIsAuthorized(true);
 
                 // 2. Obtener Client ID vinculado al Auth User ID
@@ -212,21 +218,14 @@ export default function AdminDashboard() {
 
                 <div className="mt-auto pt-6 border-t border-white/10 space-y-1">
                     <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest px-4 mb-2">Sistema</p>
+                    {/* El botón de configuración técnica ha sido movido al Super Admin Panel */}
+
                     <button
-                        onClick={() => setActiveTab('settings')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${activeTab === 'settings' ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20' : 'hover:bg-white/5 text-gray-400'}`}
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all text-sm font-bold"
                     >
-                        <Settings size={18} /> Configuración
+                        <LogOut size={18} /> Cerrar Sesión
                     </button>
-
-
-                    <div className="bg-white/5 rounded-2xl p-4 mt-6 border border-white/5">
-                        <p className="text-xs text-gray-400 mb-2">Plan Enterprise</p>
-                        <div className="w-full h-1.5 bg-white/10 rounded-full mb-2">
-                            <div className="w-[75%] h-full bg-[#FD7202] rounded-full"></div>
-                        </div>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase">7,500 / 10,000 mins</p>
-                    </div>
                 </div>
             </aside>
 
