@@ -53,15 +53,20 @@ export default function SuperAdminDashboard() {
             try {
                 const { supabase } = await import("@/lib/supabase");
 
-                // 1. Verificar Sesión de Super Admin
+                // 1. Verificar Sesión
                 const { data: { session } } = await supabase.auth.getSession();
 
-                const isAdmin = session?.user.email === "misaerobles0404@gmail.com" ||
-                    session?.user.email === "misaelrobles0404@gmail.com";
+                if (!session) {
+                    console.log("Sesión no detectada aún. Esperando...");
+                    return;
+                }
 
-                if (!session || !isAdmin) {
-                    console.error("Acceso denegado: No hay sesión o no es admin");
-                    window.location.href = "/login";
+                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
+                    session.user.email === "misaelrobles0404@gmail.com";
+
+                if (!isAdmin) {
+                    console.error("Acceso denegado: No es administrador");
+                    window.location.href = "/admin";
                     return;
                 }
 

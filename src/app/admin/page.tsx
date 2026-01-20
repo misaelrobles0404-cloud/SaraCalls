@@ -68,19 +68,19 @@ export default function AdminDashboard() {
             try {
                 const { supabase } = await import("@/lib/supabase");
 
-                // 1. Verificar Sesión Real
+                // 1. Verificar Sesión
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) {
-                    router.push("/login");
+                    // El Middleware protege esta ruta. Si no hay sesión, simplemente no cargamos.
                     return;
                 }
 
-                // Si es el Super Admin, mandarlo a su panel central
+                // Si es el Super Admin, mandarlo a su panel central de forma infalible
                 const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
                     session.user.email === "misaelrobles0404@gmail.com";
 
                 if (isAdmin) {
-                    router.push("/super-admin");
+                    window.location.href = "/super-admin";
                     return;
                 }
 
