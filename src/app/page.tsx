@@ -60,7 +60,7 @@ export default function LandingPage() {
                 <span className="text-lg font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
 
-            <div className="fixed top-6 right-8 z-50 flex items-center gap-3">
+            <div className="fixed top-6 right-8 z-50 flex items-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/5 py-1.5 px-4 rounded-xl shadow-2xl transition-all hover:bg-white/[0.05]">
                 <Link
                     href="/login"
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300"

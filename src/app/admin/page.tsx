@@ -287,8 +287,8 @@ export default function AdminDashboard() {
                                         onClick={() => setActiveTab(stat.tab as any)}
                                         className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5 hover:ring-[#FD7202]/30"
                                     >
-                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-${stat.color}-500/10 flex items-center justify-center mb-6 border border-${stat.color}-500/20 group-hover:scale-110 transition-transform duration-500`}>
-                                            <stat.icon size={20} className={`text-${stat.color}-400 lg:text-${stat.color}-400 group-hover:neon-text-${stat.color}`} />
+                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-${stat.color}-500/10 flex items-center justify-center mb-6 border border-${stat.color}-500/20 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.2)] hover:border-${stat.color}-500/40`}>
+                                            <stat.icon size={20} className={`text-${stat.color}-400 lg:text-${stat.color}-400 group-hover:neon-text-${stat.color} transition-all duration-300`} />
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
