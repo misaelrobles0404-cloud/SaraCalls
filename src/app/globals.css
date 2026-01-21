@@ -48,6 +48,16 @@ body {
     text-shadow: 0 0 15px var(--neon-blue-glow);
 }
 
+.neon-text-green {
+    color: #22C55E;
+    text-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+}
+
+.neon-text-purple {
+    color: #A855F7;
+    text-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
 .btn-neon {
     background: var(--neon-orange);
     color: white;
