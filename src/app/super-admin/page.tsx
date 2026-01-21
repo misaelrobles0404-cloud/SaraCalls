@@ -197,10 +197,11 @@ export default function SuperAdminDashboard() {
                                     { label: 'Leads Capturados', value: globalStats.totalLeads, icon: UserPlus, color: 'green' },
                                     { label: 'Clientes Activos', value: globalStats.activeClients, icon: Zap, color: 'purple' }
                                 ].map((stat, i) => (
-                                    <div key={i} className="glass p-6 rounded-[32px] border border-white/5 bg-white/[0.03]">
-                                        <stat.icon className={`text-${stat.color}-400 mb-4`} size={24} />
+                                    <div key={i} className="group relative p-8 rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 hover:ring-1 hover:ring-[#FD7202]/30 overflow-hidden">
+                                        <stat.icon className={`text-${stat.color}-400 mb-6 group-hover:scale-110 transition-transform duration-500`} size={28} />
                                         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{stat.label}</p>
-                                        <h3 className="text-3xl font-black mt-1">{stat.value}</h3>
+                                        <h3 className="text-3xl font-black mt-2 italic tabular-nums">{stat.value}</h3>
+                                        <div className="absolute top-0 right-0 w-20 h-20 bg-[#FD7202]/5 blur-[30px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-[#FD7202]/10 transition-all"></div>
                                     </div>
                                 ))}
                             </div>
@@ -254,17 +255,22 @@ export default function SuperAdminDashboard() {
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
                                         {clients.map((client, idx) => (
-                                            <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                                <td className="py-5 px-4">
-                                                    <div className="font-bold text-white uppercase tracking-tight">{client.business_name}</div>
-                                                    <div className="text-[9px] text-gray-500 uppercase font-black tracking-[0.2em]">{client.client_id.slice(0, 8)}...</div>
+                                            <tr key={idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
+                                                <td className="py-6 px-4">
+                                                    <div className="font-bold text-white uppercase tracking-tight text-lg group-hover:text-[#FD7202] transition-colors">{client.business_name}</div>
+                                                    <div className="text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em]">{client.client_id.slice(0, 8)}...</div>
                                                 </td>
-                                                <td className="py-5 px-4 font-black text-[#FD7202]">{client.total_calls}</td>
-                                                <td className="py-5 px-4 text-xs text-gray-400 font-bold uppercase">
+                                                <td className="py-6 px-4">
+                                                    <span className="font-black text-xl text-[#FD7202] tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.2)]">{client.total_calls}</span>
+                                                    <span className="text-[10px] text-gray-500 ml-2 font-bold uppercase">Llamadas</span>
+                                                </td>
+                                                <td className="py-6 px-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                                     {client.last_call ? new Date(client.last_call).toLocaleDateString() : 'Sin actividad'}
                                                 </td>
-                                                <td className="py-5 px-4">
-                                                    <button className="p-2 hover:bg-[#FD7202]/10 rounded-lg text-gray-500 hover:text-white transition-all"><Eye size={16} /></button>
+                                                <td className="py-5 px-4 text-right">
+                                                    <button className="px-4 py-2 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2">
+                                                        <Eye size={14} /> Gestionar
+                                                    </button>
                                                 </td>
                                             </tr>
                                         ))}

@@ -241,8 +241,8 @@ export default function AdminDashboard() {
                         <div>
                             <h1 className="text-xl lg:text-2xl font-black uppercase italic tracking-tight">Panel de Control</h1>
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Sistema Operativo • Sara Online</p>
+                                <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse"></span>
+                                <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Sistema Operativo • <span className="text-green-500/80">Sara Online</span></p>
                             </div>
                         </div>
                     </div>
@@ -319,9 +319,9 @@ export default function AdminDashboard() {
                                         ) : calls.length === 0 ? (
                                             <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
                                         ) : calls.slice(0, 3).map((call, idx) => (
-                                            <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 transition-all">
-                                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-[#FD7202]/40 transition-all">
-                                                    <Mic size={20} className="text-gray-500 group-hover:text-[#FD7202]" />
+                                            <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] hover:shadow-[0_0_30px_rgba(253,114,2,0.05)] transition-all duration-500">
+                                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-[#FD7202]/40 transition-all duration-500">
+                                                    <Mic size={20} className="text-gray-500 group-hover:text-[#FD7202] group-hover:scale-110 transition-all" />
                                                 </div>
                                                 <div className="flex-grow">
                                                     <div className="flex items-center gap-3 mb-1">
@@ -416,16 +416,16 @@ export default function AdminDashboard() {
                                         ) : calls.length === 0 ? (
                                             <tr><td colSpan={4} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay registros de llamadas</td></tr>
                                         ) : calls.map((call, idx) => (
-                                            <tr key={call.id || idx} className="hover:bg-white/5 transition-colors group">
-                                                <td className="py-4 px-4 font-semibold">{call.customer_name || 'Desconocido'}</td>
-                                                <td className="py-4 px-4">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${call.sentiment === 'Positivo' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'} border border-white/5`}>
+                                            <tr key={call.id || idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202] relative overflow-hidden">
+                                                <td className="py-5 px-4 font-semibold text-gray-200 group-hover:text-white transition-colors">{call.customer_name || 'Desconocido'}</td>
+                                                <td className="py-5 px-4">
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${call.sentiment === 'Positivo' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-500/10 text-gray-400 border-white/10'} border`}>
                                                         {call.sentiment || 'Procesada'}
                                                     </span>
                                                 </td>
-                                                <td className="py-4 px-4 text-gray-400">{call.duration}</td>
-                                                <td className="py-4 px-4">
-                                                    <button className="p-2 hover:bg-[#FD7202]/20 rounded-lg text-gray-400 hover:text-[#FD7202]"><Play size={16} /></button>
+                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300">{call.duration}</td>
+                                                <td className="py-5 px-4">
+                                                    <button className="p-2.5 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all transform group-hover:scale-110"><Play size={16} fill="currentColor" /></button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -457,10 +457,10 @@ export default function AdminDashboard() {
                                         ) : leads.length === 0 ? (
                                             <tr><td colSpan={3} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay leads registrados</td></tr>
                                         ) : leads.map((lead, idx) => (
-                                            <tr key={lead.id || idx} className="hover:bg-white/5 transition-colors">
-                                                <td className="py-4 px-4 font-semibold">{lead.name}</td>
-                                                <td className="py-4 px-4 text-gray-400">{lead.phone}</td>
-                                                <td className="py-4 px-4 text-gray-400">{new Date(lead.created_at).toLocaleDateString()}</td>
+                                            <tr key={lead.id || idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
+                                                <td className="py-5 px-4 font-semibold text-gray-200 group-hover:text-white transition-colors">{lead.name}</td>
+                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300">{lead.phone}</td>
+                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300 font-mono text-xs">{new Date(lead.created_at).toLocaleDateString()}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -482,15 +482,15 @@ export default function AdminDashboard() {
                                 ) : appointments.length === 0 ? (
                                     <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay citas programadas</p>
                                 ) : appointments.map((appt, idx) => (
-                                    <div key={appt.id || idx} className="flex items-center gap-6 p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-[#FD7202]/30 transition-all">
-                                        <div className="text-lg font-black text-[#FD7202] w-24">
+                                    <div key={appt.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] transition-all duration-500 cursor-pointer">
+                                        <div className="text-xl font-black text-[#FD7202] w-24 tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.3)]">
                                             {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                         <div className="flex-grow">
-                                            <h4 className="font-bold text-white">{appt.customer_name}</h4>
-                                            <p className="text-gray-400 text-sm">{appt.service}</p>
+                                            <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{appt.customer_name}</h4>
+                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{appt.service || 'Consulta General'}</p>
                                         </div>
-                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase border ${appt.status === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'}`}>
+                                        <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${appt.status === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20' : 'bg-[#FD7202]/10 text-[#FD7202] border-[#FD7202]/20 group-hover:bg-[#FD7202]/20'}`}>
                                             {appt.status}
                                         </div>
                                     </div>
@@ -512,13 +512,13 @@ export default function AdminDashboard() {
                                 ) : orders.length === 0 ? (
                                     <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay pedidos pendientes</p>
                                 ) : orders.map((order: any, idx: number) => (
-                                    <div key={order.id || idx} className="flex items-center gap-6 p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all">
-                                        <div className="text-lg font-black text-blue-500 w-24">#{order.order_number || idx + 100}</div>
+                                    <div key={order.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-blue-500/30 hover:bg-blue-500/[0.02] transition-all duration-500 cursor-pointer">
+                                        <div className="text-xl font-black text-blue-500 w-24 tabular-nums drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">#{order.order_number || idx + 100}</div>
                                         <div className="flex-grow">
-                                            <h4 className="font-bold text-white">{order.customer_name}</h4>
-                                            <p className="text-gray-400 text-sm">{order.items || '2x California Roll, 1x Miso Soup'}</p>
+                                            <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{order.customer_name}</h4>
+                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{order.items || '2x California Roll, 1x Miso Soup'}</p>
                                         </div>
-                                        <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase border ${order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+                                        <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20'}`}>
                                             {order.status || 'Recibido'}
                                         </div>
                                     </div>
