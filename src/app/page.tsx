@@ -143,7 +143,7 @@ export default function LandingPage() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
-                                <Scissors className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6" />
+                                <Scissors className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
                                 <h3 className="text-xl font-black uppercase italic">Barberías</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Agendamiento de cortes y servicios 24/7 sin interrupciones. No pierdas más citas mientras trabajas.</p>
@@ -152,11 +152,10 @@ export default function LandingPage() {
                                 <li className="flex items-center gap-2 transition-colors group-hover:text-slate-300"><Check className="w-4 h-4 text-orange-500" /> Recordatorios SMS automáticos</li>
                             </ul>
                         </div>
-                        {/* Restaurantes: Reservaciones */}
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
-                                <Calendar className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic text-white">Restaurantes: Reservaciones</h3>
+                                <Calendar className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
+                                <h3 className="text-xl font-black uppercase italic">Restaurantes: Reservaciones</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Gestión de mesas y horarios en tiempo real. Deja que Sara confirme disponibilidad y asigne lugares sin interrumpir el servicio.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
@@ -164,11 +163,10 @@ export default function LandingPage() {
                                 <li className="flex items-center gap-2 transition-colors group-hover:text-slate-300"><Check className="w-4 h-4 text-orange-500" /> Control de capacidad máxima</li>
                             </ul>
                         </div>
-                        {/* Restaurantes: Pedidos */}
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
-                                <Utensils className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic text-white">Restaurantes: Pedidos</h3>
+                                <Utensils className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
+                                <h3 className="text-xl font-black uppercase italic">Restaurantes: Pedidos</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Toma de órdenes para llevar o delivery vía telefónica. Sara registra el pedido y lo envía directamente a tu cocina.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
@@ -179,7 +177,7 @@ export default function LandingPage() {
                         {/* Clínicas */}
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
-                                <Stethoscope className="w-10 h-10 transition-transform group-hover:scale-110 group-hover:rotate-6" />
+                                <Stethoscope className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
                                 <h3 className="text-xl font-black uppercase italic">Clínicas</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Seguimiento profesional de pacientes y agendamiento de consultas médicas con total precisión.</p>
@@ -202,19 +200,19 @@ export default function LandingPage() {
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
                         <div className="hidden lg:block absolute top-[100px] left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-orange-500/20 to-transparent -z-10"></div>
                         {[{ num: 1, icon: UserPlus, title: "Alta de Empresa", desc: "Nosotros registramos tu empresa y activamos tu número exclusivo de IA.", color: "orange" },
-                        { num: 2, icon: Workflow, title: "Entrenamiento", desc: "Te ayudamos a entrenar a Sara con tus servicios y horarios específicos.", color: "blue" },
+                        { num: 2, icon: Workflow, title: "Entrenamiento", desc: "Te ayudamos a entrenar a Sara con tus servicios y horarios específicos.", color: "orange" },
                         { num: 3, icon: Layers, title: "Integración", desc: "Vinculamos a Sara con tu calendario o CRM para sincronización total.", color: "orange" },
-                        { num: 4, icon: Rocket, title: "Despliegue", desc: "¡Todo listo! Lanzamos tu asistente y empieza a capturar oportunidades 24/7 sin que muevas un dedo.", color: "green" }
+                        { num: 4, icon: Rocket, title: "Despliegue", desc: "¡Todo listo! Lanzamos tu asistente y empieza a capturar oportunidades 24/7 sin que muevas un dedo.", color: "orange" }
                         ].map((step, i) => (
                             <div key={i} className="neon-card p-10 group transition-all duration-500 hover:border-orange-500/40">
                                 <div className="step-number mb-8 group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(253,114,2,0.6)] transition-all duration-300">{step.num}</div>
                                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center border mb-6 transition-all duration-300 group-hover:scale-110 group-hover:bg-orange-500/20 ${step.color === 'orange' ? 'bg-orange-500/10 border-orange-500/30' :
-                                        step.color === 'blue' ? 'bg-blue-500/10 border-blue-500/30' :
-                                            'bg-green-500/10 border-green-500/30'
+                                    step.color === 'blue' ? 'bg-blue-500/10 border-blue-500/30' :
+                                        'bg-green-500/10 border-green-500/30'
                                     }`}>
                                     <step.icon className={`w-6 h-6 transition-colors duration-300 ${step.color === 'orange' ? 'text-orange-400 group-hover:text-orange-300' :
-                                            step.color === 'blue' ? 'text-blue-400 group-hover:text-orange-300' :
-                                                'text-green-400 group-hover:text-orange-300'
+                                        step.color === 'blue' ? 'text-blue-400 group-hover:text-orange-300' :
+                                            'text-green-400 group-hover:text-orange-300'
                                         }`} />
                                 </div>
                                 <h3 className="text-xl font-bold uppercase mb-4 italic transition-colors duration-300 group-hover:text-orange-400">{step.title}</h3>
@@ -229,7 +227,7 @@ export default function LandingPage() {
             <section id="how-it-works-concept" className="py-32 bg-white/[0.02]">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="text-center mb-20">
-                        <h2 className="text-5xl lg:text-7xl font-black uppercase italic mb-6">¿Cómo <span className="neon-text-blue">Funciona</span>?</h2>
+                        <h2 className="text-5xl lg:text-7xl font-black uppercase italic mb-6">¿Cómo <span className="neon-text-orange">Funciona</span>?</h2>
                         <p className="text-xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
                             SaraCalls.AI es un **ecosistema de automatización inteligente** que integra los motores de voz más avanzados con la lógica real de tu negocio.
                         </p>
