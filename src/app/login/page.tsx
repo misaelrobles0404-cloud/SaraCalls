@@ -14,22 +14,9 @@ export default function LoginPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const checkSession = async () => {
-            const { supabase } = await import("@/lib/supabase");
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                console.log("Sesión detectada para:", session.user.email);
-                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
-                    session.user.email === "misaelrobles0404@gmail.com";
-                if (isAdmin) {
-                    window.location.href = "/super-admin";
-                } else {
-                    router.push("/admin");
-                }
-            }
-        };
-        checkSession();
-    }, [router]);
+        // Auto-redirect disabled to allow viewing the Login page as requested.
+        // Session check removed from mount.
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,6 +31,13 @@ export default function LoginPage() {
             });
 
             if (authError) {
+                // Bypass para usuario DEMO solicitado
+                if (email.trim() === "demo@saracalls.ai" && password === "demo2026") {
+                    console.log("Acceso concedido vía Credenciales Demo");
+                    router.push("/admin");
+                    return;
+                }
+
                 console.error("Auth Error:", authError);
                 setError(authError.message === "Invalid login credentials"
                     ? "Credenciales inválidas. Revisa tu email y contraseña."
