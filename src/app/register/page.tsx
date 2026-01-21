@@ -14,7 +14,8 @@ import {
     Users,
     ArrowRight,
     Loader2,
-    CheckCircle2
+    CheckCircle2,
+    MessageSquare
 } from "lucide-react";
 
 
@@ -105,6 +106,19 @@ export default function RegisterPage() {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                <MessageSquare size={12} className="text-[#FD7202]" /> Mensaje (opcional)
+                            </label>
+                            <div className="relative group">
+                                <textarea
+                                    rows={3}
+                                    placeholder="Cuéntanos un poco más sobre lo que buscas..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07] resize-none"
+                                />
+                            </div>
                         </div>
 
                         <button

@@ -37,7 +37,6 @@ import Link from "next/link";
 import { Instagram, Facebook } from "lucide-react";
 
 export default function LandingPage() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeLegalModal, setActiveLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
     useEffect(() => {
@@ -55,9 +54,6 @@ export default function LandingPage() {
         { name: 'Lanzamiento', url: '#how-it-works', icon: Rocket },
         { name: 'Cómo Funciona', url: '#how-it-works-concept', icon: HelpCircle }
     ];
-
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
 
     const openLegalModal = (type: 'terms' | 'privacy') => setActiveLegalModal(type);
     const closeLegalModal = () => setActiveLegalModal(null);
@@ -108,7 +104,7 @@ export default function LandingPage() {
                             Atención automatizada ultra-humana. Sara agenda, califica y cierra oportunidades mientras tú te enfocas en liderar.
                         </p>
                         <div className="flex gap-6">
-                            <button onClick={openModal} className="btn-neon">Empezar Ahora</button>
+                            <Link href="/register" className="btn-neon">Empezar Ahora</Link>
                             <button className="px-8 py-4 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-xs">Ver Demo</button>
                         </div>
                     </motion.div>
@@ -449,51 +445,7 @@ export default function LandingPage() {
                 )
             }
 
-            {/* Demo Request Modal */}
-            <div className={`modal-overlay ${isModalOpen ? 'active' : ''}`} onClick={(e) => e.target === e.currentTarget && closeModal()}>
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <div className="modal-close" onClick={closeModal}>
-                            <X className="w-6 h-6" />
-                        </div>
-                        <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <PhoneCall className="w-8 h-8 text-white" />
-                        </div>
-                        <h2 className="text-4xl font-black uppercase italic mb-2">Agenda tu Demo Gratis</h2>
-                        <p className="text-white/80 font-medium">Te contactamos en menos de 24 horas</p>
-                    </div>
-                    <div className="modal-body">
-                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('¡Solicitud enviada!'); closeModal(); }}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {[
-                                    { label: 'Nombre *', icon: User, placeholder: 'Tu nombre completo', type: 'text', required: true },
-                                    { label: 'Email *', icon: Mail, placeholder: 'tu@empresa.com', type: 'email', required: true },
-                                    { label: 'Teléfono *', icon: Phone, placeholder: '+52...', type: 'tel', required: true },
-                                    { label: 'Empresa', icon: Building2, placeholder: 'Nombre...', type: 'text' },
-                                    { label: 'Industria', icon: Briefcase, placeholder: 'Restaurante...', type: 'text' },
-                                    { label: 'Empleados', icon: Users, placeholder: '5, 10...', type: 'text' }
-                                ].map((field, i) => (
-                                    <div key={i} className="flex flex-col gap-2">
-                                        <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
-                                            <field.icon className="w-4 h-4" /> {field.label}
-                                        </label>
-                                        <input type={field.type} placeholder={field.placeholder} className="input-field" required={field.required} />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="flex items-center gap-2 text-sm font-bold text-[#FF7A00] uppercase tracking-wider">
-                                    <MessageSquare className="w-4 h-4" /> Mensaje (opcional)
-                                </label>
-                                <textarea rows={3} placeholder="Cuéntanos..." className="input-field resize-none"></textarea>
-                            </div>
-                            <button type="submit" className="btn-submit">
-                                <Send className="w-5 h-5" /> Solicitar Demo Gratis
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+
         </div>
     );
 }
