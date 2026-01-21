@@ -140,7 +140,7 @@ export default function LandingPage() {
                         <h2 className="text-4xl lg:text-6xl font-black uppercase italic mb-6">Sectores <span className="neon-text-orange">Especializados</span></h2>
                         <p className="text-slate-400 font-medium">Soluciones diseñadas para las necesidades críticas de cada industria.</p>
                     </div>
-                    <div className="grid md:grid-cols-3 gap-10">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                         {/* Barberías */}
                         <div className="neon-card p-10 transition-all hover:scale-[1.02]">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
@@ -153,16 +153,28 @@ export default function LandingPage() {
                                 <li className="flex items-center gap-2"><Check className="w-4 h-4 text-orange-500" /> Recordatorios SMS automáticos</li>
                             </ul>
                         </div>
-                        {/* Restaurantes */}
+                        {/* Restaurantes: Reservaciones */}
                         <div className="neon-card p-10 transition-all hover:scale-[1.02] border-[#00F0FF]/30">
                             <div className="flex items-center gap-4 mb-6 text-blue-500">
-                                <Utensils className="w-10 h-10 text-blue-400" />
-                                <h3 className="text-xl font-black uppercase italic text-white">Restaurantes</h3>
+                                <Calendar className="w-10 h-10 text-blue-400" />
+                                <h3 className="text-xl font-black uppercase italic text-white">Restaurantes: Reservaciones</h3>
                             </div>
-                            <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Gestión de reservaciones y mesas en horas pico de forma automática. Optimiza el flujo de tu local.</p>
+                            <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Gestión de mesas y horarios en tiempo real. Deja que Sara confirme disponibilidad y asigne lugares sin interrumpir el servicio.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
-                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-400" /> Control de mesas y horarios</li>
-                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-400" /> Atención simultánea ilimitada</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-400" /> Confirmación inmediata</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-blue-400" /> Control de capacidad máxima</li>
+                            </ul>
+                        </div>
+                        {/* Restaurantes: Pedidos */}
+                        <div className="neon-card p-10 transition-all hover:scale-[1.02] border-orange-500/30">
+                            <div className="flex items-center gap-4 mb-6 text-orange-500">
+                                <Utensils className="w-10 h-10 text-orange-400" />
+                                <h3 className="text-xl font-black uppercase italic text-white">Restaurantes: Pedidos</h3>
+                            </div>
+                            <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Toma de órdenes para llevar o delivery vía telefónica. Sara registra el pedido y lo envía directamente a tu cocina.</p>
+                            <ul className="space-y-3 text-xs text-slate-500">
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-orange-400" /> Toma de pedidos sin errores</li>
+                                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-orange-400" /> Integración con sistema de cocina</li>
                             </ul>
                         </div>
                         {/* Clínicas */}
@@ -197,8 +209,14 @@ export default function LandingPage() {
                         ].map((step, i) => (
                             <div key={i} className="neon-card p-10 group">
                                 <div className="step-number mb-8 group-hover:scale-110 transition-transform">{step.num}</div>
-                                <div className={`w-12 h-12 rounded-xl bg-${step.color}-500/10 flex items-center justify-center border border-${step.color}-500/30 mb-6`}>
-                                    <step.icon className={`w-6 h-6 text-${step.color}-400`} />
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center border mb-6 ${step.color === 'orange' ? 'bg-orange-500/10 border-orange-500/30' :
+                                    step.color === 'blue' ? 'bg-blue-500/10 border-blue-500/30' :
+                                        'bg-green-500/10 border-green-500/30'
+                                    }`}>
+                                    <step.icon className={`w-6 h-6 ${step.color === 'orange' ? 'text-orange-400' :
+                                        step.color === 'blue' ? 'text-blue-400' :
+                                            'text-green-400'
+                                        }`} />
                                 </div>
                                 <h3 className="text-xl font-bold uppercase mb-4 italic">{step.title}</h3>
                                 <div className="text-sm text-slate-500 leading-relaxed">{step.desc}</div>
