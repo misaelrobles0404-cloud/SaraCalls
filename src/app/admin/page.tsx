@@ -354,7 +354,7 @@ export default function AdminDashboard() {
                                         <div className="relative w-48 h-48 mb-6">
                                             <Doughnut data={chartData} options={chartOptions} />
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-5xl font-black italic">84%</span>
+                                                <span className="text-5xl font-black italic neon-text-orange animate-pulse">84%</span>
                                                 <span className="text-[10px] font-black text-[#FD7202] uppercase tracking-[0.2em] mt-1">Eficiencia Operativa</span>
                                             </div>
                                         </div>
