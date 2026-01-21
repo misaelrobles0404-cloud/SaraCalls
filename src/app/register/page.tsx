@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
     BotMessageSquare,
     User,
@@ -15,7 +16,7 @@ import {
     Loader2,
     CheckCircle2
 } from "lucide-react";
-import Link from "next/link";
+
 
 export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);

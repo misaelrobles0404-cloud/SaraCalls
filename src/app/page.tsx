@@ -40,6 +40,10 @@ export default function LandingPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeLegalModal, setActiveLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const navItems = [
         { name: 'Tecnología', url: '#features', icon: Zap },
         { name: 'Industrias', url: '#industries', icon: Building2 },
