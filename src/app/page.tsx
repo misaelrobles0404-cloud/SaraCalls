@@ -144,7 +144,7 @@ export default function LandingPage() {
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
                                 <Scissors className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic">Barberías</h3>
+                                <h3 className="text-lg font-black uppercase italic">Barberías</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Agendamiento de cortes y servicios 24/7 sin interrupciones. No pierdas más citas mientras trabajas.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
@@ -155,7 +155,7 @@ export default function LandingPage() {
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
                                 <Calendar className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic">Restaurantes: Reservaciones</h3>
+                                <h3 className="text-lg font-black uppercase italic">Restaurantes: Reservaciones</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Gestión de mesas y horarios en tiempo real. Deja que Sara confirme disponibilidad y asigne lugares sin interrumpir el servicio.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
@@ -166,7 +166,7 @@ export default function LandingPage() {
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
                                 <Utensils className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic">Restaurantes: Pedidos</h3>
+                                <h3 className="text-lg font-black uppercase italic">Restaurantes: Pedidos</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Toma de órdenes para llevar o delivery vía telefónica. Sara registra el pedido y lo envía directamente a tu cocina.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
@@ -178,7 +178,7 @@ export default function LandingPage() {
                         <div className="neon-card p-10 transition-all duration-500 hover:scale-[1.02] border-orange-500/10 group">
                             <div className="flex items-center gap-4 mb-6 text-orange-500">
                                 <Stethoscope className="w-10 h-10 shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-6" />
-                                <h3 className="text-xl font-black uppercase italic">Clínicas</h3>
+                                <h3 className="text-lg font-black uppercase italic">Clínicas</h3>
                             </div>
                             <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">Seguimiento profesional de pacientes y agendamiento de consultas médicas con total precisión.</p>
                             <ul className="space-y-3 text-xs text-slate-500">
