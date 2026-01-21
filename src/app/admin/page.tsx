@@ -212,9 +212,10 @@ export default function AdminDashboard() {
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20 shadow-[0_0_15px_rgba(253,114,2,0.1)]' : 'hover:bg-white/5 text-gray-400'}`}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20 shadow-[0_0_20px_rgba(253,114,2,0.1)]' : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
                         >
-                            <item.icon size={18} /> {item.label}
+                            <item.icon size={18} className={activeTab === item.id ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
+                            <span className="text-sm">{item.label}</span>
                         </button>
                     ))}
                 </nav>
@@ -233,9 +234,12 @@ export default function AdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative">
+            <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
+                {/* Decorative Glow */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FD7202]/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+
                 {/* Header Profile */}
-                <header className="flex justify-between items-center mb-10 glass p-6 rounded-[28px] border border-white/5 bg-white/[0.02]">
+                <header className="flex justify-between items-center mb-10 glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl">
                     <div className="flex items-center gap-4">
                         <BotMessageSquare className="lg:hidden text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                         <div>

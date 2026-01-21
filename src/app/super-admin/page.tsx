@@ -164,8 +164,11 @@ export default function SuperAdminDashboard() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative">
-                <header className="mb-10 flex justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.02]">
+            <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
+                {/* Decorative Glow */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FD7202]/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+
+                <header className="mb-10 flex justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl">
                     <div className="flex items-center gap-4">
                         <BotMessageSquare className="lg:hidden text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                         <div>
