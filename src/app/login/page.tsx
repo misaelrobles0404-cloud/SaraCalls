@@ -152,13 +152,19 @@ export default function LoginPage() {
                     </form>
                 </div>
 
-                <div className="text-center mt-12 space-y-4">
-                    <p className="text-[9px] text-gray-600 font-bold uppercase tracking-[0.4em]">
-                        TECNOLOGÍA DE INTELIGENCIA DE VOZ 2026
+                <div className="text-center mt-12 space-y-6">
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em]">
+                        ¿No tienes una cuenta?{" "}
+                        <Link href="/register" className="text-[#FD7202] hover:text-[#FF8A00] transition-colors ml-2 underline underline-offset-4">Regístrate aquí</Link>
                     </p>
-                    <div className="flex justify-center gap-6">
-                        <a href="/privacy" className="text-[10px] text-gray-700 hover:text-gray-500 transition-colors uppercase font-black tracking-widest">Privacidad</a>
-                        <a href="/terms" className="text-[10px] text-gray-700 hover:text-gray-500 transition-colors uppercase font-black tracking-widest">Términos</a>
+                    <div className="space-y-4">
+                        <p className="text-[9px] text-gray-600 font-bold uppercase tracking-[0.4em]">
+                            TECNOLOGÍA DE INTELIGENCIA DE VOZ 2026
+                        </p>
+                        <div className="flex justify-center gap-6">
+                            <a href="/privacy" className="text-[10px] text-gray-700 hover:text-gray-500 transition-colors uppercase font-black tracking-widest">Privacidad</a>
+                            <a href="/terms" className="text-[10px] text-gray-700 hover:text-gray-500 transition-colors uppercase font-black tracking-widest">Términos</a>
+                        </div>
                     </div>
                 </div>
             </motion.div>

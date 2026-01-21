@@ -59,6 +59,24 @@ export default function LandingPage() {
                 <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                 <span className="text-2xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
+
+            <div className="fixed top-8 right-8 z-50 flex items-center gap-4">
+                <Link
+                    href="/login"
+                    className="hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-all font-black uppercase italic tracking-widest text-[10px]"
+                >
+                    <User className="w-4 h-4 text-slate-400" />
+                    <span>Iniciar Sesión</span>
+                </Link>
+                <Link
+                    href="/register"
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-full border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-500/50 transition-all group group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)] shadow-lg"
+                >
+                    <UserPlus className="w-4 h-4 text-orange-500 transition-transform group-hover:scale-110" />
+                    <span className="text-[10px] font-black uppercase italic tracking-[0.2em] text-white">Registrarse</span>
+                </Link>
+            </div>
+
             <NavBar items={navItems} />
 
             {/* Hero Section */}
