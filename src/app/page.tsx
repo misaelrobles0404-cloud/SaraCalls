@@ -41,6 +41,9 @@ export default function LandingPage() {
     const [activeLegalModal, setActiveLegalModal] = useState<'terms' | 'privacy' | null>(null);
 
     useEffect(() => {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
         window.scrollTo(0, 0);
     }, []);
 
