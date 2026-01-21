@@ -47,7 +47,14 @@ export async function middleware(req: NextRequest) {
     const isAdminPath = req.nextUrl.pathname.startsWith('/admin');
     const isSuperAdminPath = req.nextUrl.pathname.startsWith('/super-admin');
 
+    // Bypass para el usuario DEMO (basado en cookie)
+    const isDemoSession = req.cookies.get('saracalls-demo-session')?.value === 'true';
+
     if (!user && (isAdminPath || isSuperAdminPath)) {
+        // Si no hay usuario pero hay sesión demo y la ruta es /admin, permitimos el paso
+        if (isDemoSession && isAdminPath) {
+            return response;
+        }
         return NextResponse.redirect(new URL('/login', req.url));
     }
 

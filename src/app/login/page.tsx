@@ -34,7 +34,9 @@ export default function LoginPage() {
                 // Bypass para usuario DEMO solicitado
                 if (email.trim() === "demo@saracalls.ai" && password === "demo2026") {
                     console.log("Acceso concedido vía Credenciales Demo");
-                    router.push("/admin");
+                    // Establecer cookie de bypass para el Middleware
+                    document.cookie = "saracalls-demo-session=true; path=/; max-age=86400; SameSite=Lax";
+                    window.location.href = "/admin";
                     return;
                 }
 
