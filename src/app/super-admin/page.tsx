@@ -148,9 +148,10 @@ export default function SuperAdminDashboard() {
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20' : 'hover:bg-white/5 text-gray-400'}`}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20 shadow-[0_0_20px_rgba(253,114,2,0.1)]' : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
                         >
-                            <item.icon size={18} /> {item.label}
+                            <item.icon size={18} className={activeTab === item.id ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
+                            <span className="text-sm">{item.label}</span>
                         </button>
                     ))}
                 </nav>

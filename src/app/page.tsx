@@ -55,22 +55,22 @@ export default function LandingPage() {
 
     return (
         <div className="relative min-h-screen bg-[#050505] text-white">
-            <div className="fixed top-6 left-8 z-50 flex items-center gap-3">
-                <BotMessageSquare className="text-[#FD7202] w-9 h-9 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
-                <span className="text-xl font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
+            <div className="fixed top-6 left-8 z-50 flex items-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/5 py-1.5 px-4 rounded-xl shadow-2xl">
+                <BotMessageSquare className="text-[#FD7202] w-8 h-8 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
+                <span className="text-lg font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
 
             <div className="fixed top-6 right-8 z-50 flex items-center gap-3">
                 <Link
                     href="/login"
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest hover:bg-white/10 hover:border-white/20 hover:scale-[1.02] transition-all duration-300"
                 >
                     <User className="w-3.5 h-3.5 text-orange-400" />
                     <span>Iniciar Sesión</span>
                 </Link>
                 <Link
                     href="/register"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-500/50 transition-all group group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)] shadow-lg"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 hover:border-orange-500/50 hover:scale-[1.02] transition-all duration-300 group group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)] shadow-lg"
                 >
                     <UserPlus className="w-3.5 h-3.5 text-orange-500 transition-transform group-hover:scale-110" />
                     <span className="text-[9px] font-bold uppercase italic tracking-[0.1em] text-white">Registrarse</span>
