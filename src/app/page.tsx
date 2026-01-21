@@ -45,6 +45,8 @@ export default function LandingPage() {
             history.scrollRestoration = 'manual';
         }
         window.scrollTo(0, 0);
+        const timer = setTimeout(() => window.scrollTo(0, 0), 0);
+        return () => clearTimeout(timer);
     }, []);
 
     const navItems = [
