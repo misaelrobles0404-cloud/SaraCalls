@@ -61,8 +61,28 @@ export function MobileMenu({ items }: MobileMenuProps) {
                                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-[0.3em] mt-1">Navegación Móvil</p>
                                 </div>
 
+                                {/* Auth Buttons at Top for visibility */}
+                                <div className="space-y-4 mb-10 pb-10 border-b border-white/5">
+                                    <Link
+                                        href="/login"
+                                        onClick={toggleMenu}
+                                        className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all hover:border-orange-500/30"
+                                    >
+                                        <User size={16} className="text-orange-400" />
+                                        <span>Iniciar Sesión</span>
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        onClick={toggleMenu}
+                                        className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-orange-500 border border-orange-400/30 text-[10px] font-black uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_0_20px_rgba(253,114,2,0.3)]"
+                                    >
+                                        <UserPlus size={16} />
+                                        <span>Registrarse</span>
+                                    </Link>
+                                </div>
+
                                 {/* Nav Links */}
-                                <nav className="flex flex-col gap-6 mb-auto">
+                                <nav className="flex flex-col gap-6 overflow-y-auto custom-scrollbar">
                                     {items.map((item) => {
                                         const Icon = item.icon;
                                         return (
@@ -80,26 +100,6 @@ export function MobileMenu({ items }: MobileMenuProps) {
                                         );
                                     })}
                                 </nav>
-
-                                {/* Auth Buttons */}
-                                <div className="mt-auto space-y-4 pt-8 border-t border-white/5">
-                                    <Link
-                                        href="/login"
-                                        onClick={toggleMenu}
-                                        className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all"
-                                    >
-                                        <User size={16} className="text-orange-400" />
-                                        <span>Iniciar Sesión</span>
-                                    </Link>
-                                    <Link
-                                        href="/register"
-                                        onClick={toggleMenu}
-                                        className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-orange-500 border border-orange-400/30 text-[10px] font-black uppercase tracking-widest text-white hover:bg-orange-600 transition-all shadow-[0_10px_20px_rgba(253,114,2,0.2)]"
-                                    >
-                                        <UserPlus size={16} />
-                                        <span>Registrarse</span>
-                                    </Link>
-                                </div>
                             </div>
                         </motion.div>
                     </>

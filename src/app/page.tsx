@@ -100,12 +100,12 @@ export default function LandingPage() {
                         <div className="inline-block px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-[#FF7A00] text-[10px] font-black uppercase tracking-[0.3em] mb-8">
                             Sistemas de Voz de Nueva Generación
                         </div>
-                        <h1 className="text-5xl lg:text-7xl font-black tracking-tighter leading-tight mb-8 uppercase italic">
-                            REVOLUCIONA TU <br />
-                            <span className="neon-text-orange">VENTA</span> CON <br />
+                        <h1 className="text-4xl lg:text-7xl font-black tracking-tighter leading-tight mb-8 uppercase italic">
+                            REVOLUCIONA TU <br className="hidden md:inline" />
+                            <span className="neon-text-orange">VENTA</span> CON <br className="hidden md:inline" />
                             VOZ IA 24/7.
                         </h1>
-                        <p className="text-lg text-slate-400 mb-10 max-w-xl font-medium leading-relaxed">
+                        <p className="text-base lg:text-lg text-slate-400 mb-10 max-w-xl font-medium leading-relaxed">
                             Atención automatizada ultra-humana. Sara agenda, califica y cierra oportunidades mientras tú te enfocas en liderar.
                         </p>
                         <div className="flex gap-6">
