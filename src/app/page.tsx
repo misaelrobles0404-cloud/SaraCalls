@@ -234,26 +234,26 @@ export default function LandingPage() {
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-10">
-                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500">
+                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500 hover:scale-[1.02] hover:border-orange-500/40">
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/30 mb-8 transition-all group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)]">
                                 <Mic2 className="w-8 h-8 text-orange-400" />
                             </div>
                             <h4 className="text-xl font-black uppercase italic mb-4">Escucha Inteligente</h4>
-                            <p className="text-sm text-slate-500 leading-relaxed">Procesamos voz humana en tiempo real con latencia cero, entendiendo cada palabra y la intención precisa del cliente sin demoras.</p>
+                            <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-400 transition-colors">Procesamos voz humana en tiempo real con latencia cero, entendiendo cada palabra y la intención precisa del cliente sin demoras.</p>
                         </div>
-                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500">
+                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500 hover:scale-[1.02] hover:border-orange-500/40">
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/30 mb-8 transition-all group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)]">
                                 <Workflow className="w-8 h-8 text-orange-400" />
                             </div>
                             <h4 className="text-xl font-black uppercase italic mb-4">Acciones Reales</h4>
-                            <p className="text-sm text-slate-500 leading-relaxed">Conectamos la IA con tus herramientas favoritas para disparar acciones: agendar en Google Calendar, enviar SMS y actualizar tu CRM al instante.</p>
+                            <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-400 transition-colors">Conectamos la IA con tus herramientas favoritas para disparar acciones: agendar en Google Calendar, enviar SMS y actualizar tu CRM al instante.</p>
                         </div>
-                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500">
+                        <div className="neon-card p-10 flex flex-col items-center text-center group transition-all duration-500 hover:scale-[1.02] hover:border-orange-500/40">
                             <div className="w-16 h-16 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/30 mb-8 transition-all group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.3)]">
                                 <ShieldCheck className="w-8 h-8 text-orange-400" />
                             </div>
                             <h4 className="text-xl font-black uppercase italic mb-4">Control Total</h4>
-                            <p className="text-sm text-slate-500 leading-relaxed">Supervisa cada llamada, escucha grabaciones y ajusta la personalidad de tu asistente desde tu panel de administración privado.</p>
+                            <p className="text-sm text-slate-500 leading-relaxed group-hover:text-slate-400 transition-colors">Supervisa cada llamada, escucha grabaciones y ajusta la personalidad de tu asistente desde tu panel de administración privado.</p>
                         </div>
                     </div>
                 </div>
