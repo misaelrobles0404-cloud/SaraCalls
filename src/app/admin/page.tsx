@@ -57,10 +57,11 @@ export default function AdminDashboard() {
     ]);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [industry, setIndustry] = useState<'barber' | 'restaurant'>('restaurant');
+    const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic'>('restaurant');
 
     const [clientId, setClientId] = useState<string | null>(null);
     const [clientName, setClientName] = useState<string>("Admin");
+    const [isDemo, setIsDemo] = useState(false);
 
     useEffect(() => {
         const checkAuthAndFetch = async () => {
@@ -74,12 +75,23 @@ export default function AdminDashboard() {
                 if (isDemoSession) {
                     console.log("Detectada sesión DEMO - Saltando verificación de Supabase");
                     setIsAuthorized(true);
-                    setClientName("Demo Business");
+                    setIsDemo(true);
+                    setClientName("Demo Experience"); // Nombre genérico para la demo
                     setLoading(false);
-                    // Cargamos datos mock iniciales explícitamente por si acaso
+                    // Cargamos datos mock iniciales
                     setCalls([
                         { id: 1, customer_name: 'Juan Delgado', customer_phone: '+34 600... ', duration: '4m 20s', sentiment: 'Positivo', created_at: new Date().toISOString() },
                         { id: 2, customer_name: 'Maria Rodriguez', customer_phone: '+34 611... ', duration: '2m 15s', sentiment: 'Confirmada', created_at: new Date().toISOString() }
+                    ]);
+                    // Pedidos para restaurante
+                    setOrders([
+                        { id: 1, customer_name: 'Juan Pérez', items: '3x Spicy Tuna, 1x Miso', status: 'Preparando', order_number: 1024 },
+                        { id: 2, customer_name: 'Maria Garcia', items: '2x California Roll', status: 'Listo', order_number: 1025 }
+                    ]);
+                    // Citas para barbería/clínica
+                    setAppointments([
+                        { id: 1, customer_name: 'Carlos Ruiz', service: 'Corte + Barba', status: 'Confirmada', appointment_date: new Date().toISOString() },
+                        { id: 2, customer_name: 'Elena Sanz', service: 'Limpieza Dental', status: 'Pendiente', appointment_date: new Date().toISOString() }
                     ]);
                     return;
                 }
@@ -225,9 +237,9 @@ export default function AdminDashboard() {
                         { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
                         { id: 'calls', icon: Phone, label: 'Llamadas' },
                         { id: 'leads', icon: Users, label: 'Leads' },
-                        industry === 'barber' ?
-                            { id: 'appointments', icon: Calendar, label: 'Citas' } :
-                            { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' }
+                        industry === 'restaurant' ?
+                            { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' } :
+                            { id: 'appointments', icon: Calendar, label: 'Citas' }
                     ].map((item: any) => (
                         <button
                             key={item.id}
@@ -271,13 +283,32 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
+                        {/* Demo Industry Switcher */}
+                        {isDemo && (
+                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                {[
+                                    { id: 'restaurant', label: 'Restaurante', icon: '🍣' },
+                                    { id: 'barber', label: 'Barbería', icon: '💈' },
+                                    { id: 'clinic', label: 'Clínica', icon: '🏥' }
+                                ].map((ind) => (
+                                    <button
+                                        key={ind.id}
+                                        onClick={() => setIndustry(ind.id as any)}
+                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'text-gray-500 hover:text-white'}`}
+                                    >
+                                        <span>{ind.icon}</span>
+                                        <span className="hidden sm:inline">{ind.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                         <div className="hidden md:block text-right">
                             <p className="text-sm font-bold">{clientName}</p>
                             <p className="text-[10px] text-[#FD7202] font-black uppercase">Role: Cliente Enterprise</p>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FD7202] to-orange-400 p-0.5 shadow-[0_0_20px_rgba(253,114,2,0.3)]">
                             <div className="w-full h-full rounded-[14px] bg-black flex items-center justify-center overflow-hidden">
-                                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sara" alt="User" />
+                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${industry}`} alt="User" />
                             </div>
                         </div>
                     </div>
@@ -296,9 +327,9 @@ export default function AdminDashboard() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                                 {[
                                     { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
-                                    industry === 'barber' ?
-                                        { label: 'Citas Cerradas', value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' } :
-                                        { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' },
+                                    industry === 'restaurant' ?
+                                        { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
+                                        { label: industry === 'clinic' ? 'Consultas' : 'Citas Cerradas', value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
                                     { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
                                     { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
