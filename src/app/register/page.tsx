@@ -108,27 +108,28 @@ export default function RegisterPage() {
                 <div className="glass p-10 rounded-[32px] border border-white/5 bg-white/[0.02] shadow-2xl backdrop-blur-xl">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {label: 'Nombre Completo *', icon: User, placeholder: 'Ingresa tu nombre', type: 'text', required: true, name: 'fullName' },
-                            {label: 'Correo de Empresa *', icon: Mail, placeholder: 'ejemplo@empresa.com', type: 'email', required: true, name: 'email' },
-                            {label: 'Teléfono Móvil *', icon: Phone, placeholder: '+52...', type: 'tel', required: true, name: 'phone' },
-                            {label: 'Nombre de la Empresa', icon: Building2, placeholder: 'Tu negocio...', type: 'text', name: 'businessName' },
-                            {label: 'Industria / Sector', icon: Briefcase, placeholder: 'Ej. Restaurante, Clínica...', type: 'text', name: 'industry' },
-                            {label: 'Tamaño de Equipo', icon: Users, placeholder: '1-10, 11-50...', type: 'text', name: 'teamSize' }
+                            {[
+                                { label: 'Nombre Completo *', icon: User, placeholder: 'Ingresa tu nombre', type: 'text', required: true, name: 'fullName' },
+                                { label: 'Correo de Empresa *', icon: Mail, placeholder: 'ejemplo@empresa.com', type: 'email', required: true, name: 'email' },
+                                { label: 'Teléfono Móvil *', icon: Phone, placeholder: '+52...', type: 'tel', required: true, name: 'phone' },
+                                { label: 'Nombre de la Empresa', icon: Building2, placeholder: 'Tu negocio...', type: 'text', name: 'businessName' },
+                                { label: 'Industria / Sector', icon: Briefcase, placeholder: 'Ej. Restaurante, Clínica...', type: 'text', name: 'industry' },
+                                { label: 'Tamaño de Equipo', icon: Users, placeholder: '1-10, 11-50...', type: 'text', name: 'teamSize' }
                             ].map((field, i) => (
-                            <div key={i} className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                    <field.icon size={12} className="text-[#FD7202]" /> {field.label}
-                                </label>
-                                <div className="relative group">
-                                    <input
-                                        type={field.type}
-                                        name={field.name}
-                                        required={field.required}
-                                        placeholder={field.placeholder}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
-                                    />
+                                <div key={i} className="space-y-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                        <field.icon size={12} className="text-[#FD7202]" /> {field.label}
+                                    </label>
+                                    <div className="relative group">
+                                        <input
+                                            type={field.type}
+                                            name={field.name}
+                                            required={field.required}
+                                            placeholder={field.placeholder}
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
                             ))}
                         </div>
 

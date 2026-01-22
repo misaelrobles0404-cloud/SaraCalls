@@ -24,7 +24,6 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -413,8 +412,8 @@ export default function SuperAdminDashboard() {
                                                             value={lead.status || 'Nuevo'}
                                                             onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
                                                             className={`bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[10px] uppercase font-bold outline-none transition-colors ${lead.status === 'Cerrado' ? 'text-green-500 border-green-500/30' :
-                                                                    lead.status === 'Negociación' ? 'text-blue-500 border-blue-500/30' :
-                                                                        lead.status === 'Contactado' ? 'text-yellow-500 border-yellow-500/30' : 'text-orange-500 border-orange-500/30'
+                                                                lead.status === 'Negociación' ? 'text-blue-500 border-blue-500/30' :
+                                                                    lead.status === 'Contactado' ? 'text-yellow-500 border-yellow-500/30' : 'text-orange-500 border-orange-500/30'
                                                                 }`}
                                                         >
                                                             <option value="Nuevo">Nuevo</option>

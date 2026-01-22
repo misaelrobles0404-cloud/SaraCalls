@@ -29,7 +29,6 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import { Doughnut } from 'react-chartjs-2';
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -195,22 +194,6 @@ export default function AdminDashboard() {
         // Limpiar cookie de demo si existe
         document.cookie = "saracalls-demo-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         window.location.href = "/login";
-    };
-
-    const chartData = {
-        datasets: [{
-            data: [84, 16],
-            backgroundColor: ['#FD7202', 'rgba(255, 255, 255, 0.1)'],
-            borderWidth: 0,
-        }]
-    };
-
-    const chartOptions = {
-        cutout: '85%',
-        plugins: { legend: { display: false } },
-        maintainAspectRatio: false,
-        rotation: 270,
-        circumference: 180,
     };
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
@@ -398,36 +381,7 @@ export default function AdminDashboard() {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Conversion & Health */}
                                 <div className="space-y-8">
-                                    <div className="glass rounded-[36px] border border-white/5 p-8 bg-white/[0.02] flex flex-col items-center">
-                                        <h2 className="text-lg font-black uppercase italic tracking-tight mb-8 w-full">Salud del Motor</h2>
-                                        <div className="relative w-48 h-48 mb-6">
-                                            <Doughnut data={chartData} options={chartOptions} />
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-5xl font-black italic neon-text-orange animate-pulse">84%</span>
-                                                <span className="text-[10px] font-black text-[#FD7202] uppercase tracking-[0.2em] mt-1">Eficiencia Operativa</span>
-                                            </div>
-                                        </div>
-                                        <div className="w-full space-y-4">
-                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_8px_#60A5FA]"></div>
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Latencia Media</span>
-                                                </div>
-                                                <span className="font-bold">640ms</span>
-                                            </div>
-                                            <div className="p-4 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-2 h-2 rounded-full bg-[#FD7202] shadow-[0_0_8px_#FD7202]"></div>
-                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Uso de tokens</span>
-                                                </div>
-                                                <span className="font-bold">24%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-
                                     <div className="glass rounded-[36px] bg-gradient-to-br from-[#FD7202] to-[#FF9031] p-8 text-white relative overflow-hidden group">
                                         <div className="relative z-10">
                                             <Zap className="mb-4 text-white opacity-80" />
@@ -645,6 +599,6 @@ export default function AdminDashboard() {
                     </button>
                 ))}
             </nav>
-        </div>
+        </div >
     );
 }
