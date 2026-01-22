@@ -15,7 +15,8 @@ import {
     Save,
     Search,
     TrendingUp,
-    ShieldCheck
+    ShieldCheck,
+    MessageSquare
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -109,7 +110,59 @@ export default function SuperAdminDashboard() {
         };
 
         checkAuthAndFetch();
+
+        // 3. Suscripción Realtime para Prospectos
+        const setupRealtime = async () => {
+            const { supabase } = await import("@/lib/supabase");
+            const channel = supabase
+                .channel('sales_leads_changes')
+                .on(
+                    'postgres_changes',
+                    { event: 'INSERT', schema: 'public', table: 'sales_leads' },
+                    (payload) => {
+                        console.log('Nuevo lead recibido en tiempo real:', payload.new);
+                        setSalesLeads(prev => [payload.new, ...prev]);
+                        setGlobalStats(prev => ({ ...prev, totalLeads: prev.totalLeads + 1 }));
+
+                        // Opcional: Sonido sutil o notificación visual fuerte aquí
+                        if (typeof window !== 'undefined') {
+                            const audio = new Audio('/notification.mp3'); // Asumiendo que existiera
+                            audio.play().catch(() => { });
+                        }
+                    }
+                )
+                .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'sales_leads' },
+                    (payload) => {
+                        setSalesLeads(prev => prev.map(lead => lead.id === payload.new.id ? payload.new : lead));
+                    }
+                )
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
+        };
+
+        const cleanup = setupRealtime();
+        return () => { cleanup.then(c => c && c()); };
     }, [router]);
+
+    const updateLeadStatus = async (leadId: string, newStatus: string) => {
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('sales_leads')
+                .update({ status: newStatus })
+                .eq('id', leadId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error actualizando estado:", error);
+            alert("Error al actualizar el estado");
+        }
+    };
 
     const handleSaveSettings = async () => {
         const { supabase } = await import("@/lib/supabase");
@@ -322,9 +375,12 @@ export default function SuperAdminDashboard() {
                                         {salesLeads.length === 0 ? (
                                             <tr><td colSpan={5} className="py-10 text-center text-gray-500 uppercase text-xs font-bold tracking-widest">No hay prospectos aún</td></tr>
                                         ) : salesLeads.map((lead, idx) => (
-                                            <tr key={idx} className="hover:bg-white/[0.04] transition-all duration-300 group border-l-2 border-transparent hover:border-[#FD7202]">
+                                            <tr key={idx} className={`hover:bg-white/[0.04] transition-all duration-300 group border-l-2 border-transparent ${lead.status === 'Nuevo' ? 'border-orange-500 bg-orange-500/5' : 'hover:border-[#FD7202]'}`}>
                                                 <td className="py-6 px-4 text-[10px] text-gray-500 font-bold uppercase tabular-nums">
                                                     {new Date(lead.created_at).toLocaleDateString()}
+                                                    {lead.status === 'Nuevo' && (
+                                                        <span className="block text-[8px] text-orange-500 animate-pulse font-black mt-1">¡NUEVO!</span>
+                                                    )}
                                                 </td>
                                                 <td className="py-6 px-4">
                                                     <div className="font-bold text-white uppercase tracking-tight text-lg">{lead.full_name}</div>
@@ -335,11 +391,39 @@ export default function SuperAdminDashboard() {
                                                     <div className="text-[10px] text-[#FD7202] font-black uppercase tracking-widest">{lead.industry || 'Genérico'}</div>
                                                 </td>
                                                 <td className="py-6 px-4">
-                                                    <div className="text-sm font-medium text-gray-300">{lead.email}</div>
-                                                    <div className="text-xs text-slate-500 mt-1">{lead.phone}</div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="text-sm font-medium text-gray-300">{lead.email}</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="text-xs text-slate-500">{lead.phone}</span>
+                                                            <a
+                                                                href={`https://wa.me/${lead.phone?.replace(/\D/g, '')}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="p-1.5 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-white rounded-lg transition-all"
+                                                                title="Contactar por WhatsApp"
+                                                            >
+                                                                <MessageSquare size={14} />
+                                                            </a>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td className="py-6 px-4 text-right">
-                                                    <p className="text-xs text-slate-400 italic max-w-xs ml-auto line-clamp-2">{lead.message || 'Sin mensaje adicional'}</p>
+                                                    <div className="flex flex-col items-end gap-3">
+                                                        <select
+                                                            value={lead.status || 'Nuevo'}
+                                                            onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                                                            className={`bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[10px] uppercase font-bold outline-none transition-colors ${lead.status === 'Cerrado' ? 'text-green-500 border-green-500/30' :
+                                                                    lead.status === 'Negociación' ? 'text-blue-500 border-blue-500/30' :
+                                                                        lead.status === 'Contactado' ? 'text-yellow-500 border-yellow-500/30' : 'text-orange-500 border-orange-500/30'
+                                                                }`}
+                                                        >
+                                                            <option value="Nuevo">Nuevo</option>
+                                                            <option value="Contactado">Contactado</option>
+                                                            <option value="Negociación">Negociación</option>
+                                                            <option value="Cerrado">Venta Cerrada</option>
+                                                        </select>
+                                                        <p className="text-[11px] text-slate-400 italic max-w-[200px] line-clamp-2">{lead.message || 'Sin mensaje adicional'}</p>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

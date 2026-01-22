@@ -26,7 +26,8 @@ export async function POST(req: Request) {
                 business_name: businessName,
                 industry: industry,
                 team_size: teamSize,
-                message: message
+                message: message,
+                status: 'Nuevo'
             }]);
 
         if (dbError) {
