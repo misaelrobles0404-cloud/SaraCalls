@@ -407,21 +407,31 @@ export default function SuperAdminDashboard() {
                                                     </div>
                                                 </td>
                                                 <td className="py-6 px-4 text-right">
-                                                    <div className="flex flex-col items-end gap-3">
-                                                        <select
-                                                            value={lead.status || 'Nuevo'}
-                                                            onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                                                            className={`bg-black/40 border border-white/10 rounded-lg px-2 py-1 text-[10px] uppercase font-bold outline-none transition-colors ${lead.status === 'Cerrado' ? 'text-green-500 border-green-500/30' :
-                                                                lead.status === 'Negociación' ? 'text-blue-500 border-blue-500/30' :
-                                                                    lead.status === 'Contactado' ? 'text-yellow-500 border-yellow-500/30' : 'text-orange-500 border-orange-500/30'
-                                                                }`}
-                                                        >
-                                                            <option value="Nuevo">Nuevo</option>
-                                                            <option value="Contactado">Contactado</option>
-                                                            <option value="Negociación">Negociación</option>
-                                                            <option value="Cerrado">Venta Cerrada</option>
-                                                        </select>
-                                                        <p className="text-[11px] text-slate-400 italic max-w-[200px] line-clamp-2">{lead.message || 'Sin mensaje adicional'}</p>
+                                                    <div className="flex flex-col items-end gap-3 min-w-[200px]">
+                                                        {/* Status Switching Pills */}
+                                                        <div className="flex flex-wrap justify-end gap-1.5 p-1 bg-white/5 rounded-xl border border-white/5">
+                                                            {[
+                                                                { label: 'Nuevo', color: 'orange' },
+                                                                { label: 'Contactado', color: 'blue' },
+                                                                { label: 'Venta Cerrada', color: 'green' }
+                                                            ].map((status) => (
+                                                                <button
+                                                                    key={status.label}
+                                                                    onClick={() => updateLeadStatus(lead.id, status.label)}
+                                                                    className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${(lead.status || 'Nuevo') === status.label
+                                                                            ? `bg-${status.color === 'orange' ? '[#FD7202]' : status.color + '-500'} text-white shadow-[0_0_15px_rgba(253,114,2,0.3)] scale-105`
+                                                                            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                                                        }`}
+                                                                >
+                                                                    {status.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="relative group/msg max-w-[200px]">
+                                                            <p className="text-[11px] text-slate-400 italic leading-relaxed text-right line-clamp-2 group-hover/msg:line-clamp-none transition-all duration-300">
+                                                                {lead.message || 'Sin mensaje adicional'}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
