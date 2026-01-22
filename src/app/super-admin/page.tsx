@@ -117,24 +117,17 @@ export default function SuperAdminDashboard() {
                 .channel('sales_leads_changes')
                 .on(
                     'postgres_changes',
-                    { event: 'INSERT', schema: 'public', table: 'sales_leads' },
+                    { event: '*', schema: 'public', table: 'sales_leads' },
                     (payload) => {
-                        console.log('Nuevo lead recibido en tiempo real:', payload.new);
-                        setSalesLeads(prev => [payload.new, ...prev]);
-                        setGlobalStats(prev => ({ ...prev, totalLeads: prev.totalLeads + 1 }));
-
-                        // Opcional: Sonido sutil o notificación visual fuerte aquí
-                        if (typeof window !== 'undefined') {
-                            const audio = new Audio('/notification.mp3'); // Asumiendo que existiera
-                            audio.play().catch(() => { });
+                        console.log('Cambio en leads detectado:', payload);
+                        if (payload.eventType === 'INSERT') {
+                            setSalesLeads(prev => [payload.new, ...prev]);
+                            setGlobalStats(prev => ({ ...prev, totalLeads: prev.totalLeads + 1 }));
+                        } else if (payload.eventType === 'UPDATE') {
+                            setSalesLeads(prev => prev.map(lead =>
+                                lead.id === payload.new.id ? payload.new : lead
+                            ));
                         }
-                    }
-                )
-                .on(
-                    'postgres_changes',
-                    { event: 'UPDATE', schema: 'public', table: 'sales_leads' },
-                    (payload) => {
-                        setSalesLeads(prev => prev.map(lead => lead.id === payload.new.id ? payload.new : lead));
                     }
                 )
                 .subscribe();
@@ -149,6 +142,12 @@ export default function SuperAdminDashboard() {
     }, [router]);
 
     const updateLeadStatus = async (leadId: string, newStatus: string) => {
+        // Actualización optimista (feedback inmediato)
+        const previousLeads = [...salesLeads];
+        setSalesLeads(prev => prev.map(lead =>
+            lead.id === leadId ? { ...lead, status: newStatus } : lead
+        ));
+
         try {
             const { supabase } = await import("@/lib/supabase");
             const { error } = await supabase
@@ -159,6 +158,8 @@ export default function SuperAdminDashboard() {
             if (error) throw error;
         } catch (error) {
             console.error("Error actualizando estado:", error);
+            // Revertir si hay error
+            setSalesLeads(previousLeads);
             alert("Error al actualizar el estado");
         }
     };
@@ -411,16 +412,16 @@ export default function SuperAdminDashboard() {
                                                         {/* Status Switching Pills */}
                                                         <div className="flex flex-wrap justify-end gap-1.5 p-1 bg-white/5 rounded-xl border border-white/5">
                                                             {[
-                                                                { label: 'Nuevo', color: 'orange' },
-                                                                { label: 'Contactado', color: 'blue' },
-                                                                { label: 'Venta Cerrada', color: 'green' }
+                                                                { label: 'Nuevo', value: 'Nuevo', color: 'bg-[#FD7202]' },
+                                                                { label: 'Contactado', value: 'Contactado', color: 'bg-blue-500' },
+                                                                { label: 'Venta Cerrada', value: 'Cerrado', color: 'bg-green-500' }
                                                             ].map((status) => (
                                                                 <button
-                                                                    key={status.label}
-                                                                    onClick={() => updateLeadStatus(lead.id, status.label)}
-                                                                    className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${(lead.status || 'Nuevo') === status.label
-                                                                            ? `bg-${status.color === 'orange' ? '[#FD7202]' : status.color + '-500'} text-white shadow-[0_0_15px_rgba(253,114,2,0.3)] scale-105`
-                                                                            : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
+                                                                    key={status.value}
+                                                                    onClick={() => updateLeadStatus(lead.id, status.value)}
+                                                                    className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter transition-all duration-300 ${(lead.status || 'Nuevo') === status.value
+                                                                        ? `${status.color} text-white shadow-[0_0_15px_rgba(253,114,2,0.3)] scale-105`
+                                                                        : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'
                                                                         }`}
                                                                 >
                                                                     {status.label}
