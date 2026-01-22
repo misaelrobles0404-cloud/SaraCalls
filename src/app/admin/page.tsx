@@ -57,7 +57,7 @@ export default function AdminDashboard() {
     ]);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic'>('restaurant');
+    const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic' | 'restaurant_res'>('restaurant');
 
     const [clientId, setClientId] = useState<string | null>(null);
     const [clientName, setClientName] = useState<string>("Admin");
@@ -239,7 +239,7 @@ export default function AdminDashboard() {
                         { id: 'leads', icon: Users, label: 'Leads' },
                         industry === 'restaurant' ?
                             { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' } :
-                            { id: 'appointments', icon: Calendar, label: 'Citas' }
+                            { id: 'appointments', icon: Calendar, label: industry === 'restaurant_res' ? 'Reservas' : 'Citas' }
                     ].map((item: any) => (
                         <button
                             key={item.id}
@@ -287,7 +287,8 @@ export default function AdminDashboard() {
                         {isDemo && (
                             <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                                 {[
-                                    { id: 'restaurant', label: 'Restaurante', icon: '🍣' },
+                                    { id: 'restaurant', label: 'Pedidos', icon: '🍣' },
+                                    { id: 'restaurant_res', label: 'Reservas', icon: '🍷' },
                                     { id: 'barber', label: 'Barbería', icon: '💈' },
                                     { id: 'clinic', label: 'Clínica', icon: '🏥' }
                                 ].map((ind) => (
@@ -329,7 +330,7 @@ export default function AdminDashboard() {
                                     { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
                                     industry === 'restaurant' ?
                                         { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
-                                        { label: industry === 'clinic' ? 'Consultas' : 'Citas Cerradas', value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
+                                        { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
                                     { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
                                     { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
@@ -530,12 +531,12 @@ export default function AdminDashboard() {
                             exit={{ opacity: 0, x: -20 }}
                             className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
                         >
-                            <h2 className="text-2xl font-black uppercase italic mb-8">Agenda Dinámica</h2>
+                            <h2 className="text-2xl font-black uppercase italic mb-8">{industry === 'restaurant_res' ? 'Libro de Reservas' : 'Agenda Dinámica'}</h2>
                             <div className="grid gap-4">
                                 {loading ? (
                                     <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
                                 ) : appointments.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay citas programadas</p>
+                                    <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay {industry === 'restaurant_res' ? 'reservas' : 'citas'} programadas</p>
                                 ) : appointments.map((appt, idx) => (
                                     <div key={appt.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] transition-all duration-500 cursor-pointer">
                                         <div className="text-xl font-black text-[#FD7202] w-24 tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.3)]">
@@ -543,7 +544,7 @@ export default function AdminDashboard() {
                                         </div>
                                         <div className="flex-grow">
                                             <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{appt.customer_name}</h4>
-                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{appt.service || 'Consulta General'}</p>
+                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{industry === 'restaurant_res' ? 'Mesa para ' + (idx + 2) + ' personas' : (appt.service || 'Consulta General')}</p>
                                         </div>
                                         <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${appt.status === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20' : 'bg-[#FD7202]/10 text-[#FD7202] border-[#FD7202]/20 group-hover:bg-[#FD7202]/20'}`}>
                                             {appt.status}
