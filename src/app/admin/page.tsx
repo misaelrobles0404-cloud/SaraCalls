@@ -70,8 +70,20 @@ export default function AdminDashboard() {
 
                 // 1. Verificar Sesión
                 const { data: { session } } = await supabase.auth.getSession();
-                if (!session) {
-                    // El Middleware protege esta ruta. Si no hay sesión, simplemente no cargamos.
+                
+                // Verificar si hay una sesión bypass de demo (cookie)
+                const isDemoSession = document.cookie.split('; ').find(row => row.startsWith('saracalls-demo-session='))?.split('=')[1] === 'true';
+
+                if (!session && !isDemoSession) {
+                    // El Middleware protege esta ruta. Si no hay nada, no cargamos.
+                    return;
+                }
+
+                if (isDemoSession && !session) {
+                    // Si es sesión demo, configuramos estado básico y salimos de la carga
+                    setIsAuthorized(true);
+                    setClientName("Demo Business");
+                    setLoading(false);
                     return;
                 }
 
@@ -162,7 +174,9 @@ export default function AdminDashboard() {
     const handleLogout = async () => {
         const { supabase } = await import("@/lib/supabase");
         await supabase.auth.signOut();
-        router.push("/login");
+        // Limpiar cookie de demo si existe
+        document.cookie = "saracalls-demo-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        window.location.href = "/login";
     };
 
     const chartData = {
