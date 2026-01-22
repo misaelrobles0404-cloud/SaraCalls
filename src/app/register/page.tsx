@@ -28,14 +28,38 @@ export default function RegisterPage() {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulación de envío
-        setTimeout(() => {
+        const formData = new FormData(e.target as HTMLFormElement);
+        const data = {
+            fullName: formData.get('fullName'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            businessName: formData.get('businessName'),
+            industry: formData.get('industry'),
+            teamSize: formData.get('teamSize'),
+            message: formData.get('message'),
+        };
+
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                setIsSuccess(true);
+                setTimeout(() => {
+                    router.push("/login");
+                }, 3000);
+            } else {
+                console.error("Error al enviar registro");
+                // Podríamos mostrar un error visual aquí si se desea
+            }
+        } catch (error) {
+            console.error("Error de red:", error);
+        } finally {
             setIsLoading(false);
-            setIsSuccess(true);
-            setTimeout(() => {
-                router.push("/login");
-            }, 3000);
-        }, 2000);
+        }
     };
 
     if (isSuccess) {
@@ -84,27 +108,27 @@ export default function RegisterPage() {
                 <div className="glass p-10 rounded-[32px] border border-white/5 bg-white/[0.02] shadow-2xl backdrop-blur-xl">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {[
-                                { label: 'Nombre Completo *', icon: User, placeholder: 'Ingresa tu nombre', type: 'text', required: true },
-                                { label: 'Correo de Empresa *', icon: Mail, placeholder: 'ejemplo@empresa.com', type: 'email', required: true },
-                                { label: 'Teléfono Móvil *', icon: Phone, placeholder: '+52...', type: 'tel', required: true },
-                                { label: 'Nombre de la Empresa', icon: Building2, placeholder: 'Tu negocio...', type: 'text' },
-                                { label: 'Industria / Sector', icon: Briefcase, placeholder: 'Ej. Restaurante, Clínica...', type: 'text' },
-                                { label: 'Tamaño de Equipo', icon: Users, placeholder: '1-10, 11-50...', type: 'text' }
+                            {label: 'Nombre Completo *', icon: User, placeholder: 'Ingresa tu nombre', type: 'text', required: true, name: 'fullName' },
+                            {label: 'Correo de Empresa *', icon: Mail, placeholder: 'ejemplo@empresa.com', type: 'email', required: true, name: 'email' },
+                            {label: 'Teléfono Móvil *', icon: Phone, placeholder: '+52...', type: 'tel', required: true, name: 'phone' },
+                            {label: 'Nombre de la Empresa', icon: Building2, placeholder: 'Tu negocio...', type: 'text', name: 'businessName' },
+                            {label: 'Industria / Sector', icon: Briefcase, placeholder: 'Ej. Restaurante, Clínica...', type: 'text', name: 'industry' },
+                            {label: 'Tamaño de Equipo', icon: Users, placeholder: '1-10, 11-50...', type: 'text', name: 'teamSize' }
                             ].map((field, i) => (
-                                <div key={i} className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                        <field.icon size={12} className="text-[#FD7202]" /> {field.label}
-                                    </label>
-                                    <div className="relative group">
-                                        <input
-                                            type={field.type}
-                                            required={field.required}
-                                            placeholder={field.placeholder}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
-                                        />
-                                    </div>
+                            <div key={i} className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
+                                    <field.icon size={12} className="text-[#FD7202]" /> {field.label}
+                                </label>
+                                <div className="relative group">
+                                    <input
+                                        type={field.type}
+                                        name={field.name}
+                                        required={field.required}
+                                        placeholder={field.placeholder}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
+                                    />
                                 </div>
+                            </div>
                             ))}
                         </div>
 
@@ -114,6 +138,7 @@ export default function RegisterPage() {
                             </label>
                             <div className="relative group">
                                 <textarea
+                                    name="message"
                                     rows={3}
                                     placeholder="Cuéntanos un poco más sobre lo que buscas..."
                                     className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07] resize-none"

@@ -33,9 +33,10 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function SuperAdminDashboard() {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'sales' | 'settings'>('overview');
     const [loading, setLoading] = useState(true);
     const [clients, setClients] = useState<any[]>([]);
+    const [salesLeads, setSalesLeads] = useState<any[]>([]);
     const [globalStats, setGlobalStats] = useState({
         totalCalls: 0,
         totalLeads: 0,
@@ -75,7 +76,12 @@ export default function SuperAdminDashboard() {
                 // 2. Cargar Clientes y Estadísticas Usando la Vista
                 const { data: clientData } = await supabase.from('agency_client_usage').select('*');
                 const { data: leadsData } = await supabase.from('leads').select('id');
+                const { data: salesLeadsData } = await supabase.from('sales_leads').select('*').order('created_at', { ascending: false });
                 const { data: globalSettings } = await supabase.from('agency_settings').select('*').single();
+
+                if (salesLeadsData) {
+                    setSalesLeads(salesLeadsData);
+                }
 
                 if (clientData) {
                     setClients(clientData);
@@ -143,6 +149,7 @@ export default function SuperAdminDashboard() {
                     {[
                         { id: 'overview', icon: LayoutDashboard, label: 'Consumo Global' },
                         { id: 'clients', icon: Users, label: 'Mis Clientes' },
+                        { id: 'sales', icon: UserPlus, label: 'Prospectos Web' },
                         { id: 'settings', icon: Settings, label: 'Configuración' }
                     ].map((item: any) => (
                         <button
@@ -187,11 +194,12 @@ export default function SuperAdminDashboard() {
                 </header>
 
                 <AnimatePresence mode="wait">
-                    {activeTab === 'overview' ? (
+                    {activeTab === 'overview' && (
                         <motion.div
                             key="overview"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
                             className="space-y-8"
                         >
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -212,7 +220,6 @@ export default function SuperAdminDashboard() {
                                 ))}
                             </div>
 
-                            {/* Gráfica de Consumo */}
                             <div className="glass p-8 rounded-[36px] bg-white/[0.02] border border-white/5 h-[400px]">
                                 <h2 className="text-xl font-bold uppercase mb-6 flex items-center gap-2">
                                     <TrendingUp size={20} className="text-[#FD7202]" /> Consumo por Cliente
@@ -235,11 +242,14 @@ export default function SuperAdminDashboard() {
                                 </div>
                             </div>
                         </motion.div>
-                    ) : activeTab === 'clients' ? (
+                    )}
+
+                    {activeTab === 'clients' && (
                         <motion.div
                             key="clients"
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
                             className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
                         >
                             <div className="flex justify-between items-center mb-10">
@@ -284,11 +294,67 @@ export default function SuperAdminDashboard() {
                                 </table>
                             </div>
                         </motion.div>
-                    ) : (
+                    )}
+
+                    {activeTab === 'sales' && (
+                        <motion.div
+                            key="sales"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                        >
+                            <div className="flex justify-between items-center mb-10">
+                                <h2 className="text-2xl font-black uppercase italic">Prospectos Web (Inscripciones)</h2>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
+                                            <th className="pb-4 px-4">Fecha</th>
+                                            <th className="pb-4 px-4">Interesado</th>
+                                            <th className="pb-4 px-4">Empresa / Industria</th>
+                                            <th className="pb-4 px-4">Contacto</th>
+                                            <th className="pb-4 px-4 text-right">Mensaje</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {salesLeads.length === 0 ? (
+                                            <tr><td colSpan={5} className="py-10 text-center text-gray-500 uppercase text-xs font-bold tracking-widest">No hay prospectos aún</td></tr>
+                                        ) : salesLeads.map((lead, idx) => (
+                                            <tr key={idx} className="hover:bg-white/[0.04] transition-all duration-300 group border-l-2 border-transparent hover:border-[#FD7202]">
+                                                <td className="py-6 px-4 text-[10px] text-gray-500 font-bold uppercase tabular-nums">
+                                                    {new Date(lead.created_at).toLocaleDateString()}
+                                                </td>
+                                                <td className="py-6 px-4">
+                                                    <div className="font-bold text-white uppercase tracking-tight text-lg">{lead.full_name}</div>
+                                                    <div className="text-[10px] text-gray-500 uppercase font-black tracking-widest">{lead.team_size || 'Equipo N/A'}</div>
+                                                </td>
+                                                <td className="py-6 px-4">
+                                                    <div className="text-sm font-bold text-gray-200">{lead.business_name || 'Sin Empresa'}</div>
+                                                    <div className="text-[10px] text-[#FD7202] font-black uppercase tracking-widest">{lead.industry || 'Genérico'}</div>
+                                                </td>
+                                                <td className="py-6 px-4">
+                                                    <div className="text-sm font-medium text-gray-300">{lead.email}</div>
+                                                    <div className="text-xs text-slate-500 mt-1">{lead.phone}</div>
+                                                </td>
+                                                <td className="py-6 px-4 text-right">
+                                                    <p className="text-xs text-slate-400 italic max-w-xs ml-auto line-clamp-2">{lead.message || 'Sin mensaje adicional'}</p>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'settings' && (
                         <motion.div
                             key="settings"
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
                             className="max-w-2xl mx-auto"
                         >
                             <div className="glass p-8 rounded-[40px] bg-white/[0.02] border border-white/10 space-y-8">

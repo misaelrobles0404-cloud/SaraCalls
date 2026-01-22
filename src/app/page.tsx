@@ -317,7 +317,7 @@ export default function LandingPage() {
                             <div className="flex flex-col gap-4 text-sm font-medium text-slate-500">
                                 <div className="flex items-center gap-3">
                                     <Mail className="w-4 h-4 text-orange-500" />
-                                    <a href="mailto:hola@saracalls.ai" className="hover:text-white transition-colors">hola@saracalls.ai</a>
+                                    <a href="mailto:saracallsai@gmail.com" className="hover:text-white transition-colors">saracallsai@gmail.com</a>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Phone className="w-4 h-4 text-orange-500" />
