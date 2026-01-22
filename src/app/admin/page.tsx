@@ -66,24 +66,30 @@ export default function AdminDashboard() {
         const checkAuthAndFetch = async () => {
             setLoading(true);
             try {
-                const { supabase } = await import("@/lib/supabase");
+                // PRIMERO: Verificar si hay una sesión bypass de demo (cookie)
+                // Usamos un regex más robusto para leer la cookie
+                const isDemoSession = document.cookie.match(/^(.*;)?\s*saracalls-demo-session\s*=\s*[^;]+(.*)?$/) ||
+                    document.cookie.includes('saracalls-demo-session=true');
 
-                // 1. Verificar Sesión
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                // Verificar si hay una sesión bypass de demo (cookie)
-                const isDemoSession = document.cookie.split('; ').find(row => row.startsWith('saracalls-demo-session='))?.split('=')[1] === 'true';
-
-                if (!session && !isDemoSession) {
-                    // El Middleware protege esta ruta. Si no hay nada, no cargamos.
-                    return;
-                }
-
-                if (isDemoSession && !session) {
-                    // Si es sesión demo, configuramos estado básico y salimos de la carga
+                if (isDemoSession) {
+                    console.log("Detectada sesión DEMO - Saltando verificación de Supabase");
                     setIsAuthorized(true);
                     setClientName("Demo Business");
                     setLoading(false);
+                    // Cargamos datos mock iniciales explícitamente por si acaso
+                    setCalls([
+                        { id: 1, customer_name: 'Juan Delgado', customer_phone: '+34 600... ', duration: '4m 20s', sentiment: 'Positivo', created_at: new Date().toISOString() },
+                        { id: 2, customer_name: 'Maria Rodriguez', customer_phone: '+34 611... ', duration: '2m 15s', sentiment: 'Confirmada', created_at: new Date().toISOString() }
+                    ]);
+                    return;
+                }
+
+                const { supabase } = await import("@/lib/supabase");
+
+                // 2. Verificar Sesión Real si no es demo
+                const { data: { session } } = await supabase.auth.getSession();
+
+                if (!session) {
                     return;
                 }
 
