@@ -21,7 +21,15 @@ import {
     BotMessageSquare,
     MoreVertical,
     Download,
-    Eye
+    Eye,
+    Rocket,
+    ShieldCheck,
+    Cpu,
+    Workflow,
+    Wine,
+    Scissors,
+    Utensils,
+    Stethoscope
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -43,17 +51,9 @@ export default function AdminDashboard() {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings'>('overview');
     const [isPlaying, setIsPlaying] = useState<number | null>(null);
-    const [calls, setCalls] = useState<any[]>([
-        { id: 1, customer_name: 'Juan Delgado', customer_phone: '+34 600... ', duration: '4m 20s', sentiment: 'Positivo', created_at: new Date().toISOString() },
-        { id: 2, customer_name: 'Maria Rodriguez', customer_phone: '+34 611... ', duration: '2m 15s', sentiment: 'Confirmada', created_at: new Date().toISOString() }
-    ]);
-    const [leads, setLeads] = useState<any[]>([
-        { id: 1, name: 'Lead 1', created_at: new Date().toISOString() },
-        { id: 2, name: 'Lead 2', created_at: new Date().toISOString() }
-    ]);
-    const [appointments, setAppointments] = useState<any[]>([
-        { id: 1, status: 'Confirmada', appointment_date: new Date().toISOString() }
-    ]);
+    const [calls, setCalls] = useState<any[]>([]);
+    const [leads, setLeads] = useState<any[]>([]);
+    const [appointments, setAppointments] = useState<any[]>([]);
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic' | 'restaurant_res'>('restaurant');
@@ -62,20 +62,62 @@ export default function AdminDashboard() {
     const [clientName, setClientName] = useState<string>("Admin");
     const [isDemo, setIsDemo] = useState(false);
 
+    // Configuración de Temas Dinámicos
+    const themes = {
+        restaurant: {
+            primary: "#FD7202",
+            accent: "orange",
+            gradient: "from-[#FD7202] to-[#FF9031]",
+            glow: "bg-[#FD7202]/5",
+            icon: Utensils
+        },
+        restaurant_res: {
+            primary: "#8B5CF6",
+            accent: "purple",
+            gradient: "from-[#8B5CF6] to-[#A78BFA]",
+            glow: "bg-[#8B5CF6]/5",
+            icon: Wine
+        },
+        clinic: {
+            primary: "#00F0FF",
+            accent: "blue",
+            gradient: "from-[#00F0FF] to-[#38BDF8]",
+            glow: "bg-[#00F0FF]/5",
+            icon: Stethoscope
+        },
+        barber: {
+            primary: "#F59E0B",
+            accent: "amber",
+            gradient: "from-[#F59E0B] to-[#FBBF24]",
+            glow: "bg-[#F59E0B]/5",
+            icon: Users
+        }
+    };
+
+    const CurrentTheme = themes[industry] || themes.restaurant;
+    const ThemeIcon = CurrentTheme.icon;
+
     useEffect(() => {
         const checkAuthAndFetch = async () => {
             setLoading(true);
             try {
-                // PRIMERO: Verificar si hay una sesión bypass de demo (cookie)
-                // Usamos un regex más robusto para leer la cookie
-                const isDemoSession = document.cookie.match(/^(.*;)?\s*saracalls-demo-session\s*=\s*[^;]+(.*)?$/) ||
-                    document.cookie.includes('saracalls-demo-session=true');
+                // PRIMERO: Verificar si hay una sesión bypass de demo
+                const isDemoSession = document.cookie.includes('saracalls-demo-session=true') ||
+                    localStorage.getItem('saracalls-demo') === 'true' ||
+                    window.location.search.includes('demo=true');
 
                 if (isDemoSession) {
-                    console.log("Detectada sesión DEMO - Saltando verificación de Supabase");
+                    console.log("🚀 SARA: Modo DEMO activado");
                     setIsAuthorized(true);
                     setIsDemo(true);
-                    setClientName("Demo Experience"); // Nombre genérico para la demo
+                    setClientName("Demo Experience");
+
+                    // Recuperar industria persistente si existe
+                    const savedIndustry = localStorage.getItem('saracalls-demo-industry');
+                    if (savedIndustry) {
+                        setIndustry(savedIndustry as any);
+                    }
+
                     setLoading(false);
                     // Cargamos datos mock iniciales
                     setCalls([
@@ -153,7 +195,7 @@ export default function AdminDashboard() {
                     ]);
                 }
 
-                // 4. Suscripción Realtime Filtrada (Canal por Cliente)
+                // 4. Suscripción Realtime Dinámica para todas las tablas
                 const channelId = `client_data_${currentClientId}`;
                 const subscription = supabase
                     .channel(channelId)
@@ -163,7 +205,41 @@ export default function AdminDashboard() {
                         table: 'calls',
                         filter: `client_id=eq.${currentClientId}`
                     }, payload => {
-                        setCalls(prev => [payload.new, ...prev.filter((c: any) => c.id !== (payload.new as any).id)].slice(0, 10));
+                        if (payload.eventType === 'INSERT') {
+                            setCalls(prev => [payload.new, ...prev].slice(0, 50));
+                        } else if (payload.eventType === 'UPDATE') {
+                            setCalls(prev => prev.map(c => c.id === payload.new.id ? payload.new : c));
+                        } else if (payload.eventType === 'DELETE') {
+                            setCalls(prev => prev.filter(c => c.id !== payload.old.id));
+                        }
+                    })
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'leads',
+                        filter: `client_id=eq.${currentClientId}`
+                    }, payload => {
+                        if (payload.eventType === 'INSERT') {
+                            setLeads(prev => [payload.new, ...prev].slice(0, 50));
+                        } else if (payload.eventType === 'UPDATE') {
+                            setLeads(prev => prev.map(l => l.id === payload.new.id ? payload.new : l));
+                        } else if (payload.eventType === 'DELETE') {
+                            setLeads(prev => prev.filter(l => l.id !== payload.old.id));
+                        }
+                    })
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'appointments',
+                        filter: `client_id=eq.${currentClientId}`
+                    }, payload => {
+                        if (payload.eventType === 'INSERT') {
+                            setAppointments(prev => [...prev, payload.new].sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()));
+                        } else if (payload.eventType === 'UPDATE') {
+                            setAppointments(prev => prev.map(a => a.id === payload.new.id ? payload.new : a).sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()));
+                        } else if (payload.eventType === 'DELETE') {
+                            setAppointments(prev => prev.filter(a => a.id !== payload.old.id));
+                        }
                     })
                     .subscribe();
 
@@ -207,9 +283,9 @@ export default function AdminDashboard() {
             {/* Sidebar */}
             <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-2xl z-20">
                 <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-105 duration-300 cursor-pointer">
-                    <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_12px_rgba(253,114,2,0.6)]" />
+                    <ThemeIcon size={40} style={{ color: CurrentTheme.primary, filter: `drop-shadow(0 0 8px ${CurrentTheme.primary}88)` }} />
                     <div>
-                        <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
+                        <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span style={{ color: CurrentTheme.primary }}>ai</span></span>
                         <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio</span>
                     </div>
                 </div>
@@ -227,7 +303,8 @@ export default function AdminDashboard() {
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20 shadow-[0_0_20px_rgba(253,114,2,0.1)]' : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
+                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? `bg-white/5 font-semibold border border-white/10 shadow-[0_0_20px_rgba(253,114,2,0.05)]` : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
+                            style={activeTab === item.id ? { color: CurrentTheme.primary, borderColor: `${CurrentTheme.primary}33`, backgroundColor: `${CurrentTheme.primary}11` } : {}}
                         >
                             <item.icon size={18} className={activeTab === item.id ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
                             <span className="text-sm">{item.label}</span>
@@ -250,13 +327,13 @@ export default function AdminDashboard() {
 
             {/* Main Content */}
             <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
-                {/* Decorative Glow */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FD7202]/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
+                {/* Decorative Glow Dinámico */}
+                <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
 
                 {/* Header Profile */}
                 <header className="flex justify-between items-center mb-10 glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl">
                     <div className="flex items-center gap-4">
-                        <BotMessageSquare className="lg:hidden text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
+                        <ThemeIcon size={40} className="lg:hidden" style={{ color: CurrentTheme.primary }} />
                         <div>
                             <h1 className="text-xl lg:text-2xl font-black uppercase italic tracking-tight">Panel de Control</h1>
                             <div className="flex items-center gap-2">
@@ -268,7 +345,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-4">
                         {/* Demo Industry Switcher */}
                         {isDemo && (
-                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+                            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
                                 {[
                                     { id: 'restaurant', label: 'Pedidos', icon: '🍣' },
                                     { id: 'restaurant_res', label: 'Reservas', icon: '🍷' },
@@ -277,8 +354,13 @@ export default function AdminDashboard() {
                                 ].map((ind) => (
                                     <button
                                         key={ind.id}
-                                        onClick={() => setIndustry(ind.id as any)}
-                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all flex items-center gap-2 ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'text-gray-500 hover:text-white'}`}
+                                        onClick={() => {
+                                            console.log("Cambiando industria a:", ind.id);
+                                            setIndustry(ind.id as any);
+                                            localStorage.setItem('saracalls-demo-industry', ind.id);
+                                        }}
+                                        className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${industry === ind.id ? 'text-white' : 'text-gray-500 hover:text-white'}`}
+                                        style={industry === ind.id ? { backgroundColor: CurrentTheme.primary, boxShadow: `0 0 15px ${CurrentTheme.primary}40` } : {}}
                                     >
                                         <span>{ind.icon}</span>
                                         <span className="hidden sm:inline">{ind.label}</span>
@@ -288,9 +370,9 @@ export default function AdminDashboard() {
                         )}
                         <div className="hidden md:block text-right">
                             <p className="text-sm font-bold">{clientName}</p>
-                            <p className="text-[10px] text-[#FD7202] font-black uppercase">Role: Cliente Enterprise</p>
+                            <p className="text-[10px] font-black uppercase" style={{ color: CurrentTheme.primary }}>Role: Cliente Enterprise</p>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#FD7202] to-orange-400 p-0.5 shadow-[0_0_20px_rgba(253,114,2,0.3)]">
+                        <div className="w-12 h-12 rounded-2xl p-0.5 shadow-2xl" style={{ background: `linear-gradient(to top right, ${CurrentTheme.primary}, #fff3)` }}>
                             <div className="w-full h-full rounded-[14px] bg-black flex items-center justify-center overflow-hidden">
                                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${industry}`} alt="User" />
                             </div>
@@ -310,20 +392,21 @@ export default function AdminDashboard() {
                             {/* Hero Stats */}
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                                 {[
-                                    { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: 'blue', icon: PhoneCall, tab: 'calls' },
+                                    { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: CurrentTheme.accent, icon: PhoneCall, tab: 'calls' },
                                     industry === 'restaurant' ?
                                         { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
                                         { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
-                                    { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: 'orange', icon: UserPlus, tab: 'leads' },
+                                    { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
                                     { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
                                 ].map((stat, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setActiveTab(stat.tab as any)}
-                                        className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5 hover:ring-[#FD7202]/30"
+                                        className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5"
                                     >
-                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-${stat.color}-500/10 flex items-center justify-center mb-6 border border-${stat.color}-500/20 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.2)] hover:border-${stat.color}-500/40`}>
-                                            <stat.icon size={20} className={`text-${stat.color}-400 lg:text-${stat.color}-400 group-hover:neon-text-${stat.color} transition-all duration-300`} />
+                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-500 shadow-xl`}
+                                            style={{ backgroundColor: `${CurrentTheme.primary}15`, borderColor: `${CurrentTheme.primary}33` }}>
+                                            <stat.icon size={20} style={{ color: CurrentTheme.primary }} className="group-hover:scale-110 transition-transform" />
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
@@ -336,9 +419,58 @@ export default function AdminDashboard() {
                                                 {!loading && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>}
                                             </div>
                                         </div>
-                                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#FD7202]/5 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-[#FD7202]/10 transition-all"></div>
+                                        <div className="absolute top-0 right-0 w-24 h-24 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-white/5 transition-all" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
                                     </button>
                                 ))}
+                            </div>
+
+                            {/* Roadmap de Lanzamiento Integrado */}
+                            <div className="glass p-8 rounded-[40px] border border-white/5 bg-white/[0.02] relative overflow-hidden group">
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border-b border-white/5 pb-8 relative z-10">
+                                    <div className="text-center md:text-left">
+                                        <h2 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-3">
+                                            <Rocket style={{ color: CurrentTheme.primary }} className="w-6 h-6 animate-pulse" />
+                                            Protocolo de <span style={{ color: CurrentTheme.primary }}>Lanzamiento</span>
+                                        </h2>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Configuración y Ruta de Éxito</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+                                        <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: CurrentTheme.primary }}></div>
+                                        <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">IA: Entrenamiento Neural</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
+                                    {[
+                                        { step: 1, title: 'Sara-ID', status: 'ready', icon: ShieldCheck, desc: 'Identidad y perfil base (Completado).' },
+                                        { step: 2, title: 'Cerebro', status: 'active', icon: Cpu, desc: 'Entrenamiento de servicios y lógica (En proceso).' },
+                                        { step: 3, title: 'Red', status: 'pending', icon: Workflow, desc: 'Conexión CRM y canal telefónico.' },
+                                        { step: 4, title: 'Despegue', status: 'pending', icon: Rocket, desc: 'Activación del tráfico en vivo 24/7.' }
+                                    ].map((item, i) => (
+                                        <div key={i} className={`flex flex-col items-center text-center p-4 rounded-3xl transition-all duration-500 ${item.status === 'active' ? 'bg-white/5 border border-white/10' : ''}`}
+                                            style={item.status === 'active' ? { backgroundColor: `${CurrentTheme.primary}10`, borderColor: `${CurrentTheme.primary}20` } : {}}>
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 border transition-all duration-500 ${item.status === 'ready' ? 'bg-green-500/10 border-green-500/20 text-green-500' : item.status === 'active' ? 'bg-white/10 border-white/20 shadow-2xl' : 'bg-white/5 border-white/10 text-gray-600'}`}
+                                                style={item.status === 'active' ? { backgroundColor: `${CurrentTheme.primary}20`, borderColor: `${CurrentTheme.primary}40`, color: CurrentTheme.primary } : {}}>
+                                                <item.icon size={24} className={item.status === 'active' ? 'animate-pulse' : ''} />
+                                            </div>
+                                            <h4 className={`text-xs font-black uppercase mb-1 ${item.status === 'ready' ? 'text-green-400' : item.status === 'active' ? 'text-white' : 'text-gray-600'}`}>{item.step}. {item.title}</h4>
+                                            <p className="text-[10px] text-gray-500 font-medium leading-tight px-2">{item.desc}</p>
+
+                                            {item.status === 'active' && (
+                                                <div className="mt-4 w-12 h-0.5 bg-white/10 rounded-full overflow-hidden">
+                                                    <motion.div
+                                                        initial={{ x: '-100%' }}
+                                                        animate={{ x: '100%' }}
+                                                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                                                        className="w-full h-full"
+                                                        style={{ backgroundColor: CurrentTheme.primary }}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="absolute -top-12 -right-12 w-48 h-48 blur-[80px] rounded-full -z-0 pointer-events-none" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
                             </div>
 
                             <div className="grid lg:grid-cols-3 gap-8">
@@ -358,21 +490,23 @@ export default function AdminDashboard() {
                                         ) : calls.length === 0 ? (
                                             <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
                                         ) : calls.slice(0, 3).map((call, idx) => (
-                                            <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] hover:shadow-[0_0_30px_rgba(253,114,2,0.05)] transition-all duration-500">
-                                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-[#FD7202]/40 transition-all duration-500">
-                                                    <Mic size={20} className="text-gray-500 group-hover:text-[#FD7202] group-hover:scale-110 transition-all" />
+                                            <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 transition-all duration-500 hover:bg-white/[0.04]"
+                                                style={{ '--hover-border': CurrentTheme.primary } as any}>
+                                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-all duration-500">
+                                                    <Mic size={20} className="text-gray-500 transition-all" style={{ color: CurrentTheme.primary }} />
                                                 </div>
                                                 <div className="flex-grow">
                                                     <div className="flex items-center gap-3 mb-1">
                                                         <h4 className="font-bold text-lg">{call.customer_name || 'Desconocido'}</h4>
-                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${call.sentiment === 'Positivo' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{call.sentiment || 'Procesada'}</span>
+                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{call.sentiment || 'Procesada'}</span>
                                                     </div>
                                                     <p className="text-xs text-gray-500 font-medium">{call.customer_phone} • {call.duration} • {new Date(call.created_at).toLocaleDateString()}</p>
                                                 </div>
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
-                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isPlaying === idx ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isPlaying === idx ? 'text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                                                        style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
                                                     >
                                                         {isPlaying === idx ? <Volume2 size={20} /> : <Play size={20} />}
                                                     </button>
@@ -382,7 +516,7 @@ export default function AdminDashboard() {
                                     </div>
                                 </div>
                                 <div className="space-y-8">
-                                    <div className="glass rounded-[36px] bg-gradient-to-br from-[#FD7202] to-[#FF9031] p-8 text-white relative overflow-hidden group">
+                                    <div className={`glass rounded-[36px] bg-gradient-to-br ${CurrentTheme.gradient} p-8 text-white relative overflow-hidden group`}>
                                         <div className="relative z-10">
                                             <Zap className="mb-4 text-white opacity-80" />
                                             <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
