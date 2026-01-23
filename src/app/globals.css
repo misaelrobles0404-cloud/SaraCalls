@@ -16,11 +16,14 @@
     --border: 217 33% 18%;
 }
 
+html,
 body {
     background-color: var(--bg-dark);
     color: #ffffff;
     font-family: 'Inter', sans-serif;
     overflow-x: hidden;
+    width: 100vw;
+    position: relative;
 }
 
 .neon-card {
@@ -95,7 +98,7 @@ body {
     position: absolute;
     top: 30px;
     left: 60px;
-    width: 100%;
+    width: calc(100% - 100px);
     height: 2px;
     background: linear-gradient(to right, var(--neon-orange), transparent);
     z-index: -1;

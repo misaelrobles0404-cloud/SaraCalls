@@ -12,7 +12,7 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="es" className="dark">
+        <html lang="es" className="dark overflow-x-hidden">
             <body className="bg-[#050505] text-white antialiased overflow-x-hidden">
                 <div className="cyber-grid"></div>
                 {children}
