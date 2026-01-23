@@ -424,54 +424,7 @@ export default function AdminDashboard() {
                                 ))}
                             </div>
 
-                            {/* Roadmap de Lanzamiento Integrado */}
-                            <div className="glass p-8 rounded-[40px] border border-white/5 bg-white/[0.02] relative overflow-hidden group">
-                                <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-10 border-b border-white/5 pb-8 relative z-10">
-                                    <div className="text-center md:text-left">
-                                        <h2 className="text-xl font-black uppercase italic tracking-tight flex items-center gap-3">
-                                            <Rocket style={{ color: CurrentTheme.primary }} className="w-6 h-6 animate-pulse" />
-                                            Protocolo de <span style={{ color: CurrentTheme.primary }}>Lanzamiento</span>
-                                        </h2>
-                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Configuración y Ruta de Éxito</p>
-                                    </div>
-                                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-                                        <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: CurrentTheme.primary }}></div>
-                                        <span className="text-[9px] font-black uppercase text-gray-400 tracking-widest">IA: Entrenamiento Neural</span>
-                                    </div>
-                                </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-                                    {[
-                                        { step: 1, title: 'Sara-ID', status: 'ready', icon: ShieldCheck, desc: 'Identidad y perfil base (Completado).' },
-                                        { step: 2, title: 'Cerebro', status: 'active', icon: Cpu, desc: 'Entrenamiento de servicios y lógica (En proceso).' },
-                                        { step: 3, title: 'Red', status: 'pending', icon: Workflow, desc: 'Conexión CRM y canal telefónico.' },
-                                        { step: 4, title: 'Despegue', status: 'pending', icon: Rocket, desc: 'Activación del tráfico en vivo 24/7.' }
-                                    ].map((item, i) => (
-                                        <div key={i} className={`flex flex-col items-center text-center p-4 rounded-3xl transition-all duration-500 ${item.status === 'active' ? 'bg-white/5 border border-white/10' : ''}`}
-                                            style={item.status === 'active' ? { backgroundColor: `${CurrentTheme.primary}10`, borderColor: `${CurrentTheme.primary}20` } : {}}>
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 border transition-all duration-500 ${item.status === 'ready' ? 'bg-green-500/10 border-green-500/20 text-green-500' : item.status === 'active' ? 'bg-white/10 border-white/20 shadow-2xl' : 'bg-white/5 border-white/10 text-gray-600'}`}
-                                                style={item.status === 'active' ? { backgroundColor: `${CurrentTheme.primary}20`, borderColor: `${CurrentTheme.primary}40`, color: CurrentTheme.primary } : {}}>
-                                                <item.icon size={24} className={item.status === 'active' ? 'animate-pulse' : ''} />
-                                            </div>
-                                            <h4 className={`text-xs font-black uppercase mb-1 ${item.status === 'ready' ? 'text-green-400' : item.status === 'active' ? 'text-white' : 'text-gray-600'}`}>{item.step}. {item.title}</h4>
-                                            <p className="text-[10px] text-gray-500 font-medium leading-tight px-2">{item.desc}</p>
-
-                                            {item.status === 'active' && (
-                                                <div className="mt-4 w-12 h-0.5 bg-white/10 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ x: '-100%' }}
-                                                        animate={{ x: '100%' }}
-                                                        transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                                                        className="w-full h-full"
-                                                        style={{ backgroundColor: CurrentTheme.primary }}
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="absolute -top-12 -right-12 w-48 h-48 blur-[80px] rounded-full -z-0 pointer-events-none" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
-                            </div>
 
                             <div className="grid lg:grid-cols-3 gap-8">
                                 {/* Recording Player Mock */}
