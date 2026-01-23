@@ -38,6 +38,8 @@ export default function RegisterPage() {
             businessName: formData.get('businessName'),
             industry: formData.get('industry'),
             teamSize: formData.get('teamSize'),
+            country: formData.get('country'),
+            city: formData.get('city'),
             message: formData.get('message'),
         };
 
@@ -133,32 +135,6 @@ export default function RegisterPage() {
                                     </div>
                                 </div>
                             ))}
-                        </div>
-
-                        {/* Country & City Compact Row */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                    <Globe size={12} className="text-[#FD7202]" /> País
-                                </label>
-                                <input
-                                    type="text"
-                                    name="country"
-                                    placeholder="México"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-1 flex items-center gap-2">
-                                    <MapPin size={12} className="text-[#FD7202]" /> Ciudad
-                                </label>
-                                <input
-                                    type="text"
-                                    name="city"
-                                    placeholder="CDMX"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl p-4 transition-all outline-none font-medium placeholder:text-slate-700 focus:border-[#FD7202]/50 focus:bg-white/[0.07]"
-                                />
-                            </div>
                         </div>
 
                         {/* Country & City Compact Row */}
