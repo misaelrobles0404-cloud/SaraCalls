@@ -256,30 +256,6 @@ export default function SuperAdminDashboard() {
         }
     }, [salesLeads]);
 
-    // Efecto para Calcular Tasa de Adquisición en Tiempo Real
-    useEffect(() => {
-        if (salesLeads.length > 0) {
-            const now = new Date();
-            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
-
-            const leadsLast30 = salesLeads.filter(l => new Date(l.created_at) > thirtyDaysAgo).length;
-            const leadsPrev30 = salesLeads.filter(l => {
-                const d = new Date(l.created_at);
-                return d > sixtyDaysAgo && d <= thirtyDaysAgo;
-            }).length;
-
-            let rate = 100;
-            if (leadsPrev30 > 0) {
-                rate = ((leadsLast30 - leadsPrev30) / leadsPrev30) * 100;
-            } else if (leadsLast30 === 0) {
-                rate = 0;
-            }
-
-            setAcquisitionRate(Math.round(rate));
-        }
-    }, [salesLeads]);
-
     const updateLeadStatus = async (leadId: string, newStatus: string) => {
         // Actualización optimista (feedback inmediato)
         const previousLeads = [...salesLeads];
@@ -323,6 +299,33 @@ export default function SuperAdminDashboard() {
         const { supabase } = await import("@/lib/supabase");
         await supabase.auth.signOut();
         router.push("/login");
+    };
+
+    const handleDeleteSalesLeadsByMonth = async (monthsAgo: number) => {
+        const targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() - monthsAgo);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODOS los prospectos de ${monthName}? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('sales_leads')
+                .delete()
+                .gte('created_at', startOfMonth)
+                .lte('created_at', endOfMonth);
+
+            if (error) throw error;
+            alert(`Prospectos de ${monthName} eliminados con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete leads:", error);
+            alert("Error al eliminar: " + error.message);
+        }
     };
 
     const handleDeleteCallsByMonth = async (monthsAgo: number) => {
@@ -428,6 +431,22 @@ export default function SuperAdminDashboard() {
                                         <Trash2 size={12} /> {m.label}
                                     </button>
                                 ))}
+                            </div>
+                        </div>
+
+                        {/* Borrado de Prospectos */}
+                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                            <div className="flex items-center gap-2 px-3 text-orange-400">
+                                <UserPlus size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Prospectos</span>
+                            </div>
+                            <div className="flex gap-1">
+                                <button
+                                    onClick={() => handleDeleteSalesLeadsByMonth(2)}
+                                    className="px-3 py-1.5 bg-white/5 hover:bg-orange-500/20 hover:text-orange-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
+                                >
+                                    <Trash2 size={12} /> Hace 2m
+                                </button>
                             </div>
                         </div>
 
@@ -684,7 +703,7 @@ export default function SuperAdminDashboard() {
 
                                             {/* Actions & Message */}
                                             <div className="flex flex-col items-end gap-3">
-                                                <div className="flex flex-wrap justify-end gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5">
+                                                <div className="grid grid-cols-3 gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5 w-full">
                                                     {[
                                                         { label: 'Nuevo', value: 'Nuevo', color: 'bg-orange-600', shadow: 'shadow-orange-900/40' },
                                                         { label: 'Contactado', value: 'Contactado', color: 'bg-blue-600', shadow: 'shadow-blue-900/40' },
@@ -693,7 +712,7 @@ export default function SuperAdminDashboard() {
                                                         <button
                                                             key={st.value}
                                                             onClick={() => updateLeadStatus(lead.id, st.value)}
-                                                            className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${(lead.status || 'Nuevo') === st.value
+                                                            className={`px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center ${(lead.status || 'Nuevo') === st.value
                                                                 ? `${st.color} text-white shadow-xl ${st.shadow} scale-105`
                                                                 : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
                                                                 }`}

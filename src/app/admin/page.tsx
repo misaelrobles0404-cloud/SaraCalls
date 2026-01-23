@@ -396,6 +396,47 @@ export default function AdminDashboard() {
                             </div>
                         </div>
 
+                        {/* Borrado de Leads para el Cliente */}
+                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                            <div className="flex items-center gap-2 px-3 text-orange-400">
+                                <UserPlus size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Leads</span>
+                            </div>
+                            <div className="flex gap-1">
+                                <button
+                                    onClick={async () => {
+                                        const targetDate = new Date();
+                                        targetDate.setMonth(targetDate.getMonth() - 2);
+                                        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+                                        if (confirm(`¿Estás seguro de que deseas eliminar los LEADS de hace 2 meses (${monthName})? Esta acción no se puede deshacer.`)) {
+                                            const firstDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+                                            const lastDay = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+                                            try {
+                                                const { supabase } = await import("@/lib/supabase");
+                                                const { error } = await supabase
+                                                    .from('leads')
+                                                    .delete()
+                                                    .eq('client_id', clientId)
+                                                    .gte('created_at', firstDay)
+                                                    .lte('created_at', lastDay);
+
+                                                if (error) throw error;
+                                                alert(`Leads de ${monthName} eliminados correctamente.`);
+                                            } catch (err) {
+                                                console.error("Error al borrar leads:", err);
+                                                alert("Error al eliminar los registros.");
+                                            }
+                                        }
+                                    }}
+                                    className="px-3 py-1.5 bg-white/5 hover:bg-orange-500/20 hover:text-orange-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
+                                >
+                                    <Trash2 size={12} /> Hace 2m
+                                </button>
+                            </div>
+                        </div>
+
                         <div className="hidden md:block text-right">
                             <p className="text-sm font-bold">{clientName}</p>
                             <p className="text-[10px] font-black uppercase" style={{ color: CurrentTheme.primary }}>Role: Cliente Enterprise</p>
@@ -688,55 +729,53 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                         <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
-                                    </a>
                                 </div>
                             </div>
-                        </div>
                         </motion.div>
                     )}
-            </AnimatePresence>
+                </AnimatePresence>
 
-            {/* Footer Status */}
-            <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
-                <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
-                    © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
-                </p>
-                <div className="flex gap-6 items-center">
-                    <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
+                {/* Footer Status */}
+                <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
+                        © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
+                    </p>
+                    <div className="flex gap-6 items-center">
+                        <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
+                        >
+                            <LogOut size={12} /> Salir
+                        </button>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
-                    </div>
+                </footer>
+            </main>
+
+            {/* Mobile Navigation Bar */}
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
+                {[
+                    { id: 'overview', icon: LayoutDashboard },
+                    { id: 'calls', icon: Phone },
+                    { id: 'leads', icon: Users },
+                    { id: 'settings', icon: Settings }
+                ].map((item) => (
                     <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id as any)}
+                        className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
                     >
-                        <LogOut size={12} /> Salir
+                        <item.icon size={24} />
                     </button>
-                </div>
-            </footer>
-        </main>
-
-            {/* Mobile Navigation Bar */ }
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
-        {[
-            { id: 'overview', icon: LayoutDashboard },
-            { id: 'calls', icon: Phone },
-            { id: 'leads', icon: Users },
-            { id: 'settings', icon: Settings }
-        ].map((item) => (
-            <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as any)}
-                className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
-            >
-                <item.icon size={24} />
-            </button>
-        ))}
-    </nav>
+                ))}
+            </nav>
         </div >
     );
 }
