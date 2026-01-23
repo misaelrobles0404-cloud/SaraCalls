@@ -16,7 +16,10 @@ import {
     Search,
     TrendingUp,
     ShieldCheck,
-    MessageSquare
+    MessageSquare,
+    Filter,
+    ChevronDown,
+    MapPin
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -44,16 +47,38 @@ export default function SuperAdminDashboard() {
         activeClients: 0
     });
     const [acquisitionRate, setAcquisitionRate] = useState(0);
+    const [selectedPeriod, setSelectedPeriod] = useState<'current' | 'last' | 'quarter' | 'all'>('all');
+    const [isPeriodMenuOpen, setIsPeriodMenuOpen] = useState(false);
 
     const sortedSalesLeads = useMemo(() => {
         const statusPriority: Record<string, number> = { 'Nuevo': 0, 'Contactado': 1, 'Cerrado': 2 };
-        return [...salesLeads].sort((a, b) => {
+
+        let filtered = [...salesLeads];
+
+        const now = new Date();
+        const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+        const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+
+        if (selectedPeriod === 'current') {
+            filtered = filtered.filter(l => new Date(l.created_at) >= startOfCurrentMonth);
+        } else if (selectedPeriod === 'last') {
+            filtered = filtered.filter(l => {
+                const d = new Date(l.created_at);
+                return d >= startOfLastMonth && d <= endOfLastMonth;
+            });
+        } else if (selectedPeriod === 'quarter') {
+            filtered = filtered.filter(l => new Date(l.created_at) >= threeMonthsAgo);
+        }
+
+        return filtered.sort((a, b) => {
             const priorityA = statusPriority[a.status] ?? 3;
             const priorityB = statusPriority[b.status] ?? 3;
             if (priorityA !== priorityB) return priorityA - priorityB;
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
-    }, [salesLeads]);
+    }, [salesLeads, selectedPeriod]);
 
     // Configuración Global
     const [apiKey, setApiKey] = useState("");
@@ -456,10 +481,58 @@ export default function SuperAdminDashboard() {
                                     </h2>
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de nuevos ingresos ({salesLeads.length})</p>
                                 </div>
-                                <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
-                                    <div className="px-4 py-2 flex items-center gap-2">
-                                        <TrendingUp size={16} className={acquisitionRate >= 0 ? "text-green-400" : "text-red-400"} />
-                                        <span className={`text-[10px] font-black uppercase tracking-widest ${acquisitionRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>Tasa Adquisición: {acquisitionRate > 0 ? '+' : ''}{acquisitionRate}%</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                        <div className="px-4 py-2 flex items-center gap-2">
+                                            <TrendingUp size={16} className={acquisitionRate >= 0 ? "text-green-400" : "text-red-400"} />
+                                            <span className={`text-[10px] font-black uppercase tracking-widest ${acquisitionRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>Tasa Adquisición: {acquisitionRate > 0 ? '+' : ''}{acquisitionRate}%</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Period Selector (Hamburguesa/Filtro) */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setIsPeriodMenuOpen(!isPeriodMenuOpen)}
+                                            className="bg-[#FD7202] hover:bg-orange-600 px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-[0_4px_15px_rgba(253,114,2,0.3)] transition-all active:scale-95"
+                                        >
+                                            <Filter size={14} className="text-white" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white">
+                                                {selectedPeriod === 'all' ? 'Todo' : selectedPeriod === 'current' ? 'Este Mes' : selectedPeriod === 'last' ? 'Mes Pasado' : 'Últimos 3m'}
+                                            </span>
+                                            <ChevronDown size={14} className={`text-white transition-transform ${isPeriodMenuOpen ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {isPeriodMenuOpen && (
+                                                <>
+                                                    <div className="fixed inset-0 z-[60]" onClick={() => setIsPeriodMenuOpen(false)}></div>
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                                        className="absolute right-0 mt-2 w-48 bg-[#0a0a0a] border border-white/10 rounded-2xl shadow-2xl p-2 z-[70] backdrop-blur-xl"
+                                                    >
+                                                        {[
+                                                            { id: 'all', label: 'Todo el Historial' },
+                                                            { id: 'current', label: 'Este Mes' },
+                                                            { id: 'last', label: 'Mes Pasado' },
+                                                            { id: 'quarter', label: 'Últimos 3 Meses' }
+                                                        ].map((item) => (
+                                                            <button
+                                                                key={item.id}
+                                                                onClick={() => {
+                                                                    setSelectedPeriod(item.id as any);
+                                                                    setIsPeriodMenuOpen(false);
+                                                                }}
+                                                                className={`w-full flex items-center px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${selectedPeriod === item.id ? 'bg-[#FD7202] text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                                                            >
+                                                                {item.label}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                </>
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                 </div>
                             </div>
