@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { fullName, email, phone, businessName, industry, teamSize, message } = body;
+        const { fullName, email, phone, businessName, industry, teamSize, country, city, message } = body;
 
         // 1. Log para trazabilidad inmediata
         console.log(">>> NUEVO LEAD RECIBIDO:", {
@@ -11,7 +11,8 @@ export async function POST(req: Request) {
             cliente: fullName,
             email,
             empresa: businessName,
-            industria: industry
+            industria: industry,
+            ubicacion: `${city}, ${country}`
         });
 
         const { supabase } = await import('@/lib/supabase');
@@ -26,6 +27,8 @@ export async function POST(req: Request) {
                 business_name: businessName,
                 industry: industry,
                 team_size: teamSize,
+                country: country,
+                city: city,
                 message: message,
                 status: 'Nuevo'
             }]);

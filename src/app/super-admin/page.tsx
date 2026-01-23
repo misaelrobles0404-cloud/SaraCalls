@@ -499,7 +499,15 @@ export default function SuperAdminDashboard() {
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Zap size={14} className="text-[#FD7202]" />
-                                                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{lead.industry || 'Genérico'} • {lead.team_size || 'Equipo N/A'}</span>
+                                                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
+                                                        {lead.industry || 'Genérico'} • {lead.team_size || 'Equipo N/A'}
+                                                        {(lead.city || lead.country) && (
+                                                            <span className="text-gray-500 font-bold ml-1 italic capitalize">
+                                                                • <MapPin size={10} className="inline mr-1" />
+                                                                {lead.city}{lead.city && lead.country ? ', ' : ''}{lead.country}
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                 </div>
                                             </div>
 
