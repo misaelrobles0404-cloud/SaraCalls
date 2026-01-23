@@ -14,12 +14,14 @@ import {
     Eye,
     Save,
     Search,
-    TrendingUp,
+    MapPin,
+    Trash2,
+    AlertCircle,
     ShieldCheck,
-    MessageSquare,
+    TrendingUp,
     Filter,
     ChevronDown,
-    MapPin
+    MessageSquare
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -49,6 +51,29 @@ export default function SuperAdminDashboard() {
     const [acquisitionRate, setAcquisitionRate] = useState(0);
     const [selectedPeriod, setSelectedPeriod] = useState<'current' | 'last' | 'quarter' | 'all'>('all');
     const [isPeriodMenuOpen, setIsPeriodMenuOpen] = useState(false);
+    const [selectedClientHistory, setSelectedClientHistory] = useState<any>(null);
+    const [clientHistoryData, setClientHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
+    const fetchClientHistory = async (client: any) => {
+        setLoadingHistory(true);
+        setSelectedClientHistory(client);
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const [callsRes, leadsRes] = await Promise.all([
+                supabase.from('calls').select('*').eq('client_id', client.client_id).order('created_at', { ascending: false }).limit(10),
+                supabase.from('leads').select('*').eq('client_id', client.client_id).order('created_at', { ascending: false }).limit(10)
+            ]);
+            setClientHistoryData({
+                calls: callsRes.data || [],
+                leads: leadsRes.data || []
+            });
+        } catch (error) {
+            console.error("Error fetching history:", error);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
 
     const sortedSalesLeads = useMemo(() => {
         const statusPriority: Record<string, number> = { 'Nuevo': 0, 'Contactado': 1, 'Cerrado': 2 };
@@ -300,6 +325,33 @@ export default function SuperAdminDashboard() {
         router.push("/login");
     };
 
+    const handleDeleteCallsByMonth = async (monthsAgo: number) => {
+        const targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() - monthsAgo);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODAS las llamadas de ${monthName}? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('calls')
+                .delete()
+                .gte('created_at', startOfMonth)
+                .lte('created_at', endOfMonth);
+
+            if (error) throw error;
+            alert(`Llamadas de ${monthName} eliminadas con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete calls:", error);
+            alert("Error al eliminar: " + error.message);
+        }
+    };
+
     if (!isAuthorized && !loading) return null;
 
     return (
@@ -345,7 +397,7 @@ export default function SuperAdminDashboard() {
                 {/* Decorative Glow */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FD7202]/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
 
-                <header className="mb-10 flex justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl">
+                <header className="mb-10 flex flex-col md:flex-row justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-6">
                     <div className="flex items-center gap-4">
                         <BotMessageSquare className="lg:hidden text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
                         <div>
@@ -356,9 +408,33 @@ export default function SuperAdminDashboard() {
                             </div>
                         </div>
                     </div>
-                    <div className="hidden md:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
-                        <ShieldCheck className="text-green-500" size={16} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-green-500">Misael Robles</span>
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                            <div className="flex items-center gap-2 px-3 text-[#FD7202]">
+                                <AlertCircle size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Historial Llamadas</span>
+                            </div>
+                            <div className="flex gap-1">
+                                {[
+                                    { label: 'Mes Pasado', val: 1 },
+                                    { label: 'Hace 2m', val: 2 }
+                                ].map((m) => (
+                                    <button
+                                        key={m.val}
+                                        onClick={() => handleDeleteCallsByMonth(m.val)}
+                                        className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
+                                    >
+                                        <Trash2 size={12} /> {m.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="hidden md:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
+                            <ShieldCheck className="text-green-500" size={16} />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-green-500">Misael Robles</span>
+                        </div>
                     </div>
                 </header>
 
@@ -453,8 +529,11 @@ export default function SuperAdminDashboard() {
                                                     {client.last_call ? new Date(client.last_call).toLocaleDateString() : 'Sin actividad'}
                                                 </td>
                                                 <td className="py-5 px-4 text-right">
-                                                    <button className="px-4 py-2 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2">
-                                                        <Eye size={14} /> Gestionar
+                                                    <button
+                                                        onClick={() => fetchClientHistory(client)}
+                                                        className="px-4 py-2 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2"
+                                                    >
+                                                        <Eye size={14} /> Historial
                                                     </button>
                                                 </td>
                                             </tr>
@@ -683,6 +762,96 @@ export default function SuperAdminDashboard() {
                     )}
                 </AnimatePresence>
             </main>
+
+            {/* Modal de Historial de Cliente */}
+            <AnimatePresence>
+                {selectedClientHistory && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedClientHistory(null)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        ></motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                        >
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                <div>
+                                    <h3 className="text-2xl font-black uppercase italic text-[#FD7202]">{selectedClientHistory.business_name}</h3>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">ID: {selectedClientHistory.client_id}</p>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedClientHistory(null)}
+                                    className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 transition-all"
+                                >
+                                    <LogOut size={20} className="rotate-180" />
+                                </button>
+                            </div>
+
+                            <div className="flex-grow overflow-y-auto p-8 space-y-10">
+                                {loadingHistory ? (
+                                    <div className="flex items-center justify-center py-20">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Llamadas Recientes */}
+                                        <div className="space-y-4">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                <Phone size={14} className="text-[#FD7202]" /> Últimas Llamadas (Pedidos)
+                                            </h4>
+                                            {clientHistoryData.calls.length === 0 ? (
+                                                <p className="text-xs text-gray-600 italic">No hay registros de llamadas recientes.</p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {clientHistoryData.calls.map((call, i) => (
+                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center group hover:bg-white/[0.05] transition-all">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-white uppercase">{call.customer_name || 'Desconocido'}</p>
+                                                                <p className="text-[10px] text-gray-500">{new Date(call.created_at).toLocaleString()}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="text-[10px] font-black text-[#FD7202] uppercase">{call.duration}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Prospectos Generados */}
+                                        <div className="space-y-4">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                <UserPlus size={14} className="text-[#FD7202]" /> Prospectos Vinculados
+                                            </h4>
+                                            {clientHistoryData.leads.length === 0 ? (
+                                                <p className="text-xs text-gray-600 italic">No hay prospectos vinculados.</p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {clientHistoryData.leads.map((lead, i) => (
+                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-white uppercase">{lead.first_name} {lead.last_name}</p>
+                                                                <p className="text-[10px] text-gray-500">{lead.email}</p>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-lg">Activo</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
