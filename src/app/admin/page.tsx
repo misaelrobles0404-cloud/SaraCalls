@@ -29,7 +29,12 @@ import {
     Wine,
     Scissors,
     Utensils,
-    Stethoscope
+    Stethoscope,
+    Trash2,
+    AlertCircle,
+    Filter,
+    ChevronDown,
+    MessageSquare
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -331,43 +336,66 @@ export default function AdminDashboard() {
                 <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
 
                 {/* Header Profile */}
-                <header className="flex justify-between items-center mb-10 glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl">
+                <header className="mb-10 flex flex-col md:flex-row justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-6">
                     <div className="flex items-center gap-4">
                         <ThemeIcon size={40} className="lg:hidden" style={{ color: CurrentTheme.primary }} />
                         <div>
-                            <h1 className="text-xl lg:text-2xl font-black uppercase italic tracking-tight">Panel de Control</h1>
+                            <h1 className="text-xl lg:text-3xl font-black uppercase italic tracking-tight">Panel de Control</h1>
                             <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)] animate-pulse"></span>
-                                <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">Sistema Operativo • <span className="text-green-500/80">Sara Online</span></p>
+                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: CurrentTheme.primary }}></span>
+                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">{clientName} • Sistema SaraCalls</p>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-4">
-                        {/* Demo Industry Switcher */}
-                        {isDemo && (
-                            <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+
+                    <div className="flex flex-wrap items-center gap-4">
+                        {/* Borrado Mensual para el Cliente */}
+                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
+                            <div className="flex items-center gap-2 px-3" style={{ color: CurrentTheme.primary }}>
+                                <AlertCircle size={14} />
+                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Historial</span>
+                            </div>
+                            <div className="flex gap-1">
                                 {[
-                                    { id: 'restaurant', label: 'Pedidos', icon: '🍣' },
-                                    { id: 'restaurant_res', label: 'Reservas', icon: '🍷' },
-                                    { id: 'barber', label: 'Barbería', icon: '💈' },
-                                    { id: 'clinic', label: 'Clínica', icon: '🏥' }
-                                ].map((ind) => (
+                                    { label: 'Mes Pasado', val: 1 },
+                                    { label: 'Hace 2m', val: 2 }
+                                ].map((m) => (
                                     <button
-                                        key={ind.id}
-                                        onClick={() => {
-                                            console.log("Cambiando industria a:", ind.id);
-                                            setIndustry(ind.id as any);
-                                            localStorage.setItem('saracalls-demo-industry', ind.id);
+                                        key={m.val}
+                                        onClick={async () => {
+                                            const targetDate = new Date();
+                                            targetDate.setMonth(targetDate.getMonth() - m.val);
+                                            const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+                                            if (confirm(`¿Estás seguro de que deseas eliminar las llamadas de ${monthName}? Esta acción no se puede deshacer.`)) {
+                                                const firstDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+                                                const lastDay = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+                                                try {
+                                                    const { supabase } = await import("@/lib/supabase");
+                                                    const { error } = await supabase
+                                                        .from('calls')
+                                                        .delete()
+                                                        .eq('client_id', clientId)
+                                                        .gte('created_at', firstDay)
+                                                        .lte('created_at', lastDay);
+
+                                                    if (error) throw error;
+                                                    alert(`Historial de ${monthName} eliminado correctamente.`);
+                                                } catch (err) {
+                                                    console.error("Error al borrar historial:", err);
+                                                    alert("Error al eliminar los registros.");
+                                                }
+                                            }
                                         }}
-                                        className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 ${industry === ind.id ? 'text-white' : 'text-gray-500 hover:text-white'}`}
-                                        style={industry === ind.id ? { backgroundColor: CurrentTheme.primary, boxShadow: `0 0 15px ${CurrentTheme.primary}40` } : {}}
+                                        className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
                                     >
-                                        <span>{ind.icon}</span>
-                                        <span className="hidden sm:inline">{ind.label}</span>
+                                        <Trash2 size={12} /> {m.label}
                                     </button>
                                 ))}
                             </div>
-                        )}
+                        </div>
+
                         <div className="hidden md:block text-right">
                             <p className="text-sm font-bold">{clientName}</p>
                             <p className="text-[10px] font-black uppercase" style={{ color: CurrentTheme.primary }}>Role: Cliente Enterprise</p>
@@ -641,51 +669,74 @@ export default function AdminDashboard() {
                                 </div>
                                 <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
                             </div>
+
+                            <div className="pt-8 border-t border-white/5">
+                                <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Documentación y Ayuda</h3>
+                                <div className="grid grid-cols-1 gap-4">
+                                    <a
+                                        href="https://github.com/misaelrobles0404-cloud/SaraCalls/blob/main/SARA_MEMORY_GUIDE.md"
+                                        target="_blank"
+                                        className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
+                                                <FileText size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-bold text-white uppercase tracking-tight">Guía de Memoria de IA</p>
+                                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">¿Cómo recuerda Sara a los clientes?</p>
+                                            </div>
+                                        </div>
+                                        <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         </motion.div>
                     )}
-                </AnimatePresence>
+            </AnimatePresence>
 
-                {/* Footer Status */}
-                <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
-                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
-                        © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
-                    </p>
-                    <div className="flex gap-6 items-center">
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
-                        >
-                            <LogOut size={12} /> Salir
-                        </button>
+            {/* Footer Status */}
+            <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
+                <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
+                    © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
+                </p>
+                <div className="flex gap-6 items-center">
+                    <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
                     </div>
-                </footer>
-            </main>
-
-            {/* Mobile Navigation Bar */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
-                {[
-                    { id: 'overview', icon: LayoutDashboard },
-                    { id: 'calls', icon: Phone },
-                    { id: 'leads', icon: Users },
-                    { id: 'settings', icon: Settings }
-                ].map((item) => (
+                    <div className="flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
+                    </div>
                     <button
-                        key={item.id}
-                        onClick={() => setActiveTab(item.id as any)}
-                        className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
                     >
-                        <item.icon size={24} />
+                        <LogOut size={12} /> Salir
                     </button>
-                ))}
-            </nav>
+                </div>
+            </footer>
+        </main>
+
+            {/* Mobile Navigation Bar */ }
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
+        {[
+            { id: 'overview', icon: LayoutDashboard },
+            { id: 'calls', icon: Phone },
+            { id: 'leads', icon: Users },
+            { id: 'settings', icon: Settings }
+        ].map((item) => (
+            <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id as any)}
+                className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
+            >
+                <item.icon size={24} />
+            </button>
+        ))}
+    </nav>
         </div >
     );
 }

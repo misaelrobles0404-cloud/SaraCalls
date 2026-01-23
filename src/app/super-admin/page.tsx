@@ -756,6 +756,28 @@ export default function SuperAdminDashboard() {
                                     >
                                         <Save size={18} /> Guardar Configuración Agencia
                                     </button>
+
+                                    <div className="pt-8 border-t border-white/5">
+                                        <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Documentación y Ayuda</h3>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <a
+                                                href="https://github.com/misaelrobles0404-cloud/SaraCalls/blob/main/SARA_MEMORY_GUIDE.md"
+                                                target="_blank"
+                                                className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all"
+                                            >
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
+                                                        <FileText size={20} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-bold text-white uppercase tracking-tight">Guía de Memoria de IA</p>
+                                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">¿Cómo recuerda Sara a los clientes?</p>
+                                                    </div>
+                                                </div>
+                                                <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </motion.div>
