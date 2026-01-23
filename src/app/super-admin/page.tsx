@@ -142,8 +142,6 @@ export default function SuperAdminDashboard() {
     }, [router]);
 
     const updateLeadStatus = async (leadId: string, newStatus: string) => {
-        console.log("Iniciando actualización de lead:", { leadId, newStatus });
-        
         // Actualización optimista (feedback inmediato)
         const previousLeads = [...salesLeads];
         setSalesLeads(prev => prev.map(lead =>
@@ -158,23 +156,13 @@ export default function SuperAdminDashboard() {
                 .eq('id', leadId)
                 .select();
 
-            if (error) {
-                console.error("Error técnico de Supabase:", error);
-                throw error;
-            }
-
-            if (!data || data.length === 0) {
-                console.warn("No se encontró el lead para actualizar o no hubo cambios:", leadId);
-                throw new Error("No se pudo encontrar el registro en la base de datos.");
-            }
-
-            console.log("Actualización exitosa en Supabase:", data[0]);
+            if (error) throw error;
+            if (!data || data.length === 0) throw new Error("No se pudo encontrar el registro.");
 
         } catch (error: any) {
             console.error("Error actualizando estado:", error);
             // Revertir si hay error
             setSalesLeads(previousLeads);
-            alert(`Error al guardar: ${error.message || "Error desconocido"}`);
         }
     };
 
