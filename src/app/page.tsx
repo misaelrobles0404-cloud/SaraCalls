@@ -61,9 +61,9 @@ export default function LandingPage() {
 
     return (
         <div className="relative min-h-screen bg-[#050505] text-white">
-            <div className="fixed top-6 left-8 z-50 flex items-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/5 py-1.5 px-4 rounded-xl shadow-2xl">
-                <BotMessageSquare className="text-[#FD7202] w-8 h-8 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
-                <span className="text-lg font-black tracking-tight">SaraCalls.<span className="neon-text-orange">ai</span></span>
+            <div className="fixed top-6 left-6 z-50 flex items-center gap-3">
+                <BotMessageSquare className="text-[#FD7202] w-10 h-10 lg:w-12 lg:h-12 drop-shadow-[0_0_15px_rgba(253,114,2,0.6)]" />
+                <span className="text-xl lg:text-2xl font-black tracking-tight drop-shadow-lg">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
 
             <div className="fixed top-6 right-8 z-50 hidden md:flex items-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/5 py-1.5 px-4 rounded-xl shadow-2xl transition-all hover:bg-white/[0.05]">
@@ -95,7 +95,7 @@ export default function LandingPage() {
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="text-left"
+                        className="text-center lg:text-left"
                     >
                         <div className="inline-block px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-[#FF7A00] text-[10px] font-black uppercase tracking-[0.3em] mb-8">
                             Sistemas de Voz de Nueva Generación
@@ -105,10 +105,10 @@ export default function LandingPage() {
                             <span className="neon-text-orange">VENTA</span> CON <br className="hidden md:inline" />
                             VOZ IA 24/7.
                         </h1>
-                        <p className="text-base lg:text-lg text-slate-400 mb-10 max-w-xl font-medium leading-relaxed">
+                        <p className="text-base lg:text-lg text-slate-400 mb-10 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
                             Atención automatizada ultra-humana. Sara agenda, califica y cierra oportunidades mientras tú te enfocas en liderar.
                         </p>
-                        <div className="flex gap-6">
+                        <div className="flex gap-6 justify-center lg:justify-start">
                             <Link href="/register" className="btn-neon">Empezar Ahora</Link>
                             <button className="px-8 py-4 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-xs">Ver Demo</button>
                         </div>
