@@ -52,12 +52,8 @@ export default function RegisterPage() {
 
             if (response.ok) {
                 setIsSuccess(true);
-                setTimeout(() => {
-                    router.push("/login");
-                }, 3000);
             } else {
                 console.error("Error al enviar registro");
-                // Podríamos mostrar un error visual aquí si se desea
             }
         } catch (error) {
             console.error("Error de red:", error);
@@ -72,17 +68,24 @@ export default function RegisterPage() {
                 <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="text-center space-y-6"
+                    className="text-center space-y-8"
                 >
                     <div className="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mx-auto border border-green-500/30">
                         <CheckCircle2 className="text-green-500 w-12 h-12" />
                     </div>
-                    <h1 className="text-4xl font-black uppercase italic tracking-tight">¡Solicitud <span className="text-green-500">Recibida</span>!</h1>
-                    <p className="text-slate-400 font-medium max-w-sm mx-auto leading-relaxed">
-                        Un asesor de SaraCalls.ai se pondrá en contacto contigo en menos de 24 horas para activar tu cuenta.
-                    </p>
-                    <div className="pt-8">
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">Redirigiendo al login...</p>
+                    <div>
+                        <h1 className="text-4xl font-black uppercase italic tracking-tight mb-4">¡Solicitud <span className="text-green-500">Enviada</span>!</h1>
+                        <p className="text-slate-400 font-medium max-w-sm mx-auto leading-relaxed">
+                            Registro completado con éxito. Un asesor experto de SaraCalls.ai revisará tu perfil y te contactará en menos de 24 horas para activar tu cuenta.
+                        </p>
+                    </div>
+                    <div className="pt-4 flex flex-col gap-4">
+                        <Link
+                            href="/"
+                            className="bg-white/10 hover:bg-white/20 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all active:scale-95 border border-white/10"
+                        >
+                            Volver al Inicio
+                        </Link>
                     </div>
                 </motion.div>
             </div>
