@@ -25,7 +25,7 @@ import {
     Legend
 } from 'chart.js';
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -43,6 +43,17 @@ export default function SuperAdminDashboard() {
         totalMinutes: 0,
         activeClients: 0
     });
+    const [acquisitionRate, setAcquisitionRate] = useState(0);
+
+    const sortedSalesLeads = useMemo(() => {
+        const statusPriority: Record<string, number> = { 'Nuevo': 0, 'Contactado': 1, 'Cerrado': 2 };
+        return [...salesLeads].sort((a, b) => {
+            const priorityA = statusPriority[a.status] ?? 3;
+            const priorityB = statusPriority[b.status] ?? 3;
+            if (priorityA !== priorityB) return priorityA - priorityB;
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+    }, [salesLeads]);
 
     // Configuración Global
     const [apiKey, setApiKey] = useState("");
@@ -80,7 +91,37 @@ export default function SuperAdminDashboard() {
                 const { data: globalSettings } = await supabase.from('agency_settings').select('*').single();
 
                 if (salesLeadsData) {
-                    setSalesLeads(salesLeadsData);
+                    // Ordenar: Nuevo (0) > Contactado (1) > Cerrado (2) > Otros (3)
+                    const statusPriority: Record<string, number> = { 'Nuevo': 0, 'Contactado': 1, 'Cerrado': 2 };
+                    const sortedLeads = [...salesLeadsData].sort((a, b) => {
+                        const priorityA = statusPriority[a.status] ?? 3;
+                        const priorityB = statusPriority[b.status] ?? 3;
+                        if (priorityA !== priorityB) return priorityA - priorityB;
+                        // Si tienen la misma prioridad, el más reciente primero
+                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    });
+
+                    setSalesLeads(sortedLeads);
+
+                    // Calcular Tasa de Adquisición (Mes actual vs Mes anterior)
+                    const now = new Date();
+                    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+                    const leadsLast30 = salesLeadsData.filter(l => new Date(l.created_at) > thirtyDaysAgo).length;
+                    const leadsPrev30 = salesLeadsData.filter(l => {
+                        const d = new Date(l.created_at);
+                        return d > sixtyDaysAgo && d <= thirtyDaysAgo;
+                    }).length;
+
+                    let rate = 100;
+                    if (leadsPrev30 > 0) {
+                        rate = ((leadsLast30 - leadsPrev30) / leadsPrev30) * 100;
+                    } else if (leadsLast30 === 0) {
+                        rate = 0;
+                    }
+
+                    setAcquisitionRate(Math.round(rate));
                 }
 
                 if (clientData) {
@@ -140,6 +181,54 @@ export default function SuperAdminDashboard() {
         const cleanup = setupRealtime();
         return () => { cleanup.then(c => c && c()); };
     }, [router]);
+
+    // Efecto para Calcular Tasa de Adquisición en Tiempo Real
+    useEffect(() => {
+        if (salesLeads.length > 0) {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+            const leadsLast30 = salesLeads.filter(l => new Date(l.created_at) > thirtyDaysAgo).length;
+            const leadsPrev30 = salesLeads.filter(l => {
+                const d = new Date(l.created_at);
+                return d > sixtyDaysAgo && d <= thirtyDaysAgo;
+            }).length;
+
+            let rate = 100;
+            if (leadsPrev30 > 0) {
+                rate = ((leadsLast30 - leadsPrev30) / leadsPrev30) * 100;
+            } else if (leadsLast30 === 0) {
+                rate = 0;
+            }
+
+            setAcquisitionRate(Math.round(rate));
+        }
+    }, [salesLeads]);
+
+    // Efecto para Calcular Tasa de Adquisición en Tiempo Real
+    useEffect(() => {
+        if (salesLeads.length > 0) {
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+
+            const leadsLast30 = salesLeads.filter(l => new Date(l.created_at) > thirtyDaysAgo).length;
+            const leadsPrev30 = salesLeads.filter(l => {
+                const d = new Date(l.created_at);
+                return d > sixtyDaysAgo && d <= thirtyDaysAgo;
+            }).length;
+
+            let rate = 100;
+            if (leadsPrev30 > 0) {
+                rate = ((leadsLast30 - leadsPrev30) / leadsPrev30) * 100;
+            } else if (leadsLast30 === 0) {
+                rate = 0;
+            }
+
+            setAcquisitionRate(Math.round(rate));
+        }
+    }, [salesLeads]);
 
     const updateLeadStatus = async (leadId: string, newStatus: string) => {
         // Actualización optimista (feedback inmediato)
@@ -369,18 +458,18 @@ export default function SuperAdminDashboard() {
                                 </div>
                                 <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
                                     <div className="px-4 py-2 flex items-center gap-2">
-                                        <TrendingUp size={16} className="text-green-400" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-green-400">Tasa Adquisición: +24%</span>
+                                        <TrendingUp size={16} className={acquisitionRate >= 0 ? "text-green-400" : "text-red-400"} />
+                                        <span className={`text-[10px] font-black uppercase tracking-widest ${acquisitionRate >= 0 ? 'text-green-400' : 'text-red-400'}`}>Tasa Adquisición: {acquisitionRate > 0 ? '+' : ''}{acquisitionRate}%</span>
                                     </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 gap-4">
-                                {salesLeads.length === 0 ? (
+                                {sortedSalesLeads.length === 0 ? (
                                     <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
                                         <Search size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
                                         <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay prospectos en la base de datos</p>
                                     </div>
-                                ) : salesLeads.map((lead, idx) => (
+                                ) : sortedSalesLeads.map((lead, idx) => (
                                     <div key={idx} className={`relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04] group overflow-hidden ${(lead.status || 'Nuevo') === 'Nuevo' ? 'ring-1 ring-orange-500/20' : ''}`}>
                                         {/* Status Glow Overlay */}
                                         {(lead.status || 'Nuevo') === 'Nuevo' && <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 shadow-[0_0_20px_rgba(253,114,2,0.5)]"></div>}
