@@ -61,9 +61,18 @@ export default function LandingPage() {
 
     return (
         <div className="relative min-h-screen bg-[#050505] text-white">
-            <div className="fixed top-6 left-6 z-50 flex items-center gap-3">
-                <BotMessageSquare className="text-[#FD7202] w-10 h-10 lg:w-12 lg:h-12 drop-shadow-[0_0_15px_rgba(253,114,2,0.6)]" />
-                <span className="text-xl lg:text-2xl font-black tracking-tight drop-shadow-lg">SaraCalls.<span className="neon-text-orange">ai</span></span>
+            {/* Mobile Header Bar */}
+            <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-6 bg-[#050505]/90 backdrop-blur-xl border-b border-white/5 md:hidden">
+                <div className="flex items-center gap-3">
+                    <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_15px_rgba(253,114,2,0.6)]" />
+                    <span className="text-xl font-black tracking-tight drop-shadow-lg">SaraCalls.<span className="neon-text-orange">ai</span></span>
+                </div>
+            </div>
+
+            {/* Desktop Logo (Floating) */}
+            <div className="fixed top-6 left-6 z-50 hidden md:flex items-center gap-3">
+                <BotMessageSquare className="text-[#FD7202] w-12 h-12 drop-shadow-[0_0_15px_rgba(253,114,2,0.6)] hover:scale-110 transition-transform duration-300" />
+                <span className="text-2xl font-black tracking-tight drop-shadow-lg">SaraCalls.<span className="neon-text-orange">ai</span></span>
             </div>
 
             <div className="fixed top-6 right-8 z-50 hidden md:flex items-center gap-3 bg-white/[0.03] backdrop-blur-md border border-white/5 py-1.5 px-4 rounded-xl shadow-2xl transition-all hover:bg-white/[0.05]">
