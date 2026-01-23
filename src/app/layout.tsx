@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="es" className="dark">
-            <body className="bg-[#050505] text-white antialiased">
+            <body className="bg-[#050505] text-white antialiased overflow-x-hidden">
                 <div className="cyber-grid"></div>
                 {children}
             </body>

@@ -117,9 +117,9 @@ export default function LandingPage() {
                         <p className="text-base lg:text-lg text-slate-400 mb-10 max-w-xl mx-auto lg:mx-0 font-medium leading-relaxed">
                             Atención automatizada ultra-humana. Sara agenda, califica y cierra oportunidades mientras tú te enfocas en liderar.
                         </p>
-                        <div className="flex gap-6 justify-center lg:justify-start">
-                            <Link href="/register" className="btn-neon">Empezar Ahora</Link>
-                            <button className="px-8 py-4 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-xs">Ver Demo</button>
+                        <div className="flex gap-4 justify-center lg:justify-start">
+                            <Link href="/register" className="btn-neon px-5 py-3 text-[10px] md:px-8 md:py-4 md:text-sm">Empezar Ahora</Link>
+                            <button className="px-5 py-3 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-[10px] md:px-8 md:py-4 md:text-xs">Ver Demo</button>
                         </div>
                     </motion.div>
 
