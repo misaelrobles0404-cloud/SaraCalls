@@ -10,18 +10,16 @@ import {
     Clock,
     Zap,
     BotMessageSquare,
-    LogOut,
     Eye,
     Save,
     Search,
     MapPin,
-    Trash2,
-    AlertCircle,
-    ShieldCheck,
     TrendingUp,
     Filter,
-    ChevronDown,
+    Trash2,
+    AlertCircle,
     MessageSquare,
+    LogOut,
     FileText,
     BookOpen,
     X,
@@ -29,8 +27,12 @@ import {
     UserPlus2,
     Database,
     Smartphone,
-    Rocket
+    Rocket,
+    ChevronDown
 } from "lucide-react";
+import { SuperAdminSidebar } from "@/components/dashboard/SuperAdminSidebar";
+import { SuperAdminHeader } from "@/components/dashboard/SuperAdminHeader";
+import { SalesLeadCard } from "@/components/dashboard/SalesLeadCard";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -291,11 +293,8 @@ export default function SuperAdminDashboard() {
         }
     };
 
-    const deleteLead = async (leadId: string) => {
-        if (!confirm("¿Estás seguro de que deseas eliminar este prospecto permanentemente?")) return;
-
-        const previousLeads = [...salesLeads];
-        setSalesLeads(prev => prev.filter(lead => lead.id !== leadId));
+    const handleDeleteLead = async (leadId: string) => {
+        if (!confirm("¿Estás seguro de que quieres eliminar este prospecto? Esta acción no se puede deshacer.")) return;
 
         try {
             const { supabase } = await import("@/lib/supabase");
@@ -305,10 +304,11 @@ export default function SuperAdminDashboard() {
                 .eq('id', leadId);
 
             if (error) throw error;
+            setSalesLeads(prev => prev.filter(l => l.id !== leadId));
+            setGlobalStats(prev => ({ ...prev, totalLeads: prev.totalLeads - 1 }));
         } catch (error: any) {
-            console.error("Error eliminando prospecto:", error);
-            setSalesLeads(previousLeads);
-            alert("Error al eliminar el prospecto: " + error.message);
+            console.error("Error deleting lead:", error);
+            alert("Error al eliminar el prospecto.");
         }
     };
 
@@ -391,103 +391,18 @@ export default function SuperAdminDashboard() {
     return (
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
             {/* Sidebar Super Admin */}
-            <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-3xl z-20">
-                <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-105 duration-300">
-                    <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_12px_rgba(253,114,2,0.6)]" />
-                    <div>
-                        <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span className="text-[#FD7202]">ai</span></span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Agency Master</span>
-                    </div>
-                </div>
-
-                <nav className="space-y-1 flex-grow">
-                    {[
-                        { id: 'overview', icon: LayoutDashboard, label: 'Consumo Global' },
-                        { id: 'clients', icon: Users, label: 'Mis Clientes' },
-                        { id: 'sales', icon: UserPlus, label: 'Prospectos Web' },
-                        { id: 'knowledge', icon: BookOpen, label: 'Knowledge Hub' },
-                        { id: 'settings', icon: Settings, label: 'Configuración' }
-                    ].map((item: any) => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? 'bg-[#FD7202]/10 text-[#FD7202] font-semibold border border-[#FD7202]/20 shadow-[0_0_20px_rgba(253,114,2,0.1)]' : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
-                        >
-                            <item.icon size={18} className={activeTab === item.id ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
-                            <span className="text-sm">{item.label}</span>
-                        </button>
-                    ))}
-                </nav>
-
-                <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-all font-bold text-sm"
-                >
-                    <LogOut size={18} /> Cerrar Sesión
-                </button>
-            </aside>
+            <SuperAdminSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                handleLogout={handleLogout}
+            />
 
             {/* Main Content */}
             <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
                 {/* Decorative Glow */}
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FD7202]/5 blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse"></div>
 
-                <header className="mb-10 flex flex-col md:flex-row justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-6">
-                    <div className="flex items-center gap-4">
-                        <BotMessageSquare className="lg:hidden text-[#FD7202] w-10 h-10 drop-shadow-[0_0_8px_rgba(253,114,2,0.5)]" />
-                        <div>
-                            <h1 className="text-xl lg:text-3xl font-black uppercase italic tracking-tight">Gestión de Agencia</h1>
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full bg-[#FD7202] animate-pulse"></span>
-                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Panel Maestro • Acceso Restringido</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4">
-                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
-                            <div className="flex items-center gap-2 px-3 text-[#FD7202]">
-                                <AlertCircle size={14} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Historial Llamadas</span>
-                            </div>
-                            <div className="flex gap-1">
-                                {[
-                                    { label: 'Mes Pasado', val: 1 },
-                                    { label: 'Hace 2m', val: 2 }
-                                ].map((m) => (
-                                    <button
-                                        key={m.val}
-                                        onClick={() => handleDeleteCallsByMonth(m.val)}
-                                        className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
-                                    >
-                                        <Trash2 size={12} /> {m.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Borrado de Prospectos */}
-                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
-                            <div className="flex items-center gap-2 px-3 text-orange-400">
-                                <UserPlus size={14} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Prospectos</span>
-                            </div>
-                            <div className="flex gap-1">
-                                <button
-                                    onClick={() => handleDeleteSalesLeadsByMonth(2)}
-                                    className="px-3 py-1.5 bg-white/5 hover:bg-orange-500/20 hover:text-orange-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
-                                >
-                                    <Trash2 size={12} /> Hace 2m
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="hidden md:flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
-                            <ShieldCheck className="text-green-500" size={16} />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-green-500">Misael Robles</span>
-                        </div>
-                    </div>
-                </header>
+                <SuperAdminHeader />
 
                 <AnimatePresence mode="wait">
                     {activeTab === 'overview' && (
@@ -673,103 +588,12 @@ export default function SuperAdminDashboard() {
                                         <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay prospectos en la base de datos</p>
                                     </div>
                                 ) : sortedSalesLeads.map((lead, idx) => (
-                                    <div key={idx} className={`relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04] group overflow-hidden ${(lead.status || 'Nuevo') === 'Nuevo' ? 'ring-1 ring-orange-500/20' : ''}`}>
-                                        {/* Delete Button (Visible on Hover) */}
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); deleteLead(lead.id); }}
-                                            className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-lg border border-red-500/20 z-20"
-                                            title="Eliminar Prospecto"
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-
-                                        {/* Status Glow Overlay */}
-                                        {(lead.status || 'Nuevo') === 'Nuevo' && <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 shadow-[0_0_20px_rgba(253,114,2,0.5)]"></div>}
-                                        {lead.status === 'Contactado' && <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>}
-                                        {lead.status === 'Cerrado' && <div className="absolute top-0 left-0 w-1 h-full bg-green-500"></div>}
-
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center relative z-10">
-                                            {/* Person Info */}
-                                            <div className="flex items-center gap-4">
-                                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all duration-500 ${(lead.status || 'Nuevo') === 'Nuevo' ? 'bg-orange-500/10 border-orange-500/20 text-orange-500' : 'bg-white/5 border-white/10 text-gray-500'}`}>
-                                                    <UserPlus size={24} />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-lg text-white group-hover:text-[#FD7202] transition-colors">{lead.full_name}</h4>
-                                                    <div className="flex items-center gap-2 mt-0.5">
-                                                        <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">{new Date(lead.created_at).toLocaleDateString()}</span>
-                                                        {(lead.status || 'Nuevo') === 'Nuevo' && <span className="text-[8px] font-black bg-orange-500 text-white px-1.5 py-0.5 rounded animate-pulse">NUEVO</span>}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Company Info */}
-                                            <div>
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <LayoutDashboard size={14} className="text-gray-600" />
-                                                    <span className="text-sm font-bold text-gray-200">{lead.business_name || 'Sin Empresa'}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Zap size={14} className="text-[#FD7202]" />
-                                                    <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">
-                                                        {lead.industry || 'Genérico'} • {lead.team_size || 'Equipo N/A'}
-                                                        {(lead.city || lead.country) && (
-                                                            <span className="text-gray-500 font-bold ml-1 italic capitalize">
-                                                                • <MapPin size={10} className="inline mr-1" />
-                                                                {lead.city}{lead.city && lead.country ? ', ' : ''}{lead.country}
-                                                            </span>
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Contact Info */}
-                                            <div className="flex flex-col gap-2">
-                                                <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-gray-600"></span>
-                                                    {lead.email}
-                                                </div>
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-xs font-bold text-gray-500 tabular-nums">{lead.phone}</span>
-                                                    <a
-                                                        href={`https://wa.me/${lead.phone?.replace(/\D/g, '')}`}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 bg-green-500/10 hover:bg-green-500 text-green-500 hover:text-white rounded-xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
-                                                    >
-                                                        <MessageSquare size={14} /> WhatsApp
-                                                    </a>
-                                                </div>
-                                            </div>
-
-                                            {/* Actions & Message */}
-                                            <div className="flex flex-col items-end gap-3">
-                                                <div className="grid grid-cols-3 gap-2 p-1.5 bg-black/20 rounded-2xl border border-white/5 w-full">
-                                                    {[
-                                                        { label: 'Nuevo', value: 'Nuevo', color: 'bg-orange-600', shadow: 'shadow-orange-900/40' },
-                                                        { label: 'Contactado', value: 'Contactado', color: 'bg-blue-600', shadow: 'shadow-blue-900/40' },
-                                                        { label: 'Cerrado', value: 'Cerrado', color: 'bg-green-600', shadow: 'shadow-green-900/40' }
-                                                    ].map((st) => (
-                                                        <button
-                                                            key={st.value}
-                                                            onClick={() => updateLeadStatus(lead.id, st.value)}
-                                                            className={`px-3 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center ${(lead.status || 'Nuevo') === st.value
-                                                                ? `${st.color} text-white shadow-xl ${st.shadow} scale-105`
-                                                                : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
-                                                                }`}
-                                                        >
-                                                            {st.label}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                                <div className="bg-white/[0.03] p-3 rounded-2xl border border-white/5 w-full relative group/msg">
-                                                    <p className="text-[10px] text-gray-400 italic leading-relaxed line-clamp-2 group-hover/msg:line-clamp-none transition-all">
-                                                        "{lead.message || 'El prospecto no dejó un mensaje adicional.'}"
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <SalesLeadCard
+                                        key={lead.id || idx}
+                                        lead={lead}
+                                        onUpdateStatus={updateLeadStatus}
+                                        onDelete={handleDeleteLead}
+                                    />
                                 ))}
                             </div>
                         </motion.div>
