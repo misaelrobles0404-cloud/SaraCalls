@@ -512,416 +512,419 @@ export default function AdminDashboard() {
                 logoUrl={logoUrl}
                 handleLogout={handleLogout}
                 currentTheme={CurrentTheme}
+                isOpen={isMobileMenuOpen}
+                onClose={() => setIsMobileMenuOpen(false)}
             />
 
-            {/* Main Content */}
-            <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
-                {/* Decorative Glow Dinámico */}
-                <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
+            <main className="lg:pl-64 min-h-screen w-full">
+                <div className="max-w-7xl mx-auto p-4 lg:p-8 relative">
+                    {/* Decorative Glow Dinámico */}
+                    <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
 
-                {/* Admin Toolbar (Only for Super Admin) */}
-                {isAdminUser && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8 p-4 rounded-3xl bg-[#FD7202]/10 border border-[#FD7202]/20 flex flex-wrap items-center justify-between gap-4 backdrop-blur-xl"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-[#FD7202] flex items-center justify-center text-white shadow-lg">
-                                <ShieldCheck size={20} />
-                            </div>
-                            <div>
-                                <h4 className="text-xs font-black uppercase italic tracking-wider">Modo Administrador</h4>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Estás previsualizando la interfaz de cliente</p>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                            {[
-                                { id: 'restaurant', label: 'Restaurante', icon: Utensils },
-                                { id: 'barber', label: 'Barbería', icon: Scissors },
-                                { id: 'clinic', label: 'Clínica', icon: Stethoscope },
-                                { id: 'restaurant_res', label: 'Restaurante Gourmet', icon: Wine }
-                            ].map((ind) => (
-                                <button
-                                    key={ind.id}
-                                    onClick={() => setIndustry(ind.id as any)}
-                                    className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
-                                >
-                                    <ind.icon size={14} /> {ind.label}
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* Header Profile */}
-                <ClientHeader
-                    clientName={clientName}
-                    industry={industry}
-                    logoUrl={logoUrl}
-                    currentTheme={CurrentTheme}
-                />
-
-                <AnimatePresence mode="wait">
-                    {activeTab === 'overview' ? (
+                    {/* Admin Toolbar (Only for Super Admin) */}
+                    {isAdminUser && (
                         <motion.div
-                            key="overview"
-                            initial={{ opacity: 0, y: 20 }}
+                            initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="space-y-8"
+                            className="mb-8 p-4 rounded-3xl bg-[#FD7202]/10 border border-[#FD7202]/20 flex flex-wrap items-center justify-between gap-4 backdrop-blur-xl"
                         >
-                            {/* Hero Stats */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-[#FD7202] flex items-center justify-center text-white shadow-lg">
+                                    <ShieldCheck size={20} />
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-black uppercase italic tracking-wider">Modo Administrador</h4>
+                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Estás previsualizando la interfaz de cliente</p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2">
                                 {[
-                                    { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: CurrentTheme.accent, icon: PhoneCall, tab: 'calls' },
-                                    industry === 'restaurant' ?
-                                        { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
-                                        { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
-                                    { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
-                                    { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
-                                ].map((stat, i) => (
+                                    { id: 'restaurant', label: 'Restaurante', icon: Utensils },
+                                    { id: 'barber', label: 'Barbería', icon: Scissors },
+                                    { id: 'clinic', label: 'Clínica', icon: Stethoscope },
+                                    { id: 'restaurant_res', label: 'Restaurante Gourmet', icon: Wine }
+                                ].map((ind) => (
                                     <button
-                                        key={i}
-                                        onClick={() => setActiveTab(stat.tab as any)}
-                                        className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5"
+                                        key={ind.id}
+                                        onClick={() => setIndustry(ind.id as any)}
+                                        className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
                                     >
-                                        <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-500 shadow-xl`}
-                                            style={{ backgroundColor: `${CurrentTheme.primary}15`, borderColor: `${CurrentTheme.primary}33` }}>
-                                            <stat.icon size={20} style={{ color: CurrentTheme.primary }} className="group-hover:scale-110 transition-transform" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
-                                            <div className="flex items-baseline gap-3">
-                                                {stat.value === null ? (
-                                                    <div className="h-9 w-20 bg-white/5 animate-pulse rounded-lg"></div>
-                                                ) : (
-                                                    <h3 className="text-2xl lg:text-3xl font-black italic">{stat.value}</h3>
-                                                )}
-                                                {!loading && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>}
-                                            </div>
-                                        </div>
-                                        <div className="absolute top-0 right-0 w-24 h-24 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-white/5 transition-all" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
+                                        <ind.icon size={14} /> {ind.label}
                                     </button>
                                 ))}
                             </div>
+                        </motion.div>
+                    )}
+
+                    {/* Header Profile */}
+                    <ClientHeader
+                        clientName={clientName}
+                        industry={industry}
+                        logoUrl={logoUrl}
+                        currentTheme={CurrentTheme}
+                        onMenuClick={() => setIsMobileMenuOpen(true)}
+                    />
+
+                    <AnimatePresence mode="wait">
+                        {activeTab === 'overview' ? (
+                            <motion.div
+                                key="overview"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="space-y-8"
+                            >
+                                {/* Hero Stats */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                                    {[
+                                        { label: 'Total Llamadas', value: loading ? null : calls.length.toString(), trend: '+12%', color: CurrentTheme.accent, icon: PhoneCall, tab: 'calls' },
+                                        industry === 'restaurant' ?
+                                            { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
+                                            { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
+                                        { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
+                                        { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
+                                    ].map((stat, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => setActiveTab(stat.tab as any)}
+                                            className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5"
+                                        >
+                                            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-500 shadow-xl`}
+                                                style={{ backgroundColor: `${CurrentTheme.primary}15`, borderColor: `${CurrentTheme.primary}33` }}>
+                                                <stat.icon size={20} style={{ color: CurrentTheme.primary }} className="group-hover:scale-110 transition-transform" />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
+                                                <div className="flex items-baseline gap-3">
+                                                    {stat.value === null ? (
+                                                        <div className="h-9 w-20 bg-white/5 animate-pulse rounded-lg"></div>
+                                                    ) : (
+                                                        <h3 className="text-2xl lg:text-3xl font-black italic">{stat.value}</h3>
+                                                    )}
+                                                    {!loading && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>}
+                                                </div>
+                                            </div>
+                                            <div className="absolute top-0 right-0 w-24 h-24 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-white/5 transition-all" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
+                                        </button>
+                                    ))}
+                                </div>
 
 
 
-                            <div className="grid lg:grid-cols-3 gap-8">
-                                {/* Recording Player Mock */}
-                                <div className="lg:col-span-2 glass rounded-[36px] border border-white/5 p-8 bg-white/[0.02] shadow-2xl">
+                                <div className="grid lg:grid-cols-3 gap-8">
+                                    {/* Recording Player Mock */}
+                                    <div className="lg:col-span-2 glass rounded-[36px] border border-white/5 p-8 bg-white/[0.02] shadow-2xl">
+                                        <div className="flex justify-between items-center mb-8">
+                                            <div>
+                                                <h2 className="text-xl font-black uppercase italic tracking-tight">Última Actividad</h2>
+                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={fetchHistory}
+                                                    className="px-4 py-2 rounded-xl bg-[#FD7202]/10 hover:bg-[#FD7202] text-[#FD7202] hover:text-white text-[10px] font-black uppercase tracking-widest transition-all border border-[#FD7202]/20"
+                                                >
+                                                    Ver Historial
+                                                </button>
+                                                <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {loading ? (
+                                                <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
+                                            ) : calls.length === 0 ? (
+                                                <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
+                                            ) : calls.slice(0, 3).map((call, idx) => (
+                                                <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 transition-all duration-500 hover:bg-white/[0.04]"
+                                                    style={{ '--hover-border': CurrentTheme.primary } as any}>
+                                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-all duration-500">
+                                                        <Mic size={20} className="text-gray-500 transition-all" style={{ color: CurrentTheme.primary }} />
+                                                    </div>
+                                                    <div className="flex-grow">
+                                                        <div className="flex items-center gap-3 mb-1">
+                                                            <h4 className="font-bold text-lg">{call.customer_name || 'Desconocido'}</h4>
+                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{call.sentiment || 'Procesada'}</span>
+                                                        </div>
+                                                        <p className="text-xs text-gray-500 font-medium">{call.customer_phone} • {call.duration} • {new Date(call.created_at).toLocaleDateString()}</p>
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
+                                                            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isPlaying === idx ? 'text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                                                            style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
+                                                        >
+                                                            {isPlaying === idx ? <Volume2 size={20} /> : <Play size={20} />}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-8">
+                                        <div className={`glass rounded-[36px] bg-gradient-to-br ${CurrentTheme.gradient} p-8 text-white relative overflow-hidden group`}>
+                                            <div className="relative z-10">
+                                                <Zap className="mb-4 text-white opacity-80" />
+                                                <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
+                                                <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Tu negocio está creciendo? Activa más agentes, conecta tus herramientas de trabajo actuales o sube de nivel para no perder ninguna oportunidad.</p>
+                                                <a
+                                                    href="https://wa.me/521234567890?text=Hola,%20mi%20negocio%20está%20creciendo%20y%20quiero%20mejorar%20mi%20plan%20de%20SaraCalls.ai"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
+                                                >
+                                                    Hablar con Ventas
+                                                </a>
+                                            </div>
+                                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:scale-150 transition-all duration-700"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ) : activeTab === 'calls' ? (
+                            <motion.div
+                                key="calls"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                            >
+                                <h2 className="text-2xl font-black uppercase italic mb-8">Historial de Llamadas</h2>
+                                <CallsTable
+                                    calls={calls}
+                                    loading={loading}
+                                    currentTheme={CurrentTheme}
+                                />
+                            </motion.div>
+                        ) : activeTab === 'leads' ? (
+                            <motion.div
+                                key="leads"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                            >
+                                <LeadsTable
+                                    leads={leads}
+                                    loading={loading}
+                                    onDelete={handleDeleteLead}
+                                />
+                            </motion.div>
+                        ) : activeTab === 'appointments' ? (
+                            <motion.div
+                                key="appointments"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                            >
+                                <h2 className="text-2xl font-black uppercase italic mb-8">{industry === 'restaurant_res' ? 'Libro de Reservas' : 'Agenda Dinámica'}</h2>
+                                <div className="grid gap-4">
+                                    {loading ? (
+                                        <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
+                                    ) : appointments.length === 0 ? (
+                                        <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay {industry === 'restaurant_res' ? 'reservas' : 'citas'} programadas</p>
+                                    ) : appointments.map((appt, idx) => (
+                                        <div key={appt.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] transition-all duration-500 cursor-pointer">
+                                            <div className="text-xl font-black text-[#FD7202] w-24 tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.3)]">
+                                                {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </div>
+                                            <div className="flex-grow">
+                                                <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{appt.customer_name}</h4>
+                                                <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{industry === 'restaurant_res' ? 'Mesa para ' + (idx + 2) + ' personas' : (appt.service || 'Consulta General')}</p>
+                                            </div>
+                                            <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${appt.status === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20' : 'bg-[#FD7202]/10 text-[#FD7202] border-[#FD7202]/20 group-hover:bg-[#FD7202]/20'}`}>
+                                                {appt.status}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        ) : activeTab === 'orders' ? (
+                            <motion.div
+                                key="orders"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
+                            >
+                                <div className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8">
                                     <div className="flex justify-between items-center mb-8">
                                         <div>
-                                            <h2 className="text-xl font-black uppercase italic tracking-tight">Última Actividad</h2>
-                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
+                                            <h2 className="text-2xl font-black uppercase italic">Comandat de Sushi (Cocina)</h2>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de pedidos en tiempo real</p>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                onClick={fetchHistory}
-                                                className="px-4 py-2 rounded-xl bg-[#FD7202]/10 hover:bg-[#FD7202] text-[#FD7202] hover:text-white text-[10px] font-black uppercase tracking-widest transition-all border border-[#FD7202]/20"
-                                            >
-                                                Ver Historial
-                                            </button>
-                                            <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
+                                        <div className="bg-[#00F0FF]/10 text-[#00F0FF] px-4 py-2 rounded-xl border border-[#00F0FF]/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                            Monitor Activo
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4">
+                                    <div className="grid gap-6">
                                         {loading ? (
-                                            <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
-                                        ) : calls.length === 0 ? (
-                                            <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
-                                        ) : calls.slice(0, 3).map((call, idx) => (
-                                            <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 transition-all duration-500 hover:bg-white/[0.04]"
-                                                style={{ '--hover-border': CurrentTheme.primary } as any}>
-                                                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-all duration-500">
-                                                    <Mic size={20} className="text-gray-500 transition-all" style={{ color: CurrentTheme.primary }} />
-                                                </div>
-                                                <div className="flex-grow">
-                                                    <div className="flex items-center gap-3 mb-1">
-                                                        <h4 className="font-bold text-lg">{call.customer_name || 'Desconocido'}</h4>
-                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{call.sentiment || 'Procesada'}</span>
+                                            <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
+                                        ) : orders.length === 0 ? (
+                                            <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
+                                                <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
+                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
+                                            </div>
+                                        ) : orders.map((order: any, idx: number) => (
+                                            <div key={order.id || idx} className="group relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04]">
+                                                <button
+                                                    onClick={() => deleteOrder(order.id)}
+                                                    className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+
+                                                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                                                    <div className="flex-shrink-0">
+                                                        <div className="text-3xl font-black text-blue-500 tabular-nums drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                                                            #{order.order_number || idx + 100}
+                                                        </div>
+                                                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">
+                                                            {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </div>
                                                     </div>
-                                                    <p className="text-xs text-gray-500 font-medium">{call.customer_phone} • {call.duration} • {new Date(call.created_at).toLocaleDateString()}</p>
-                                                </div>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
-                                                        className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isPlaying === idx ? 'text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
-                                                        style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
-                                                    >
-                                                        {isPlaying === idx ? <Volume2 size={20} /> : <Play size={20} />}
-                                                    </button>
+
+                                                    <div className="flex-grow space-y-2">
+                                                        <div className="flex items-center gap-3">
+                                                            <h4 className="font-bold text-lg text-white">{order.customer_name}</h4>
+                                                            <span className="text-xs text-gray-500 font-medium">{order.customer_phone}</span>
+                                                        </div>
+                                                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                                            <p className="text-sm text-gray-300 font-medium leading-relaxed italic">
+                                                                {order.items || 'Cargando detalle del pedido...'}
+                                                            </p>
+                                                        </div>
+                                                        {order.notes && (
+                                                            <div className="flex items-start gap-2 text-[10px] text-orange-400 font-bold uppercase tracking-tight">
+                                                                <AlertCircle size={12} className="mt-0.5" />
+                                                                <span>NOTA: {order.notes}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex flex-col gap-3 min-w-[200px]">
+                                                        <div className="flex justify-between items-center mb-1">
+                                                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</span>
+                                                            <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${order.status === 'Pendiente' ? 'bg-orange-500/10 text-orange-500' :
+                                                                order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-500' :
+                                                                    order.status === 'Listo' ? 'bg-green-500/10 text-green-500' :
+                                                                        'bg-purple-500/10 text-purple-500'
+                                                                }`}>
+                                                                {order.status || 'Pendiente'}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            {[
+                                                                { label: 'Cocina', val: 'Preparando', color: 'blue' },
+                                                                { label: 'Listo', val: 'Listo', color: 'green' },
+                                                                { label: 'Entregado', val: 'Entregado', color: 'purple' },
+                                                                { label: 'Espera', val: 'Pendiente', color: 'orange' }
+                                                            ].map((st) => (
+                                                                <button
+                                                                    key={st.val}
+                                                                    onClick={() => updateOrderStatus(order.id, st.val)}
+                                                                    className={`px-2 py-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${order.status === st.val
+                                                                        ? `bg-${st.color}-500 text-white shadow-lg`
+                                                                        : `bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300`
+                                                                        }`}
+                                                                >
+                                                                    {st.label}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="text-right mt-1">
+                                                            <span className="text-lg font-black text-white tabular-nums">${order.total_price || (idx * 15 + 20).toFixed(2)}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
-                                <div className="space-y-8">
-                                    <div className={`glass rounded-[36px] bg-gradient-to-br ${CurrentTheme.gradient} p-8 text-white relative overflow-hidden group`}>
-                                        <div className="relative z-10">
-                                            <Zap className="mb-4 text-white opacity-80" />
-                                            <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
-                                            <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Tu negocio está creciendo? Activa más agentes, conecta tus herramientas de trabajo actuales o sube de nivel para no perder ninguna oportunidad.</p>
-                                            <a
-                                                href="https://wa.me/521234567890?text=Hola,%20mi%20negocio%20está%20creciendo%20y%20quiero%20mejorar%20mi%20plan%20de%20SaraCalls.ai"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
-                                            >
-                                                Hablar con Ventas
-                                            </a>
-                                        </div>
-                                        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:scale-150 transition-all duration-700"></div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="settings"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8 max-w-2xl"
+                            >
+                                <h2 className="text-2xl font-black uppercase italic mb-8">Configuración del Sistema</h2>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
+                                        <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
                                     </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    ) : activeTab === 'calls' ? (
-                        <motion.div
-                            key="calls"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
-                        >
-                            <h2 className="text-2xl font-black uppercase italic mb-8">Historial de Llamadas</h2>
-                            <CallsTable
-                                calls={calls}
-                                loading={loading}
-                                currentTheme={CurrentTheme}
-                            />
-                        </motion.div>
-                    ) : activeTab === 'leads' ? (
-                        <motion.div
-                            key="leads"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
-                        >
-                            <LeadsTable
-                                leads={leads}
-                                loading={loading}
-                                onDelete={handleDeleteLead}
-                            />
-                        </motion.div>
-                    ) : activeTab === 'appointments' ? (
-                        <motion.div
-                            key="appointments"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
-                        >
-                            <h2 className="text-2xl font-black uppercase italic mb-8">{industry === 'restaurant_res' ? 'Libro de Reservas' : 'Agenda Dinámica'}</h2>
-                            <div className="grid gap-4">
-                                {loading ? (
-                                    <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
-                                ) : appointments.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay {industry === 'restaurant_res' ? 'reservas' : 'citas'} programadas</p>
-                                ) : appointments.map((appt, idx) => (
-                                    <div key={appt.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-[#FD7202]/30 hover:bg-[#FD7202]/[0.02] transition-all duration-500 cursor-pointer">
-                                        <div className="text-xl font-black text-[#FD7202] w-24 tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.3)]">
-                                            {new Date(appt.appointment_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
-                                        <div className="flex-grow">
-                                            <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{appt.customer_name}</h4>
-                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{industry === 'restaurant_res' ? 'Mesa para ' + (idx + 2) + ' personas' : (appt.service || 'Consulta General')}</p>
-                                        </div>
-                                        <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${appt.status === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20' : 'bg-[#FD7202]/10 text-[#FD7202] border-[#FD7202]/20 group-hover:bg-[#FD7202]/20'}`}>
-                                            {appt.status}
-                                        </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>
+                                        <input type="text" placeholder="https://hook.make.com/..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
                                     </div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    ) : activeTab === 'orders' ? (
-                        <motion.div
-                            key="orders"
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -20 }}
-                            className="space-y-8"
-                        >
-                            <div className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8">
-                                <div className="flex justify-between items-center mb-8">
-                                    <div>
-                                        <h2 className="text-2xl font-black uppercase italic">Comandat de Sushi (Cocina)</h2>
-                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de pedidos en tiempo real</p>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Logo del Negocio (URL)</label>
+                                        <input
+                                            type="text"
+                                            value={logoUrl}
+                                            onChange={(e) => setLogoUrl(e.target.value)}
+                                            placeholder="https://tusitio.com/logo.png"
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
+                                        />
                                     </div>
-                                    <div className="bg-[#00F0FF]/10 text-[#00F0FF] px-4 py-2 rounded-xl border border-[#00F0FF]/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                                        Monitor Activo
-                                    </div>
-                                </div>
-
-                                <div className="grid gap-6">
-                                    {loading ? (
-                                        <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
-                                    ) : orders.length === 0 ? (
-                                        <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
-                                            <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
-                                            <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
+                                    <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
+                                    <div className="pt-8 border-t border-white/5 space-y-6">
+                                        <div className="text-center">
+                                            <h3 className="text-xl font-black uppercase italic mb-2 text-red-500">Mantenimiento</h3>
+                                            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Borrado de datos históricos</p>
                                         </div>
-                                    ) : orders.map((order: any, idx: number) => (
-                                        <div key={order.id || idx} className="group relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04]">
+                                        <div className="grid grid-cols-2 gap-4">
                                             <button
-                                                onClick={() => deleteOrder(order.id)}
-                                                className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                                onClick={() => handleDeleteCallsByMonth(1)}
+                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={14} /> Borrar Llamadas Mes Pasado
                                             </button>
-
-                                            <div className="flex flex-col md:flex-row md:items-center gap-6">
-                                                <div className="flex-shrink-0">
-                                                    <div className="text-3xl font-black text-blue-500 tabular-nums drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                                                        #{order.order_number || idx + 100}
-                                                    </div>
-                                                    <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">
-                                                        {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                    </div>
-                                                </div>
-
-                                                <div className="flex-grow space-y-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <h4 className="font-bold text-lg text-white">{order.customer_name}</h4>
-                                                        <span className="text-xs text-gray-500 font-medium">{order.customer_phone}</span>
-                                                    </div>
-                                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                                        <p className="text-sm text-gray-300 font-medium leading-relaxed italic">
-                                                            {order.items || 'Cargando detalle del pedido...'}
-                                                        </p>
-                                                    </div>
-                                                    {order.notes && (
-                                                        <div className="flex items-start gap-2 text-[10px] text-orange-400 font-bold uppercase tracking-tight">
-                                                            <AlertCircle size={12} className="mt-0.5" />
-                                                            <span>NOTA: {order.notes}</span>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex flex-col gap-3 min-w-[200px]">
-                                                    <div className="flex justify-between items-center mb-1">
-                                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</span>
-                                                        <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${order.status === 'Pendiente' ? 'bg-orange-500/10 text-orange-500' :
-                                                            order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-500' :
-                                                                order.status === 'Listo' ? 'bg-green-500/10 text-green-500' :
-                                                                    'bg-purple-500/10 text-purple-500'
-                                                            }`}>
-                                                            {order.status || 'Pendiente'}
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-2 gap-2">
-                                                        {[
-                                                            { label: 'Cocina', val: 'Preparando', color: 'blue' },
-                                                            { label: 'Listo', val: 'Listo', color: 'green' },
-                                                            { label: 'Entregado', val: 'Entregado', color: 'purple' },
-                                                            { label: 'Espera', val: 'Pendiente', color: 'orange' }
-                                                        ].map((st) => (
-                                                            <button
-                                                                key={st.val}
-                                                                onClick={() => updateOrderStatus(order.id, st.val)}
-                                                                className={`px-2 py-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${order.status === st.val
-                                                                    ? `bg-${st.color}-500 text-white shadow-lg`
-                                                                    : `bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300`
-                                                                    }`}
-                                                            >
-                                                                {st.label}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <div className="text-right mt-1">
-                                                        <span className="text-lg font-black text-white tabular-nums">${order.total_price || (idx * 15 + 20).toFixed(2)}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <button
+                                                onClick={() => handleDeleteLeadsByMonth(1)}
+                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Trash2 size={14} /> Borrar Leads Mes Pasado
+                                            </button>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="settings"
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8 max-w-2xl"
-                        >
-                            <h2 className="text-2xl font-black uppercase italic mb-8">Configuración del Sistema</h2>
-                            <div className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
-                                    <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>
-                                    <input type="text" placeholder="https://hook.make.com/..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Logo del Negocio (URL)</label>
-                                    <input
-                                        type="text"
-                                        value={logoUrl}
-                                        onChange={(e) => setLogoUrl(e.target.value)}
-                                        placeholder="https://tusitio.com/logo.png"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
-                                    />
-                                </div>
-                                <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
-                                <div className="pt-8 border-t border-white/5 space-y-6">
-                                    <div className="text-center">
-                                        <h3 className="text-xl font-black uppercase italic mb-2 text-red-500">Mantenimiento</h3>
-                                        <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Borrado de datos históricos</p>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            onClick={() => handleDeleteCallsByMonth(1)}
-                                            className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <Trash2 size={14} /> Borrar Llamadas Mes Pasado
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteLeadsByMonth(1)}
-                                            className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <Trash2 size={14} /> Borrar Leads Mes Pasado
-                                        </button>
                                     </div>
                                 </div>
+
+
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+
+
+                    {/* Footer Status */}
+                    <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
+                        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
+                            © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
+                        </p>
+                        <div className="flex gap-6 items-center">
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
                             </div>
-
-
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-
-
-                {/* Footer Status */}
-                <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
-                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
-                        © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
-                    </p>
-                    <div className="flex gap-6 items-center">
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
+                            <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
+                            </div>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
+                            >
+                                <LogOut size={12} /> Salir
+                            </button>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
-                        >
-                            <LogOut size={12} /> Salir
-                        </button>
-                    </div>
-                </footer>
+                    </footer>
             </main>
 
             {/* Mobile Navigation Bar */}
@@ -1030,6 +1033,8 @@ export default function AdminDashboard() {
                     </div>
                 )}
             </AnimatePresence>
-        </div >
-    );
+        </div>
+        </main >
+    </div >
+);
 }
