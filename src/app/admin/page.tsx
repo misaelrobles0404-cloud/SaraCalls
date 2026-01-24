@@ -73,6 +73,7 @@ export default function AdminDashboard() {
     const [isDemo, setIsDemo] = useState(false);
     const [isAdminUser, setIsAdminUser] = useState(false);
     const [logoUrl, setLogoUrl] = useState<string>("");
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [selectedHistory, setSelectedHistory] = useState<any>(null);
     const [historyData, setHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
     const [loadingHistory, setLoadingHistory] = useState(false);

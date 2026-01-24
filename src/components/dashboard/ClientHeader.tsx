@@ -1,5 +1,7 @@
 "use client";
 
+import { Menu } from "lucide-react";
+
 interface ClientHeaderProps {
     clientName: string;
     industry: string;
@@ -8,17 +10,24 @@ interface ClientHeaderProps {
         primary: string;
         icon: any;
     };
+    onMenuClick?: () => void;
 }
 
-export function ClientHeader({ clientName, industry, logoUrl, currentTheme }: ClientHeaderProps) {
+export function ClientHeader({ clientName, industry, logoUrl, currentTheme, onMenuClick }: ClientHeaderProps) {
     const ThemeIcon = currentTheme.icon;
 
     return (
-        <header className="mb-10 flex flex-col md:flex-row justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-6">
-            <div className="flex items-center gap-4">
-                <ThemeIcon size={40} className="lg:hidden" style={{ color: currentTheme.primary }} />
+        <header className="mb-6 lg:mb-10 flex flex-row justify-between items-center glass p-4 lg:p-6 rounded-[24px] lg:rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-4">
+            <div className="flex items-center gap-3 lg:gap-4">
+                <button
+                    onClick={onMenuClick}
+                    className="lg:hidden p-2 text-gray-400 hover:text-white"
+                >
+                    <Menu size={24} />
+                </button>
+                <ThemeIcon size={32} className="lg:hidden" style={{ color: currentTheme.primary }} />
                 <div>
-                    <h1 className="text-xl lg:text-3xl font-black uppercase italic tracking-tight">Panel de Control</h1>
+                    <h1 className="text-lg lg:text-3xl font-black uppercase italic tracking-tight">Panel de Control</h1>
                     <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: currentTheme.primary }}></span>
                         <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">{clientName} • Sistema SaraCalls</p>
