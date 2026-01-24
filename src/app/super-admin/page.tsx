@@ -28,7 +28,12 @@ import {
     Database,
     Smartphone,
     Rocket,
-    ChevronDown
+    ChevronDown,
+    ArrowRight,
+    Utensils,
+    Scissors,
+    Stethoscope,
+    Wine
 } from "lucide-react";
 import { SuperAdminSidebar } from "@/components/dashboard/SuperAdminSidebar";
 import { SuperAdminHeader } from "@/components/dashboard/SuperAdminHeader";
@@ -48,7 +53,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function SuperAdminDashboard() {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'sales' | 'settings' | 'knowledge'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'sales' | 'settings' | 'knowledge' | 'industries'>('overview');
     const [loading, setLoading] = useState(true);
     const [clients, setClients] = useState<any[]>([]);
     const [salesLeads, setSalesLeads] = useState<any[]>([]);
@@ -782,6 +787,82 @@ export default function SuperAdminDashboard() {
                                     <h4 className="text-sm font-black uppercase italic text-white">¿Necesitas algo más complejo?</h4>
                                     <p className="text-xs text-white/60 mt-1">Si tienes dudas sobre el código o la infraestructura, contacta con soporte técnico de SaraCalls.</p>
                                 </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'industries' && (
+                        <motion.div
+                            key="industries"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="space-y-10"
+                        >
+                            <div className="text-center max-w-2xl mx-auto">
+                                <h2 className="text-4xl font-black uppercase italic mb-4 text-[#FD7202]">Showroom de Industrias</h2>
+                                <p className="text-gray-500 text-xs font-bold uppercase tracking-widest leading-relaxed">
+                                    Previsualiza el dashboard tal como lo vería tu cliente final.
+                                    Úsalo para demostraciones en vivo o para validar la experiencia de usuario.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {[
+                                    {
+                                        id: 'restaurant',
+                                        name: 'Restaurante Fast-Food',
+                                        desc: 'Gestión de pedidos de sushi, ramen y comida rápida con monitor de cocina.',
+                                        icon: Utensils,
+                                        color: 'orange',
+                                        theme: 'from-[#FD7202] to-[#FF9031]'
+                                    },
+                                    {
+                                        id: 'barber',
+                                        name: 'Barbería & Spa',
+                                        desc: 'Agenda de citas optimizada para servicios de belleza y cuidado personal.',
+                                        icon: Scissors,
+                                        color: 'amber',
+                                        theme: 'from-[#F59E0B] to-[#FBBF24]'
+                                    },
+                                    {
+                                        id: 'clinic',
+                                        name: 'Clínica Médica',
+                                        desc: 'Panel especializado para consultas dentales, médicas y laboratorios.',
+                                        icon: Stethoscope,
+                                        color: 'blue',
+                                        theme: 'from-[#00F0FF] to-[#38BDF8]'
+                                    },
+                                    {
+                                        id: 'restaurant_res',
+                                        name: 'Restaurante Gourmet',
+                                        desc: 'Especializado en reservas de mesa y experiencias gastronómicas de lujo.',
+                                        icon: Wine,
+                                        color: 'purple',
+                                        theme: 'from-[#8B5CF6] to-[#A78BFA]'
+                                    }
+                                ].map((ind) => (
+                                    <button
+                                        key={ind.id}
+                                        onClick={() => router.push(`/admin?industry=${ind.id}`)}
+                                        className="group relative text-left glass p-10 rounded-[48px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500 overflow-hidden"
+                                    >
+                                        <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${ind.theme} p-0.5 mb-8 shadow-lg group-hover:scale-110 transition-transform duration-500`}>
+                                            <div className="w-full h-full bg-black/40 backdrop-blur-xl rounded-[22px] flex items-center justify-center text-white">
+                                                <ind.icon size={36} />
+                                            </div>
+                                        </div>
+                                        <h3 className="text-2xl font-black uppercase italic text-white mb-3">{ind.name}</h3>
+                                        <p className="text-sm text-gray-500 leading-relaxed font-medium mb-8 pr-12">{ind.desc}</p>
+                                        <div className="flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#FD7202]">
+                                            Abrir Laboratorio <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                                        </div>
+
+                                        {/* Decorative elements */}
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-white/[0.01] blur-3xl rounded-full -translate-y-32 translate-x-32 group-hover:bg-white/[0.03] transition-all duration-700"></div>
+                                        <div className="absolute bottom-0 left-0 w-1/4 h-1 bg-gradient-to-r from-[#FD7202] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    </button>
+                                ))}
                             </div>
                         </motion.div>
                     )}

@@ -210,6 +210,13 @@ export default function AdminDashboard() {
 
                     // Permitir visualizar un cliente específico vía URL si viene el ID
                     const params = new URLSearchParams(window.location.search);
+
+                    // Prioridad 1: Industria forzada vía URL (Para Showroom)
+                    const forceIndustry = params.get('industry');
+                    if (forceIndustry) {
+                        setIndustry(forceIndustry as any);
+                    }
+
                     const previewId = params.get('preview_client_id');
                     if (previewId) {
                         const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single();
