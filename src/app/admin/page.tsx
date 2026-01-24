@@ -34,7 +34,8 @@ import {
     AlertCircle,
     Filter,
     ChevronDown,
-    MessageSquare
+    MessageSquare,
+    X
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -62,6 +63,7 @@ export default function AdminDashboard() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic' | 'restaurant_res'>('restaurant');
+    const [showMemoryGuide, setShowMemoryGuide] = useState(false);
 
     const [clientId, setClientId] = useState<string | null>(null);
     const [clientName, setClientName] = useState<string>("Admin");
@@ -139,6 +141,11 @@ export default function AdminDashboard() {
                         { id: 1, customer_name: 'Carlos Ruiz', service: 'Corte + Barba', status: 'Confirmada', appointment_date: new Date().toISOString() },
                         { id: 2, customer_name: 'Elena Sanz', service: 'Limpieza Dental', status: 'Pendiente', appointment_date: new Date().toISOString() }
                     ]);
+                    // Leads para Demo
+                    setLeads([
+                        { id: 1, name: 'Juan Manuel', phone: '+34 600 111 222', created_at: new Date().toISOString() },
+                        { id: 2, name: 'Sofía Martínez', phone: '+34 622 333 444', created_at: new Date().toISOString() }
+                    ]);
                     return;
                 }
 
@@ -182,23 +189,19 @@ export default function AdminDashboard() {
                 if (clientData.industry) setIndustry(clientData.industry as any);
 
                 // 3. Cargar Datos Filtrados por Cliente
-                const [callsRes, leadsRes, appointmentsRes] = await Promise.all([
+                const [callsRes, leadsRes, appointmentsRes, ordersRes] = await Promise.all([
                     supabase.from('calls').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
                     supabase.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
-                    supabase.from('appointments').select('*').eq('client_id', currentClientId).order('appointment_date', { ascending: true })
+                    supabase.from('appointments').select('*').eq('client_id', currentClientId).order('appointment_date', { ascending: true }),
+                    supabase.from('orders').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false })
                 ]);
 
                 if (callsRes.data) setCalls(callsRes.data);
                 if (leadsRes.data) setLeads(leadsRes.data);
                 if (appointmentsRes.data) setAppointments(appointmentsRes.data);
+                if (ordersRes.data) setOrders(ordersRes.data);
 
-                // Mock orders for restaurant demo
-                if (clientData.industry === 'restaurant') {
-                    setOrders([
-                        { id: 1, customer_name: 'Juan Pérez', items: '3x Spicy Tuna, 1x Miso', status: 'Preparando', order_number: 1024 },
-                        { id: 2, customer_name: 'Maria Garcia', items: '2x California Roll', status: 'Listo', order_number: 1025 }
-                    ]);
-                }
+                // Mock orders removed, now uses database data
 
                 // 4. Suscripción Realtime Dinámica para todas las tablas
                 const channelId = `client_data_${currentClientId}`;
@@ -246,6 +249,20 @@ export default function AdminDashboard() {
                             setAppointments(prev => prev.filter(a => a.id !== payload.old.id));
                         }
                     })
+                    .on('postgres_changes', {
+                        event: '*',
+                        schema: 'public',
+                        table: 'orders',
+                        filter: `client_id=eq.${currentClientId}`
+                    }, payload => {
+                        if (payload.eventType === 'INSERT') {
+                            setOrders(prev => [payload.new, ...prev]);
+                        } else if (payload.eventType === 'UPDATE') {
+                            setOrders(prev => prev.map(o => o.id === payload.new.id ? payload.new : o));
+                        } else if (payload.eventType === 'DELETE') {
+                            setOrders(prev => prev.filter(o => o.id !== payload.old.id));
+                        }
+                    })
                     .subscribe();
 
                 return subscription;
@@ -278,6 +295,72 @@ export default function AdminDashboard() {
     };
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
+    const updateOrderStatus = async (orderId: string, newStatus: string) => {
+        const previousOrders = [...orders];
+        setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+
+        if (isDemo) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: newStatus })
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (error: any) {
+            console.error("Error actualizando pedido:", error);
+            setOrders(previousOrders);
+            alert("Error al actualizar el estado del pedido.");
+        }
+    };
+
+    const deleteOrder = async (orderId: string) => {
+        if (!confirm("¿Estás seguro de que deseas eliminar este pedido?")) return;
+
+        const previousOrders = [...orders];
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+
+        if (isDemo) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('id', orderId);
+
+            if (error) throw error;
+        } catch (error: any) {
+            console.error("Error eliminando pedido:", error);
+            setOrders(previousOrders);
+            alert("Error al eliminar el pedido.");
+        }
+    };
+
+    const deleteLead = async (leadId: string) => {
+        if (!confirm("¿Estás seguro de que deseas eliminar este prospecto permanentemente?")) return;
+
+        const previousLeads = [...leads];
+        setLeads(prev => prev.filter(l => l.id !== leadId));
+
+        if (isDemo) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('leads')
+                .delete()
+                .eq('id', leadId);
+
+            if (error) throw error;
+        } catch (error) {
+            console.error("Error eliminando lead:", error);
+            setLeads(previousLeads);
+            alert("Error al eliminar el registro.");
+        }
+    };
     const totalCallsCount = loading ? 0 : calls.length;
     const hoursSaved = Math.round((totalCallsCount * 5) / 60);
 
@@ -615,18 +698,30 @@ export default function AdminDashboard() {
                                             <th className="pb-4 px-4">Nombre</th>
                                             <th className="pb-4 px-4">Teléfono</th>
                                             <th className="pb-4 px-4">Fecha</th>
+                                            <th className="pb-4 px-4 text-right">Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
                                         {loading ? (
-                                            <tr><td colSpan={3} className="py-10 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202] mx-auto"></div></td></tr>
+                                            <tr><td colSpan={4} className="py-10 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202] mx-auto"></div></td></tr>
                                         ) : leads.length === 0 ? (
-                                            <tr><td colSpan={3} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay leads registrados</td></tr>
+                                            <tr><td colSpan={4} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay leads registrados</td></tr>
                                         ) : leads.map((lead, idx) => (
                                             <tr key={lead.id || idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
                                                 <td className="py-5 px-4 font-semibold text-gray-200 group-hover:text-white transition-colors">{lead.name}</td>
                                                 <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300">{lead.phone}</td>
                                                 <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300 font-mono text-xs">{new Date(lead.created_at).toLocaleDateString()}</td>
+                                                <td className="py-5 px-4 text-right">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            deleteLead(lead.id);
+                                                        }}
+                                                        className="p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -669,26 +764,103 @@ export default function AdminDashboard() {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
-                            className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                            className="space-y-8"
                         >
-                            <h2 className="text-2xl font-black uppercase italic mb-8">Pedidos de Sushi</h2>
-                            <div className="grid gap-4">
-                                {loading ? (
-                                    <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
-                                ) : orders.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">No hay pedidos pendientes</p>
-                                ) : orders.map((order: any, idx: number) => (
-                                    <div key={order.id || idx} className="group flex items-center gap-6 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:border-blue-500/30 hover:bg-blue-500/[0.02] transition-all duration-500 cursor-pointer">
-                                        <div className="text-xl font-black text-blue-500 w-24 tabular-nums drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">#{order.order_number || idx + 100}</div>
-                                        <div className="flex-grow">
-                                            <h4 className="font-bold text-lg text-gray-200 group-hover:text-white transition-colors">{order.customer_name}</h4>
-                                            <p className="text-gray-500 text-sm group-hover:text-gray-400 transition-colors">{order.items || '2x California Roll, 1x Miso Soup'}</p>
-                                        </div>
-                                        <div className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20'}`}>
-                                            {order.status || 'Recibido'}
-                                        </div>
+                            <div className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8">
+                                <div className="flex justify-between items-center mb-8">
+                                    <div>
+                                        <h2 className="text-2xl font-black uppercase italic">Comandat de Sushi (Cocina)</h2>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de pedidos en tiempo real</p>
                                     </div>
-                                ))}
+                                    <div className="bg-[#00F0FF]/10 text-[#00F0FF] px-4 py-2 rounded-xl border border-[#00F0FF]/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
+                                        Monitor Activo
+                                    </div>
+                                </div>
+
+                                <div className="grid gap-6">
+                                    {loading ? (
+                                        <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
+                                    ) : orders.length === 0 ? (
+                                        <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
+                                            <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
+                                            <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
+                                        </div>
+                                    ) : orders.map((order: any, idx: number) => (
+                                        <div key={order.id || idx} className="group relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04]">
+                                            <button
+                                                onClick={() => deleteOrder(order.id)}
+                                                className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+
+                                            <div className="flex flex-col md:flex-row md:items-center gap-6">
+                                                <div className="flex-shrink-0">
+                                                    <div className="text-3xl font-black text-blue-500 tabular-nums drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">
+                                                        #{order.order_number || idx + 100}
+                                                    </div>
+                                                    <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">
+                                                        {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex-grow space-y-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <h4 className="font-bold text-lg text-white">{order.customer_name}</h4>
+                                                        <span className="text-xs text-gray-500 font-medium">{order.customer_phone}</span>
+                                                    </div>
+                                                    <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
+                                                        <p className="text-sm text-gray-300 font-medium leading-relaxed italic">
+                                                            {order.items || 'Cargando detalle del pedido...'}
+                                                        </p>
+                                                    </div>
+                                                    {order.notes && (
+                                                        <div className="flex items-start gap-2 text-[10px] text-orange-400 font-bold uppercase tracking-tight">
+                                                            <AlertCircle size={12} className="mt-0.5" />
+                                                            <span>NOTA: {order.notes}</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex flex-col gap-3 min-w-[200px]">
+                                                    <div className="flex justify-between items-center mb-1">
+                                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</span>
+                                                        <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${order.status === 'Pendiente' ? 'bg-orange-500/10 text-orange-500' :
+                                                            order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-500' :
+                                                                order.status === 'Listo' ? 'bg-green-500/10 text-green-500' :
+                                                                    'bg-purple-500/10 text-purple-500'
+                                                            }`}>
+                                                            {order.status || 'Pendiente'}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-2">
+                                                        {[
+                                                            { label: 'Cocina', val: 'Preparando', color: 'blue' },
+                                                            { label: 'Listo', val: 'Listo', color: 'green' },
+                                                            { label: 'Entregado', val: 'Entregado', color: 'purple' },
+                                                            { label: 'Espera', val: 'Pendiente', color: 'orange' }
+                                                        ].map((st) => (
+                                                            <button
+                                                                key={st.val}
+                                                                onClick={() => updateOrderStatus(order.id, st.val)}
+                                                                className={`px-2 py-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${order.status === st.val
+                                                                    ? `bg-${st.color}-500 text-white shadow-lg`
+                                                                    : `bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300`
+                                                                    }`}
+                                                            >
+                                                                {st.label}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    <div className="text-right mt-1">
+                                                        <span className="text-lg font-black text-white tabular-nums">${order.total_price || (idx * 15 + 20).toFixed(2)}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </motion.div>
                     ) : (
@@ -714,10 +886,9 @@ export default function AdminDashboard() {
                             <div className="pt-8 border-t border-white/5">
                                 <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Documentación y Ayuda</h3>
                                 <div className="grid grid-cols-1 gap-4">
-                                    <a
-                                        href="https://github.com/misaelrobles0404-cloud/SaraCalls/blob/main/SARA_MEMORY_GUIDE.md"
-                                        target="_blank"
-                                        className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all"
+                                    <button
+                                        onClick={() => setShowMemoryGuide(true)}
+                                        className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all text-left w-full"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
@@ -729,9 +900,105 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                         <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                                    </button>
                                 </div>
                             </div>
                         </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* AI Memory Guide Modal */}
+                <AnimatePresence>
+                    {showMemoryGuide && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12 overflow-hidden">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowMemoryGuide(false)}
+                                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                                className="relative w-full max-w-4xl max-h-[85vh] bg-[#0A0A0A] border border-white/10 rounded-[40px] overflow-hidden flex flex-col shadow-2xl"
+                            >
+                                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                    <div>
+                                        <h3 className="text-2xl font-black uppercase italic text-white flex items-center gap-3">
+                                            Guía de Memoria de <span className="text-[#FD7202]">IA</span>
+                                        </h3>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Cómo Sara reconoce a tus clientes</p>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowMemoryGuide(false)}
+                                        className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white transition-all text-gray-400"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+
+                                <div className="p-8 overflow-y-auto custom-scrollbar">
+                                    <div className="prose prose-invert prose-orange max-w-none space-y-10 text-gray-400 leading-relaxed font-medium">
+                                        <section className="space-y-4">
+                                            <div className="flex items-center gap-3 text-white mb-2">
+                                                <div className="w-8 h-8 rounded-lg bg-[#FD7202]/20 flex items-center justify-center text-[#FD7202]">
+                                                    <Database size={16} />
+                                                </div>
+                                                <h4 className="font-black uppercase italic tracking-wider">1. ¿Qué es la Memoria de Sara?</h4>
+                                            </div>
+                                            <p>A diferencia de los asistentes de voz tradicionales, Sara no empieza cada llamada desde cero. Su memoria se divide en dos capas principales:</p>
+                                            <div className="grid md:grid-cols-2 gap-4">
+                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
+                                                    <h5 className="text-white font-bold mb-2">Corto Plazo</h5>
+                                                    <p className="text-xs">Sara mantiene el hilo de la conversación actual. Entiende referencias como "ese plato" o "la cita de antes" en tiempo real.</p>
+                                                </div>
+                                                <div className="p-6 rounded-3xl bg-[#FD7202]/5 border border-[#FD7202]/10">
+                                                    <h5 className="text-[#FD7202] font-bold mb-2">Largo Plazo</h5>
+                                                    <p className="text-xs">Sara utiliza tu base de datos en Supabase para identificar clientes por su teléfono y recordar sus preferencias históricas.</p>
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        <section className="space-y-4">
+                                            <div className="flex items-center gap-3 text-white mb-2">
+                                                <div className="w-8 h-8 rounded-lg bg-[#FD7202]/20 flex items-center justify-center text-[#FD7202]">
+                                                    <Zap size={16} />
+                                                </div>
+                                                <h4 className="font-black uppercase italic tracking-wider">2. Cómo se implementa</h4>
+                                            </div>
+                                            <div className="space-y-3">
+                                                {[
+                                                    { step: "01", text: "El webhook de Retell AI captura el número entrante." },
+                                                    { step: "02", text: "Se realiza una consulta automática a la tabla de Leads." },
+                                                    { step: "03", text: "Se inyecta contexto personalizado al prompt de Sara." },
+                                                    { step: "04", text: "Sara saluda proactivamente reconociendo al cliente." }
+                                                ].map((item, i) => (
+                                                    <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                        <span className="text-[#FD7202] font-black italic text-xs mt-0.5">{item.step}</span>
+                                                        <p className="text-xs">{item.text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </section>
+
+                                        <section className="p-8 bg-gradient-to-br from-[#FD7202]/10 to-transparent border border-[#FD7202]/20 rounded-[32px] italic">
+                                            <p className="text-sm text-white/90">"Una IA que recuerda es una IA que vende. El 70% de los clientes prefieren servicios que demuestran conocer su historial e intereses previos."</p>
+                                        </section>
+                                    </div>
+                                </div>
+
+                                <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-end gap-4">
+                                    <button
+                                        onClick={() => setShowMemoryGuide(false)}
+                                        className="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] transition-all"
+                                    >
+                                        Cerrar Guía
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
                     )}
                 </AnimatePresence>
 

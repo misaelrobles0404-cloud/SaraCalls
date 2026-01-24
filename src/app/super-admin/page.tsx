@@ -21,7 +21,15 @@ import {
     TrendingUp,
     Filter,
     ChevronDown,
-    MessageSquare
+    MessageSquare,
+    FileText,
+    BookOpen,
+    X,
+    Key,
+    UserPlus2,
+    Database,
+    Smartphone,
+    Rocket
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -38,7 +46,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 export default function SuperAdminDashboard() {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'sales' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'sales' | 'settings' | 'knowledge'>('overview');
     const [loading, setLoading] = useState(true);
     const [clients, setClients] = useState<any[]>([]);
     const [salesLeads, setSalesLeads] = useState<any[]>([]);
@@ -54,6 +62,8 @@ export default function SuperAdminDashboard() {
     const [selectedClientHistory, setSelectedClientHistory] = useState<any>(null);
     const [clientHistoryData, setClientHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
     const [loadingHistory, setLoadingHistory] = useState(false);
+    const [showGuideModal, setShowGuideModal] = useState(false);
+    const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
 
     const fetchClientHistory = async (client: any) => {
         setLoadingHistory(true);
@@ -281,6 +291,27 @@ export default function SuperAdminDashboard() {
         }
     };
 
+    const deleteLead = async (leadId: string) => {
+        if (!confirm("¿Estás seguro de que deseas eliminar este prospecto permanentemente?")) return;
+
+        const previousLeads = [...salesLeads];
+        setSalesLeads(prev => prev.filter(lead => lead.id !== leadId));
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('sales_leads')
+                .delete()
+                .eq('id', leadId);
+
+            if (error) throw error;
+        } catch (error: any) {
+            console.error("Error eliminando prospecto:", error);
+            setSalesLeads(previousLeads);
+            alert("Error al eliminar el prospecto: " + error.message);
+        }
+    };
+
     const handleSaveSettings = async () => {
         const { supabase } = await import("@/lib/supabase");
         const { error } = await supabase
@@ -374,6 +405,7 @@ export default function SuperAdminDashboard() {
                         { id: 'overview', icon: LayoutDashboard, label: 'Consumo Global' },
                         { id: 'clients', icon: Users, label: 'Mis Clientes' },
                         { id: 'sales', icon: UserPlus, label: 'Prospectos Web' },
+                        { id: 'knowledge', icon: BookOpen, label: 'Knowledge Hub' },
                         { id: 'settings', icon: Settings, label: 'Configuración' }
                     ].map((item: any) => (
                         <button
@@ -642,6 +674,15 @@ export default function SuperAdminDashboard() {
                                     </div>
                                 ) : sortedSalesLeads.map((lead, idx) => (
                                     <div key={idx} className={`relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04] group overflow-hidden ${(lead.status || 'Nuevo') === 'Nuevo' ? 'ring-1 ring-orange-500/20' : ''}`}>
+                                        {/* Delete Button (Visible on Hover) */}
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); deleteLead(lead.id); }}
+                                            className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 opacity-0 group-hover:opacity-100 shadow-lg border border-red-500/20 z-20"
+                                            title="Eliminar Prospecto"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+
                                         {/* Status Glow Overlay */}
                                         {(lead.status || 'Nuevo') === 'Nuevo' && <div className="absolute top-0 left-0 w-1 h-full bg-orange-500 shadow-[0_0_20px_rgba(253,114,2,0.5)]"></div>}
                                         {lead.status === 'Contactado' && <div className="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>}
@@ -775,31 +816,216 @@ export default function SuperAdminDashboard() {
                                     >
                                         <Save size={18} /> Guardar Configuración Agencia
                                     </button>
-
-                                    <div className="pt-8 border-t border-white/5">
-                                        <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Documentación y Ayuda</h3>
-                                        <div className="grid grid-cols-1 gap-4">
-                                            <a
-                                                href="https://github.com/misaelrobles0404-cloud/SaraCalls/blob/main/SARA_MEMORY_GUIDE.md"
-                                                target="_blank"
-                                                className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all"
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
-                                                        <FileText size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-xs font-bold text-white uppercase tracking-tight">Guía de Memoria de IA</p>
-                                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">¿Cómo recuerda Sara a los clientes?</p>
-                                                    </div>
-                                                </div>
-                                                <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
-                                            </a>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </motion.div>
+                    )}
+
+                    {activeTab === 'knowledge' && (
+                        <motion.div
+                            key="knowledge"
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            className="space-y-8"
+                        >
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/5 pb-8">
+                                <div>
+                                    <h2 className="text-2xl font-black uppercase italic flex items-center gap-3">
+                                        <BookOpen className="text-[#FD7202]" />
+                                        Knowledge <span className="text-[#FD7202]">Hub</span>
+                                    </h2>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Guías maestras y documentación del sistema</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {[
+                                    {
+                                        id: 'registration',
+                                        title: 'Registro de Clientes',
+                                        desc: 'Cómo dar de alta nuevos negocios, usuarios y contraseñas.',
+                                        icon: UserPlus2,
+                                        color: 'orange'
+                                    },
+                                    {
+                                        id: 'memory',
+                                        title: 'Memoria de IA',
+                                        desc: 'Entiende cómo Sara recuerda el contexto de llamadas pasadas.',
+                                        icon: Database,
+                                        color: 'blue'
+                                    },
+                                    {
+                                        id: 'webhooks',
+                                        title: 'Webhook & Retell',
+                                        desc: 'Configuración técnica de Make.com y la API de Retell AI.',
+                                        icon: Zap,
+                                        color: 'purple'
+                                    }
+                                ].map((guide) => (
+                                    <button
+                                        key={guide.id}
+                                        onClick={() => {
+                                            setSelectedGuide(guide.id);
+                                            setShowGuideModal(true);
+                                        }}
+                                        className="text-left group glass p-8 rounded-[32px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden"
+                                    >
+                                        <div className={`w-14 h-14 rounded-2xl bg-${guide.color === 'orange' ? '[#FD7202]/10' : guide.color + '-500/10'} flex items-center justify-center mb-6 border border-${guide.color === 'orange' ? '[#FD7202]/20' : guide.color + '-500/20'} group-hover:scale-110 transition-transform`}>
+                                            <guide.icon size={28} className={guide.color === 'orange' ? 'text-[#FD7202]' : `text-${guide.color}-500`} />
+                                        </div>
+                                        <h3 className="text-lg font-black uppercase italic text-white mb-2">{guide.title}</h3>
+                                        <p className="text-xs text-gray-500 leading-relaxed font-medium mb-6">{guide.desc}</p>
+                                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#FD7202]">
+                                            Ver Guía Completa <Eye size={12} />
+                                        </div>
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 blur-3xl rounded-full -translate-y-12 translate-x-12 group-hover:bg-[#FD7202]/10 transition-colors"></div>
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Info Banner */}
+                            <div className="p-8 rounded-[32px] bg-gradient-to-r from-[#FD7202]/10 to-transparent border border-[#FD7202]/20 flex items-center gap-6">
+                                <div className="w-12 h-12 rounded-full bg-[#FD7202] flex items-center justify-center text-white shadow-lg">
+                                    <Rocket size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="text-sm font-black uppercase italic text-white">¿Necesitas algo más complejo?</h4>
+                                    <p className="text-xs text-white/60 mt-1">Si tienes dudas sobre el código o la infraestructura, contacta con soporte técnico de SaraCalls.</p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
+                {/* Modal de Guías (Knowledge Hub) */}
+                <AnimatePresence>
+                    {showGuideModal && (
+                        <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 md:p-12 overflow-hidden">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setShowGuideModal(false)}
+                                className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+                            />
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 30 }}
+                                className="relative w-full max-w-5xl max-h-[85vh] bg-[#0A0A0A] border border-white/10 rounded-[48px] overflow-hidden flex flex-col shadow-2xl"
+                            >
+                                <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                    <div className="flex items-center gap-5">
+                                        <div className="w-14 h-14 rounded-2xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
+                                            {selectedGuide === 'registration' ? <UserPlus2 size={24} /> : selectedGuide === 'memory' ? <Database size={24} /> : <Zap size={24} />}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-3xl font-black uppercase italic text-white leading-none">
+                                                {selectedGuide === 'registration' ? 'Guía de Registro' : selectedGuide === 'memory' ? 'Memoria de IA' : 'Configuración Retell'}
+                                            </h3>
+                                            <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mt-2">Documentación Técnica SaraCalls</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowGuideModal(false)}
+                                        className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-red-500 transition-all text-gray-400 hover:text-white"
+                                    >
+                                        <X size={24} />
+                                    </button>
+                                </div>
+
+                                <div className="p-10 overflow-y-auto custom-scrollbar flex-grow">
+                                    <div className="prose prose-invert prose-orange max-w-none space-y-12">
+                                        {selectedGuide === 'registration' && (
+                                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                                <section>
+                                                    <h4 className="text-[#FD7202] text-xl font-bold uppercase italic mb-4">1. Crear Usuario en Supabase Auth</h4>
+                                                    <p className="text-gray-400 text-sm leading-relaxed mb-4">Para que un cliente tenga su propio panel, primero debes registrar su email en la pestaña de **Authentication** de Supabase.</p>
+                                                    <div className="p-5 rounded-3xl bg-white/5 border border-white/5 flex items-start gap-4">
+                                                        <Key className="text-orange-400 shrink-0 mt-1" size={20} />
+                                                        <div>
+                                                            <p className="text-white font-bold text-xs">¡No olvides copiar el "User ID"! (UUID)</p>
+                                                            <p className="text-[10px] text-gray-500 mt-1">Este ID es el puente entre el usuario que hace login y su empresa en la base de datos.</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                <section>
+                                                    <h4 className="text-[#FD7202] text-xl font-bold uppercase italic mb-4">2. Vincular en la tabla 'clients'</h4>
+                                                    <p className="text-gray-400 text-sm leading-relaxed mb-4">Inserta una nueva fila con los datos del negocio y pega el UUID en el campo `auth_user_id`.</p>
+                                                    <div className="grid md:grid-cols-2 gap-4">
+                                                        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
+                                                            <p className="text-white font-bold text-xs uppercase mb-2">Campos Obligatorios</p>
+                                                            <ul className="text-[10px] text-gray-500 list-disc pl-4 space-y-1 font-mono">
+                                                                <li>business_name: Nombre visible</li>
+                                                                <li>industry: barber / clinic / restaurant</li>
+                                                                <li>auth_user_id: El UUID de Auth</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5">
+                                                            <p className="text-white font-bold text-xs uppercase mb-2">Acceso del Cliente</p>
+                                                            <p className="text-[10px] text-gray-500 leading-relaxed">El cliente entrará por `/login`. El sistema detectará su ID y lo redirigirá automáticamente a su propio `/admin` personalizado.</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                <section className="p-8 rounded-[32px] bg-blue-500/5 border border-blue-500/10 italic text-sm text-blue-100/60">
+                                                    "El registro manual garantiza que solo trabajes con clientes validados, manteniendo la seguridad de tu agencia en todo momento."
+                                                </section>
+                                            </div>
+                                        )}
+
+                                        {selectedGuide === 'memory' && (
+                                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-sm">
+                                                <section>
+                                                    <h4 className="text-blue-400 text-xl font-bold uppercase italic mb-4">Arquitectura de Memoria</h4>
+                                                    <p className="text-gray-400 leading-relaxed">Sara utiliza un sistema híbrido:</p>
+                                                    <div className="space-y-4 mt-6">
+                                                        {[
+                                                            { t: "Captura de ID", d: "El webhook extrae el número de teléfono del llamante." },
+                                                            { t: "Cruce de Datos", d: "Busca en la tabla 'leads' del cliente específico." },
+                                                            { t: "Contextualización", d: "Inyecta el nombre y preferencias en el System Prompt de Retell." }
+                                                        ].map((step, i) => (
+                                                            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
+                                                                <div className="text-blue-400 font-black italic">0{i + 1}</div>
+                                                                <div>
+                                                                    <p className="text-white font-bold text-xs">{step.t}</p>
+                                                                    <p className="text-[10px] text-gray-500">{step.d}</p>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        )}
+
+                                        {selectedGuide === 'webhooks' && (
+                                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-sm">
+                                                <section>
+                                                    <h4 className="text-purple-400 text-xl font-bold uppercase italic mb-4">Integración Retell AI</h4>
+                                                    <p className="text-gray-400 leading-relaxed">Pasos finales para conectar la lógica:</p>
+                                                    <div className="p-6 rounded-3xl bg-purple-500/5 border border-purple-500/20 font-mono text-[10px] text-purple-200/50 space-y-2">
+                                                        <p>1. Copia tu Master API Key en Configuración.</p>
+                                                        <p>2. En Retell, crea un Webhook apuntando a tu escenario de Make.</p>
+                                                        <p>3. Asegúrate de que el módulo 'Filter' en Make valide el 'client_id'.</p>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="p-10 border-t border-white/5 bg-white/[0.01] flex justify-end">
+                                    <button
+                                        onClick={() => setShowGuideModal(false)}
+                                        className="px-10 py-4 rounded-2xl bg-[#FD7202] text-white font-black uppercase tracking-widest text-[10px] hover:bg-orange-600 transition-all shadow-[0_10px_20px_rgba(253,114,2,0.3)]"
+                                    >
+                                        ¡Entendido!
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
                     )}
                 </AnimatePresence>
             </main>
@@ -893,6 +1119,6 @@ export default function SuperAdminDashboard() {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+        </div >
     );
 }
