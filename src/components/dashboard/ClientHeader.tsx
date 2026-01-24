@@ -3,13 +3,14 @@
 interface ClientHeaderProps {
     clientName: string;
     industry: string;
+    logoUrl?: string;
     currentTheme: {
         primary: string;
         icon: any;
     };
 }
 
-export function ClientHeader({ clientName, industry, currentTheme }: ClientHeaderProps) {
+export function ClientHeader({ clientName, industry, logoUrl, currentTheme }: ClientHeaderProps) {
     const ThemeIcon = currentTheme.icon;
 
     return (
@@ -32,7 +33,7 @@ export function ClientHeader({ clientName, industry, currentTheme }: ClientHeade
                 </div>
                 <div className="w-12 h-12 rounded-2xl p-0.5 shadow-2xl" style={{ background: `linear-gradient(to top right, ${currentTheme.primary}, #fff3)` }}>
                     <div className="w-full h-full rounded-[14px] bg-black flex items-center justify-center overflow-hidden">
-                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${industry}`} alt="User" />
+                        <img src={logoUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${industry}`} alt="User Logo" className="w-full h-full object-cover" />
                     </div>
                 </div>
             </div>

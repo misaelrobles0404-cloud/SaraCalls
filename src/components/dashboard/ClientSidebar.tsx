@@ -13,6 +13,7 @@ interface ClientSidebarProps {
     setActiveTab: (tab: any) => void;
     industry: string;
     clientName: string;
+    logoUrl?: string;
     handleLogout: () => void;
     currentTheme: {
         primary: string;
@@ -24,6 +25,7 @@ export function ClientSidebar({
     activeTab,
     setActiveTab,
     industry,
+    logoUrl,
     handleLogout,
     currentTheme
 }: ClientSidebarProps) {
@@ -41,7 +43,13 @@ export function ClientSidebar({
     return (
         <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-2xl z-20">
             <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-105 duration-300 cursor-pointer">
-                <ThemeIcon size={40} style={{ color: currentTheme.primary, filter: `drop-shadow(0 0 8px ${currentTheme.primary}88)` }} />
+                {logoUrl ? (
+                    <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-lg">
+                        <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                    </div>
+                ) : (
+                    <ThemeIcon size={40} style={{ color: currentTheme.primary, filter: `drop-shadow(0 0 8px ${currentTheme.primary}88)` }} />
+                )}
                 <div>
                     <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span style={{ color: currentTheme.primary }}>ai</span></span>
                     <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio</span>

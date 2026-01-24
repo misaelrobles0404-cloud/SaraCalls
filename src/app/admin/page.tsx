@@ -72,6 +72,7 @@ export default function AdminDashboard() {
     const [clientName, setClientName] = useState<string>("Admin");
     const [isDemo, setIsDemo] = useState(false);
     const [isAdminUser, setIsAdminUser] = useState(false);
+    const [logoUrl, setLogoUrl] = useState<string>("");
     const [selectedHistory, setSelectedHistory] = useState<any>(null);
     const [historyData, setHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
     const [loadingHistory, setLoadingHistory] = useState(false);
@@ -219,11 +220,12 @@ export default function AdminDashboard() {
 
                     const previewId = params.get('preview_client_id');
                     if (previewId) {
-                        const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single();
+                        const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single() as any;
                         if (pClient) {
                             setClientId(pClient.id);
                             setClientName(pClient.business_name + " (Vista Previa)");
                             setIndustry(pClient.industry as any);
+                            if (pClient.logo_url) setLogoUrl(pClient.logo_url);
                             // Cargar datos de este cliente...
                             const [pCalls, pLeads, pApps, pOrders] = await Promise.all([
                                 supabase.from('calls').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false }),
@@ -278,7 +280,7 @@ export default function AdminDashboard() {
                 // 2. Obtener Client ID vinculado al Auth User ID
                 const { data: clientData, error: clientError } = await supabase
                     .from('clients')
-                    .select('id, business_name, industry')
+                    .select('id, business_name, industry, logo_url')
                     .eq('auth_user_id', session.user.id)
                     .single();
 
@@ -293,6 +295,7 @@ export default function AdminDashboard() {
                 setClientId(currentClientId);
                 setClientName(clientData.business_name);
                 if (clientData.industry) setIndustry(clientData.industry as any);
+                if (clientData.logo_url) setLogoUrl(clientData.logo_url);
 
                 // 3. Cargar Datos Filtrados por Cliente
                 const [callsRes, leadsRes, appointmentsRes, ordersRes] = await Promise.all([
@@ -567,6 +570,7 @@ export default function AdminDashboard() {
                 setActiveTab={setActiveTab}
                 industry={industry}
                 clientName={clientName}
+                logoUrl={logoUrl}
                 handleLogout={handleLogout}
                 currentTheme={CurrentTheme}
             />
@@ -616,6 +620,7 @@ export default function AdminDashboard() {
                 <ClientHeader
                     clientName={clientName}
                     industry={industry}
+                    logoUrl={logoUrl}
                     currentTheme={CurrentTheme}
                 />
 
@@ -915,6 +920,16 @@ export default function AdminDashboard() {
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>
                                     <input type="text" placeholder="https://hook.make.com/..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Logo del Negocio (URL)</label>
+                                    <input
+                                        type="text"
+                                        value={logoUrl}
+                                        onChange={(e) => setLogoUrl(e.target.value)}
+                                        placeholder="https://tusitio.com/logo.png"
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
+                                    />
                                 </div>
                                 <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
                                 <div className="pt-8 border-t border-white/5 space-y-6">
