@@ -71,6 +71,7 @@ export default function SuperAdminDashboard() {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [showGuideModal, setShowGuideModal] = useState(false);
     const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
+    const [statusFilter, setStatusFilter] = useState<'Todos' | 'Nuevo' | 'Contactado' | 'Cerrado'>('Todos');
 
     const fetchClientHistory = async (client: any) => {
         setLoadingHistory(true);
@@ -96,6 +97,11 @@ export default function SuperAdminDashboard() {
         const statusPriority: Record<string, number> = { 'Nuevo': 0, 'Contactado': 1, 'Cerrado': 2 };
 
         let filtered = [...salesLeads];
+
+        // 1. Filtro por Estado (Nuevo, Contactado, Cerrado)
+        if (statusFilter !== 'Todos') {
+            filtered = filtered.filter(l => l.status === statusFilter);
+        }
 
         const now = new Date();
         const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -538,6 +544,18 @@ export default function SuperAdminDashboard() {
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de nuevos ingresos ({salesLeads.length})</p>
                                 </div>
                                 <div className="flex items-center gap-3">
+                                    <div className="hidden lg:flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                        {['Todos', 'Nuevo', 'Contactado', 'Cerrado'].map((status) => (
+                                            <button
+                                                key={status}
+                                                onClick={() => setStatusFilter(status as any)}
+                                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${statusFilter === status ? 'bg-[#FD7202] text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                {status}
+                                            </button>
+                                        ))}
+                                    </div>
+
                                     <div className="hidden sm:flex bg-white/5 p-1 rounded-xl border border-white/10">
                                         <div className="px-4 py-2 flex items-center gap-2">
                                             <TrendingUp size={16} className={acquisitionRate >= 0 ? "text-green-400" : "text-red-400"} />
