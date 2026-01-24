@@ -242,7 +242,32 @@ export default function AdminDashboard() {
                     }
 
                     // Si no hay previewId, simplemente permitimos el acceso con datos vacíos o genéricos
-                    setClientName("Panel Maestro (Vista Previa)");
+                    setClientName(`Showroom ${forceIndustry || 'General'}`);
+
+                    // Inyectar datos MOCK para que no se vea vacío el showroom
+                    setCalls([
+                        { id: 101, customer_name: 'Rubén García', customer_phone: '+34 655 123 456', duration: '3m 45s', sentiment: 'Positivo', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+                        { id: 102, customer_name: 'Marta Sanz', customer_phone: '+34 677 888 999', duration: '5m 12s', sentiment: 'Confirmada', created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
+                        { id: 103, customer_name: 'Luis Méndez', customer_phone: '+34 600 000 111', duration: '1m 20s', sentiment: 'Neutral', created_at: new Date(Date.now() - 1000 * 60 * 240).toISOString() }
+                    ]);
+
+                    setLeads([
+                        { id: 201, name: 'Ana Belén', phone: '+34 611 222 333', created_at: new Date(Date.now() - 86400000).toISOString() },
+                        { id: 202, name: 'Pedro J.', phone: '+34 688 777 666', created_at: new Date(Date.now() - 86400000 * 2).toISOString() }
+                    ]);
+
+                    if (forceIndustry === 'restaurant' || forceIndustry === 'restaurant_res') {
+                        setOrders([
+                            { id: 301, customer_name: 'Sara M.', items: '2x Roll California, 1x Ramen Tonkotsu', status: 'Preparando', order_number: 108, total_price: 34.50 },
+                            { id: 302, customer_name: 'Jorge V.', items: '1x Nigiri Mix (12pcs)', status: 'Listo', order_number: 109, total_price: 22.00 }
+                        ]);
+                    } else {
+                        setAppointments([
+                            { id: 401, customer_name: 'Elena F.', service: forceIndustry === 'clinic' ? 'Limpieza Dental' : 'Corte + Barba', status: 'Confirmada', appointment_date: new Date(Date.now() + 3600000).toISOString() },
+                            { id: 402, customer_name: 'Carlos T.', service: forceIndustry === 'clinic' ? 'Consulta General' : 'Corte Estilo', status: 'Pendiente', appointment_date: new Date(Date.now() + 7200000).toISOString() }
+                        ]);
+                    }
+
                     setIsAuthorized(true);
                     setLoading(false);
                     return;
