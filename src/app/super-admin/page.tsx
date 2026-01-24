@@ -100,7 +100,7 @@ export default function SuperAdminDashboard() {
 
         // 1. Filtro por Estado (Nuevo, Contactado, Cerrado)
         if (statusFilter !== 'Todos') {
-            filtered = filtered.filter(l => l.status === statusFilter);
+            filtered = filtered.filter(l => (l.status || 'Nuevo') === statusFilter);
         }
 
         const now = new Date();
@@ -544,12 +544,12 @@ export default function SuperAdminDashboard() {
                                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de nuevos ingresos ({salesLeads.length})</p>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <div className="hidden lg:flex bg-white/5 p-1 rounded-xl border border-white/10">
+                                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 flex-wrap">
                                         {['Todos', 'Nuevo', 'Contactado', 'Cerrado'].map((status) => (
                                             <button
                                                 key={status}
                                                 onClick={() => setStatusFilter(status as any)}
-                                                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${statusFilter === status ? 'bg-[#FD7202] text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+                                                className={`px-3 md:px-4 py-2 rounded-lg text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 ${statusFilter === status ? 'bg-[#FD7202] text-white shadow-lg' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
                                             >
                                                 {status}
                                             </button>
