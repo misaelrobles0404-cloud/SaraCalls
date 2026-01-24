@@ -647,6 +647,51 @@ export default function SuperAdminDashboard() {
                                         <Save size={18} /> Guardar Configuración Agencia
                                     </button>
                                 </div>
+
+                                <div className="pt-8 border-t border-white/5 space-y-6">
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-black uppercase italic mb-2 text-red-500">Zona de Mantenimiento</h3>
+                                        <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Borrado masivo de datos antiguos</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-4">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Llamadas (Historial)</p>
+                                            <div className="flex flex-col gap-2">
+                                                <button
+                                                    onClick={() => handleDeleteCallsByMonth(1)}
+                                                    className="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Trash2 size={14} /> Borrar Mes Pasado
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteCallsByMonth(2)}
+                                                    className="w-full py-3 bg-red-500/5 hover:bg-red-500/20 text-gray-500 hover:text-red-400 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all"
+                                                >
+                                                    Borrar hace 2 Meses
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 rounded-3xl bg-white/[0.02] border border-white/5 space-y-4">
+                                            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Prospectos Web (Ingresos)</p>
+                                            <div className="flex flex-col gap-2">
+                                                <button
+                                                    onClick={() => handleDeleteSalesLeadsByMonth(1)}
+                                                    className="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Trash2 size={14} /> Borrar Mes Pasado
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteSalesLeadsByMonth(2)}
+                                                    className="w-full py-3 bg-red-500/5 hover:bg-red-500/20 text-gray-500 hover:text-red-400 rounded-xl text-[8px] font-black uppercase tracking-widest transition-all"
+                                                >
+                                                    Borrar hace 2 Meses
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
                     )}

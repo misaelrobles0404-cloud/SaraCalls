@@ -72,6 +72,45 @@ export default function AdminDashboard() {
     const [clientName, setClientName] = useState<string>("Admin");
     const [isDemo, setIsDemo] = useState(false);
     const [isAdminUser, setIsAdminUser] = useState(false);
+    const [selectedHistory, setSelectedHistory] = useState<any>(null);
+    const [historyData, setHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
+    const [loadingHistory, setLoadingHistory] = useState(false);
+
+    const fetchHistory = async () => {
+        if (!clientId && !isDemo) return;
+        setLoadingHistory(true);
+        setSelectedHistory({ business_name: clientName });
+        try {
+            if (isDemo) {
+                // Datos mock para demo
+                setHistoryData({
+                    calls: [
+                        { customer_name: 'Demo Call 1', duration: '2m', created_at: new Date().toISOString() },
+                        { customer_name: 'Demo Call 2', duration: '5m', created_at: new Date().toISOString() }
+                    ],
+                    leads: [
+                        { first_name: 'Demo', last_name: 'Lead 1', email: 'demo1@example.com' }
+                    ]
+                });
+                setLoadingHistory(false);
+                return;
+            }
+
+            const { supabase } = await import("@/lib/supabase");
+            const [callsRes, leadsRes] = await Promise.all([
+                supabase.from('calls').select('*').eq('client_id', clientId).order('created_at', { ascending: false }).limit(10),
+                supabase.from('leads').select('*').eq('client_id', clientId).order('created_at', { ascending: false }).limit(10)
+            ]);
+            setHistoryData({
+                calls: callsRes.data || [],
+                leads: leadsRes.data || []
+            });
+        } catch (error) {
+            console.error("Error fetching history:", error);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
 
     // Configuración de Temas Dinámicos
     const themes = {
@@ -419,6 +458,70 @@ export default function AdminDashboard() {
             alert("Error al eliminar el registro.");
         }
     };
+
+    const handleDeleteCallsByMonth = async (monthsAgo: number) => {
+        if (isDemo) {
+            alert("No permitido en modo Demo");
+            return;
+        }
+        const targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() - monthsAgo);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODAS tus llamadas de ${monthName}? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('calls')
+                .delete()
+                .eq('client_id', clientId)
+                .gte('created_at', startOfMonth)
+                .lte('created_at', endOfMonth);
+
+            if (error) throw error;
+            alert(`Llamadas de ${monthName} eliminadas con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete calls:", error);
+            alert("Error al eliminar: " + error.message);
+        }
+    };
+
+    const handleDeleteLeadsByMonth = async (monthsAgo: number) => {
+        if (isDemo) {
+            alert("No permitido en modo Demo");
+            return;
+        }
+        const targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() - monthsAgo);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODOS tus prospectos de ${monthName}? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('leads')
+                .delete()
+                .eq('client_id', clientId)
+                .gte('created_at', startOfMonth)
+                .lte('created_at', endOfMonth);
+
+            if (error) throw error;
+            alert(`Prospectos de ${monthName} eliminados con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete leads:", error);
+            alert("Error al eliminar: " + error.message);
+        }
+    };
     const totalCallsCount = loading ? 0 : calls.length;
     const hoursSaved = Math.round((totalCallsCount * 5) / 60);
 
@@ -538,7 +641,15 @@ export default function AdminDashboard() {
                                             <h2 className="text-xl font-black uppercase italic tracking-tight">Última Actividad</h2>
                                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
                                         </div>
-                                        <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Historial Completo</button>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={fetchHistory}
+                                                className="px-4 py-2 rounded-xl bg-[#FD7202]/10 hover:bg-[#FD7202] text-[#FD7202] hover:text-white text-[10px] font-black uppercase tracking-widest transition-all border border-[#FD7202]/20"
+                                            >
+                                                Ver Historial
+                                            </button>
+                                            <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
+                                        </div>
                                     </div>
 
                                     <div className="space-y-4">
@@ -774,6 +885,26 @@ export default function AdminDashboard() {
                                     <input type="text" placeholder="https://hook.make.com/..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
                                 </div>
                                 <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
+                                <div className="pt-8 border-t border-white/5 space-y-6">
+                                    <div className="text-center">
+                                        <h3 className="text-xl font-black uppercase italic mb-2 text-red-500">Mantenimiento</h3>
+                                        <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Borrado de datos históricos</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button
+                                            onClick={() => handleDeleteCallsByMonth(1)}
+                                            className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Trash2 size={14} /> Borrar Llamadas Mes Pasado
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteLeadsByMonth(1)}
+                                            className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Trash2 size={14} /> Borrar Leads Mes Pasado
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
 
 
@@ -824,6 +955,95 @@ export default function AdminDashboard() {
                     </button>
                 ))}
             </nav>
+            {/* Modal de Historial de Cliente */}
+            <AnimatePresence>
+                {selectedHistory && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedHistory(null)}
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                        ></motion.div>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                        >
+                            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                <div>
+                                    <h3 className="text-2xl font-black uppercase italic text-[#FD7202]">{selectedHistory.business_name}</h3>
+                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Historial del Cliente</p>
+                                </div>
+                                <button
+                                    onClick={() => setSelectedHistory(null)}
+                                    className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 transition-all"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+
+                            <div className="flex-grow overflow-y-auto p-8 space-y-10">
+                                {loadingHistory ? (
+                                    <div className="flex items-center justify-center py-20">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Llamadas Recientes */}
+                                        <div className="space-y-4">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                <PhoneCall size={14} className="text-[#FD7202]" /> Últimas Llamadas (Pedidos)
+                                            </h4>
+                                            {historyData.calls.length === 0 ? (
+                                                <p className="text-xs text-gray-600 italic">No hay registros de llamadas recientes.</p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {historyData.calls.map((call, i) => (
+                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center group hover:bg-white/[0.05] transition-all">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-white uppercase">{call.customer_name || 'Desconocido'}</p>
+                                                                <p className="text-[10px] text-gray-500">{new Date(call.created_at).toLocaleString()}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <span className="text-[10px] font-black text-[#FD7202] uppercase">{call.duration}</span>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Prospectos Generados */}
+                                        <div className="space-y-4">
+                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                <UserPlus size={14} className="text-[#FD7202]" /> Prospectos Vinculados
+                                            </h4>
+                                            {historyData.leads.length === 0 ? (
+                                                <p className="text-xs text-gray-600 italic">No hay prospectos vinculados.</p>
+                                            ) : (
+                                                <div className="grid grid-cols-1 gap-3">
+                                                    {historyData.leads.map((lead, i) => (
+                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-white uppercase">{lead.name || lead.first_name + ' ' + lead.last_name}</p>
+                                                                <p className="text-[10px] text-gray-500">{lead.phone || lead.email}</p>
+                                                            </div>
+                                                            <span className="px-2 py-1 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-lg">Activo</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div >
     );
 }
