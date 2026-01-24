@@ -6,7 +6,8 @@ import {
     UserPlus,
     Settings,
     BotMessageSquare,
-    LogOut
+    LogOut,
+    BookOpen
 } from "lucide-react";
 
 interface SuperAdminSidebarProps {
@@ -20,6 +21,7 @@ export function SuperAdminSidebar({ activeTab, setActiveTab, handleLogout }: Sup
         { id: 'overview', icon: LayoutDashboard, label: 'Consumo Global' },
         { id: 'clients', icon: Users, label: 'Mis Clientes' },
         { id: 'sales', icon: UserPlus, label: 'Prospectos Web' },
+        { id: 'knowledge', icon: BookOpen, label: 'Knowledge Hub' },
         { id: 'settings', icon: Settings, label: 'Configuración' }
     ];
 

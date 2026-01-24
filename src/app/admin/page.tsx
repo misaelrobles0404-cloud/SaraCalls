@@ -67,7 +67,6 @@ export default function AdminDashboard() {
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic' | 'restaurant_res'>('restaurant');
-    const [showMemoryGuide, setShowMemoryGuide] = useState(false);
 
     const [clientId, setClientId] = useState<string | null>(null);
     const [clientName, setClientName] = useState<string>("Admin");
@@ -709,124 +708,12 @@ export default function AdminDashboard() {
                                 <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
                             </div>
 
-                            <div className="pt-8 border-t border-white/5">
-                                <h3 className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-4">Documentación y Ayuda</h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    <button
-                                        onClick={() => setShowMemoryGuide(true)}
-                                        className="bg-white/5 hover:bg-white/10 p-4 rounded-2xl border border-white/10 flex items-center justify-between group transition-all text-left w-full"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
-                                                <FileText size={20} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-white uppercase tracking-tight">Guía de Memoria de IA</p>
-                                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">¿Cómo recuerda Sara a los clientes?</p>
-                                            </div>
-                                        </div>
-                                        <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
-                                    </button>
-                                </div>
-                            </div>
+
                         </motion.div>
-                    ) }}
-                </AnimatePresence>
-
-                {/* AI Memory Guide Modal */}
-                <AnimatePresence>
-                    {showMemoryGuide && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 md:p-12 overflow-hidden">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setShowMemoryGuide(false)}
-                                className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                            />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative w-full max-w-4xl max-h-[85vh] bg-[#0A0A0A] border border-white/10 rounded-[40px] overflow-hidden flex flex-col shadow-2xl"
-                            >
-                                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                                    <div>
-                                        <h3 className="text-2xl font-black uppercase italic text-white flex items-center gap-3">
-                                            Guía de Memoria de <span className="text-[#FD7202]">IA</span>
-                                        </h3>
-                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Cómo Sara reconoce a tus clientes</p>
-                                    </div>
-                                    <button
-                                        onClick={() => setShowMemoryGuide(false)}
-                                        className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center hover:bg-white/10 hover:text-white transition-all text-gray-400"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
-
-                                <div className="p-8 overflow-y-auto custom-scrollbar">
-                                    <div className="prose prose-invert prose-orange max-w-none space-y-10 text-gray-400 leading-relaxed font-medium">
-                                        <section className="space-y-4">
-                                            <div className="flex items-center gap-3 text-white mb-2">
-                                                <div className="w-8 h-8 rounded-lg bg-[#FD7202]/20 flex items-center justify-center text-[#FD7202]">
-                                                    <Database size={16} />
-                                                </div>
-                                                <h4 className="font-black uppercase italic tracking-wider">1. ¿Qué es la Memoria de Sara?</h4>
-                                            </div>
-                                            <p>A diferencia de los asistentes de voz tradicionales, Sara no empieza cada llamada desde cero. Su memoria se divide en dos capas principales:</p>
-                                            <div className="grid md:grid-cols-2 gap-4">
-                                                <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
-                                                    <h5 className="text-white font-bold mb-2">Corto Plazo</h5>
-                                                    <p className="text-xs">Sara mantiene el hilo de la conversación actual. Entiende referencias como "ese plato" o "la cita de antes" en tiempo real.</p>
-                                                </div>
-                                                <div className="p-6 rounded-3xl bg-[#FD7202]/5 border border-[#FD7202]/10">
-                                                    <h5 className="text-[#FD7202] font-bold mb-2">Largo Plazo</h5>
-                                                    <p className="text-xs">Sara utiliza tu base de datos en Supabase para identificar clientes por su teléfono y recordar sus preferencias históricas.</p>
-                                                </div>
-                                            </div>
-                                        </section>
-
-                                        <section className="space-y-4">
-                                            <div className="flex items-center gap-3 text-white mb-2">
-                                                <div className="w-8 h-8 rounded-lg bg-[#FD7202]/20 flex items-center justify-center text-[#FD7202]">
-                                                    <Zap size={16} />
-                                                </div>
-                                                <h4 className="font-black uppercase italic tracking-wider">2. Cómo se implementa</h4>
-                                            </div>
-                                            <div className="space-y-3">
-                                                {[
-                                                    { step: "01", text: "El webhook de Retell AI captura el número entrante." },
-                                                    { step: "02", text: "Se realiza una consulta automática a la tabla de Leads." },
-                                                    { step: "03", text: "Se inyecta contexto personalizado al prompt de Sara." },
-                                                    { step: "04", text: "Sara saluda proactivamente reconociendo al cliente." }
-                                                ].map((item, i) => (
-                                                    <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                                                        <span className="text-[#FD7202] font-black italic text-xs mt-0.5">{item.step}</span>
-                                                        <p className="text-xs">{item.text}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </section>
-
-                                        <section className="p-8 bg-gradient-to-br from-[#FD7202]/10 to-transparent border border-[#FD7202]/20 rounded-[32px] italic">
-                                            <p className="text-sm text-white/90">"Una IA que recuerda es una IA que vende. El 70% de los clientes prefieren servicios que demuestran conocer su historial e intereses previos."</p>
-                                        </section>
-                                    </div>
-                                </div>
-
-                                <div className="p-8 border-t border-white/5 bg-white/[0.01] flex justify-end gap-4">
-                                    <button
-                                        onClick={() => setShowMemoryGuide(false)}
-                                        className="px-8 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-[10px] transition-all"
-                                    >
-                                        Cerrar Guía
-                                    </button>
-                                </div>
-                            </motion.div>
-                        </div>
                     )}
                 </AnimatePresence>
+
+
 
                 {/* Footer Status */}
                 <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
