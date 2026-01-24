@@ -46,6 +46,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
+import { ClientHeader } from "@/components/dashboard/ClientHeader";
+import { LeadsTable } from "@/components/dashboard/LeadsTable";
+import { CallsTable } from "@/components/dashboard/CallsTable";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -269,6 +273,29 @@ export default function AdminDashboard() {
         };
     }, [router]);
 
+    const handleDeleteLead = async (leadId: string) => {
+        if (isDemo) {
+            alert("Función deshabilitada en Demo por seguridad.");
+            return;
+        }
+
+        if (!confirm("¿Estás seguro de que quieres eliminar este lead? Esta acción no se puede deshacer.")) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('leads')
+                .delete()
+                .eq('id', leadId);
+
+            if (error) throw error;
+            setLeads(prev => prev.filter(l => l.id !== leadId));
+        } catch (error: any) {
+            console.error("Error deleting lead:", error);
+            alert("Error al eliminar el lead.");
+        }
+    };
+
     const handleLogout = async () => {
         const { supabase } = await import("@/lib/supabase");
         await supabase.auth.signOut();
@@ -286,49 +313,14 @@ export default function AdminDashboard() {
     return (
         <div className="bg-[#050505] min-h-screen flex w-full font-sans text-white selection:bg-[#FD7202]/30">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-white/10 hidden lg:flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-2xl z-20">
-                <div className="flex items-center gap-3 mb-10 px-2 transition-transform hover:scale-105 duration-300 cursor-pointer">
-                    <ThemeIcon size={40} style={{ color: CurrentTheme.primary, filter: `drop-shadow(0 0 8px ${CurrentTheme.primary}88)` }} />
-                    <div>
-                        <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span style={{ color: CurrentTheme.primary }}>ai</span></span>
-                        <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio</span>
-                    </div>
-                </div>
-
-                <nav className="space-y-1 flex-grow">
-                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest px-4 mb-2">Principal</p>
-                    {[
-                        { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
-                        { id: 'calls', icon: Phone, label: 'Llamadas' },
-                        { id: 'leads', icon: Users, label: 'Leads' },
-                        industry === 'restaurant' ?
-                            { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' } :
-                            { id: 'appointments', icon: Calendar, label: industry === 'restaurant_res' ? 'Reservas' : 'Citas' }
-                    ].map((item: any) => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id as any)}
-                            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group ${activeTab === item.id ? `bg-white/5 font-semibold border border-white/10 shadow-[0_0_20px_rgba(253,114,2,0.05)]` : 'hover:bg-white/5 text-gray-400 hover:text-gray-200'}`}
-                            style={activeTab === item.id ? { color: CurrentTheme.primary, borderColor: `${CurrentTheme.primary}33`, backgroundColor: `${CurrentTheme.primary}11` } : {}}
-                        >
-                            <item.icon size={18} className={activeTab === item.id ? 'animate-pulse' : 'group-hover:scale-110 transition-transform'} />
-                            <span className="text-sm">{item.label}</span>
-                        </button>
-                    ))}
-                </nav>
-
-                <div className="mt-auto pt-6 border-t border-white/10 space-y-1">
-                    <p className="text-[10px] font-bold text-gray-600 uppercase tracking-widest px-4 mb-2">Sistema</p>
-                    {/* El botón de configuración técnica ha sido movido al Super Admin Panel */}
-
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/10 text-red-400 transition-all text-sm font-bold"
-                    >
-                        <LogOut size={18} /> Cerrar Sesión
-                    </button>
-                </div>
-            </aside>
+            <ClientSidebar
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                industry={industry}
+                clientName={clientName}
+                handleLogout={handleLogout}
+                currentTheme={CurrentTheme}
+            />
 
             {/* Main Content */}
             <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
@@ -336,118 +328,11 @@ export default function AdminDashboard() {
                 <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
 
                 {/* Header Profile */}
-                <header className="mb-10 flex flex-col md:flex-row justify-between items-center glass p-6 rounded-[28px] border border-white/5 bg-white/[0.03] backdrop-blur-xl shadow-2xl gap-6">
-                    <div className="flex items-center gap-4">
-                        <ThemeIcon size={40} className="lg:hidden" style={{ color: CurrentTheme.primary }} />
-                        <div>
-                            <h1 className="text-xl lg:text-3xl font-black uppercase italic tracking-tight">Panel de Control</h1>
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: CurrentTheme.primary }}></span>
-                                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">{clientName} • Sistema SaraCalls</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-4">
-                        {/* Borrado Mensual para el Cliente */}
-                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
-                            <div className="flex items-center gap-2 px-3" style={{ color: CurrentTheme.primary }}>
-                                <AlertCircle size={14} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Historial</span>
-                            </div>
-                            <div className="flex gap-1">
-                                {[
-                                    { label: 'Mes Pasado', val: 1 },
-                                    { label: 'Hace 2m', val: 2 }
-                                ].map((m) => (
-                                    <button
-                                        key={m.val}
-                                        onClick={async () => {
-                                            const targetDate = new Date();
-                                            targetDate.setMonth(targetDate.getMonth() - m.val);
-                                            const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
-
-                                            if (confirm(`¿Estás seguro de que deseas eliminar las llamadas de ${monthName}? Esta acción no se puede deshacer.`)) {
-                                                const firstDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
-                                                const lastDay = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
-
-                                                try {
-                                                    const { supabase } = await import("@/lib/supabase");
-                                                    const { error } = await supabase
-                                                        .from('calls')
-                                                        .delete()
-                                                        .eq('client_id', clientId)
-                                                        .gte('created_at', firstDay)
-                                                        .lte('created_at', lastDay);
-
-                                                    if (error) throw error;
-                                                    alert(`Historial de ${monthName} eliminado correctamente.`);
-                                                } catch (err) {
-                                                    console.error("Error al borrar historial:", err);
-                                                    alert("Error al eliminar los registros.");
-                                                }
-                                            }
-                                        }}
-                                        className="px-3 py-1.5 bg-white/5 hover:bg-red-500/20 hover:text-red-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
-                                    >
-                                        <Trash2 size={12} /> {m.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Borrado de Leads para el Cliente */}
-                        <div className="flex items-center gap-3 bg-white/5 p-1.5 rounded-2xl border border-white/10">
-                            <div className="flex items-center gap-2 px-3 text-orange-400">
-                                <UserPlus size={14} />
-                                <span className="text-[9px] font-black uppercase tracking-widest">Limpiar Leads</span>
-                            </div>
-                            <div className="flex gap-1">
-                                <button
-                                    onClick={async () => {
-                                        const targetDate = new Date();
-                                        targetDate.setMonth(targetDate.getMonth() - 2);
-                                        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
-
-                                        if (confirm(`¿Estás seguro de que deseas eliminar los LEADS de hace 2 meses (${monthName})? Esta acción no se puede deshacer.`)) {
-                                            const firstDay = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
-                                            const lastDay = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
-
-                                            try {
-                                                const { supabase } = await import("@/lib/supabase");
-                                                const { error } = await supabase
-                                                    .from('leads')
-                                                    .delete()
-                                                    .eq('client_id', clientId)
-                                                    .gte('created_at', firstDay)
-                                                    .lte('created_at', lastDay);
-
-                                                if (error) throw error;
-                                                alert(`Leads de ${monthName} eliminados correctamente.`);
-                                            } catch (err) {
-                                                console.error("Error al borrar leads:", err);
-                                                alert("Error al eliminar los registros.");
-                                            }
-                                        }
-                                    }}
-                                    className="px-3 py-1.5 bg-white/5 hover:bg-orange-500/20 hover:text-orange-500 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all flex items-center gap-2"
-                                >
-                                    <Trash2 size={12} /> Hace 2m
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="hidden md:block text-right">
-                            <p className="text-sm font-bold">{clientName}</p>
-                            <p className="text-[10px] font-black uppercase" style={{ color: CurrentTheme.primary }}>Role: Cliente Enterprise</p>
-                        </div>
-                        <div className="w-12 h-12 rounded-2xl p-0.5 shadow-2xl" style={{ background: `linear-gradient(to top right, ${CurrentTheme.primary}, #fff3)` }}>
-                            <div className="w-full h-full rounded-[14px] bg-black flex items-center justify-center overflow-hidden">
-                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${industry}`} alt="User" />
-                            </div>
-                        </div>
-                    </div>
-                </header>
+                <ClientHeader
+                    clientName={clientName}
+                    industry={industry}
+                    currentTheme={CurrentTheme}
+                />
 
                 <AnimatePresence mode="wait">
                     {activeTab === 'overview' ? (
@@ -566,38 +451,11 @@ export default function AdminDashboard() {
                             className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
                         >
                             <h2 className="text-2xl font-black uppercase italic mb-8">Historial de Llamadas</h2>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
-                                            <th className="pb-4 px-4">Cliente</th>
-                                            <th className="pb-4 px-4">Sentimiento</th>
-                                            <th className="pb-4 px-4">Duración</th>
-                                            <th className="pb-4 px-4">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {loading ? (
-                                            <tr><td colSpan={4} className="py-10 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202] mx-auto"></div></td></tr>
-                                        ) : calls.length === 0 ? (
-                                            <tr><td colSpan={4} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay registros de llamadas</td></tr>
-                                        ) : calls.map((call, idx) => (
-                                            <tr key={call.id || idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202] relative overflow-hidden">
-                                                <td className="py-5 px-4 font-semibold text-gray-200 group-hover:text-white transition-colors">{call.customer_name || 'Desconocido'}</td>
-                                                <td className="py-5 px-4">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${call.sentiment === 'Positivo' ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-gray-500/10 text-gray-400 border-white/10'} border`}>
-                                                        {call.sentiment || 'Procesada'}
-                                                    </span>
-                                                </td>
-                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300">{call.duration}</td>
-                                                <td className="py-5 px-4">
-                                                    <button className="p-2.5 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all transform group-hover:scale-110"><Play size={16} fill="currentColor" /></button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <CallsTable
+                                calls={calls}
+                                loading={loading}
+                                currentTheme={CurrentTheme}
+                            />
                         </motion.div>
                     ) : activeTab === 'leads' ? (
                         <motion.div
@@ -608,30 +466,11 @@ export default function AdminDashboard() {
                             className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
                         >
                             <h2 className="text-2xl font-black uppercase italic mb-8">Gestión de Leads</h2>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
-                                            <th className="pb-4 px-4">Nombre</th>
-                                            <th className="pb-4 px-4">Teléfono</th>
-                                            <th className="pb-4 px-4">Fecha</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/5">
-                                        {loading ? (
-                                            <tr><td colSpan={3} className="py-10 text-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202] mx-auto"></div></td></tr>
-                                        ) : leads.length === 0 ? (
-                                            <tr><td colSpan={3} className="py-10 text-center text-gray-500 uppercase text-[10px] font-bold tracking-widest">No hay leads registrados</td></tr>
-                                        ) : leads.map((lead, idx) => (
-                                            <tr key={lead.id || idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
-                                                <td className="py-5 px-4 font-semibold text-gray-200 group-hover:text-white transition-colors">{lead.name}</td>
-                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300">{lead.phone}</td>
-                                                <td className="py-5 px-4 text-gray-400 group-hover:text-gray-300 font-mono text-xs">{new Date(lead.created_at).toLocaleDateString()}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <LeadsTable
+                                leads={leads}
+                                loading={loading}
+                                onDelete={handleDeleteLead}
+                            />
                         </motion.div>
                     ) : activeTab === 'appointments' ? (
                         <motion.div
@@ -729,6 +568,7 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
                                         <Eye size={16} className="text-gray-500 group-hover:text-white transition-colors" />
+                                    </a>
                                 </div>
                             </div>
                         </motion.div>
