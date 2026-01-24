@@ -126,7 +126,7 @@ export default function SuperAdminDashboard() {
             if (priorityA !== priorityB) return priorityA - priorityB;
             return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
-    }, [salesLeads, selectedPeriod]);
+    }, [salesLeads, selectedPeriod, statusFilter]);
 
     // Configuración Global
     const [apiKey, setApiKey] = useState("");
