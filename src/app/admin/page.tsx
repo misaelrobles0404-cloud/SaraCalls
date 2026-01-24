@@ -71,6 +71,7 @@ export default function AdminDashboard() {
     const [clientId, setClientId] = useState<string | null>(null);
     const [clientName, setClientName] = useState<string>("Admin");
     const [isDemo, setIsDemo] = useState(false);
+    const [isAdminUser, setIsAdminUser] = useState(false);
 
     // Configuración de Temas Dinámicos
     const themes = {
@@ -161,12 +162,43 @@ export default function AdminDashboard() {
                     return;
                 }
 
-                // Si es el Super Admin, mandarlo a su panel central de forma infalible
                 const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
                     session.user.email === "misaelrobles0404@gmail.com";
 
                 if (isAdmin) {
-                    window.location.href = "/super-admin";
+                    setIsAdminUser(true);
+                    console.log("🚀 SARA: Super Admin detectado en panel de cliente.");
+
+                    // Permitir visualizar un cliente específico vía URL si viene el ID
+                    const params = new URLSearchParams(window.location.search);
+                    const previewId = params.get('preview_client_id');
+                    if (previewId) {
+                        const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single();
+                        if (pClient) {
+                            setClientId(pClient.id);
+                            setClientName(pClient.business_name + " (Vista Previa)");
+                            setIndustry(pClient.industry as any);
+                            // Cargar datos de este cliente...
+                            const [pCalls, pLeads, pApps, pOrders] = await Promise.all([
+                                supabase.from('calls').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false }),
+                                supabase.from('leads').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false }),
+                                supabase.from('appointments').select('*').eq('client_id', pClient.id).order('appointment_date', { ascending: true }),
+                                supabase.from('orders').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false })
+                            ]);
+                            if (pCalls.data) setCalls(pCalls.data);
+                            if (pLeads.data) setLeads(pLeads.data);
+                            if (pApps.data) setAppointments(pApps.data);
+                            if (pOrders.data) setOrders(pOrders.data);
+                            setIsAuthorized(true);
+                            setLoading(false);
+                            return;
+                        }
+                    }
+
+                    // Si no hay previewId, simplemente permitimos el acceso con datos vacíos o genéricos
+                    setClientName("Panel Maestro (Vista Previa)");
+                    setIsAuthorized(true);
+                    setLoading(false);
                     return;
                 }
 
@@ -408,6 +440,42 @@ export default function AdminDashboard() {
             <main className="flex-grow lg:ml-64 p-4 lg:p-10 relative overflow-x-hidden">
                 {/* Decorative Glow Dinámico */}
                 <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
+
+                {/* Admin Toolbar (Only for Super Admin) */}
+                {isAdminUser && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-8 p-4 rounded-3xl bg-[#FD7202]/10 border border-[#FD7202]/20 flex flex-wrap items-center justify-between gap-4 backdrop-blur-xl"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-[#FD7202] flex items-center justify-center text-white shadow-lg">
+                                <ShieldCheck size={20} />
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-black uppercase italic tracking-wider">Modo Administrador</h4>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Estás previsualizando la interfaz de cliente</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            {[
+                                { id: 'restaurant', label: 'Restaurante', icon: Utensils },
+                                { id: 'barber', label: 'Barbería', icon: Scissors },
+                                { id: 'clinic', label: 'Clínica', icon: Stethoscope },
+                                { id: 'restaurant_res', label: 'Restaurante Gourmet', icon: Wine }
+                            ].map((ind) => (
+                                <button
+                                    key={ind.id}
+                                    onClick={() => setIndustry(ind.id as any)}
+                                    className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
+                                >
+                                    <ind.icon size={14} /> {ind.label}
+                                </button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
 
                 {/* Header Profile */}
                 <ClientHeader

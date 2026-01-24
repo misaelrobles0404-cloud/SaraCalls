@@ -494,12 +494,18 @@ export default function SuperAdminDashboard() {
                                                 <td className="py-6 px-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
                                                     {client.last_call ? new Date(client.last_call).toLocaleDateString() : 'Sin actividad'}
                                                 </td>
-                                                <td className="py-5 px-4 text-right">
+                                                <td className="py-5 px-4 text-right flex gap-2 justify-end">
                                                     <button
                                                         onClick={() => fetchClientHistory(client)}
                                                         className="px-4 py-2 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2"
                                                     >
                                                         <Eye size={14} /> Historial
+                                                    </button>
+                                                    <button
+                                                        onClick={() => router.push(`/admin?preview_client_id=${client.client_id}`)}
+                                                        className="px-4 py-2 bg-[#FD7202]/10 hover:bg-[#FD7202] text-[#FD7202] hover:text-white rounded-xl transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2 border border-[#FD7202]/20"
+                                                    >
+                                                        <LayoutDashboard size={14} /> Panel
                                                     </button>
                                                 </td>
                                             </tr>
