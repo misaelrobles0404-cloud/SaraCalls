@@ -152,50 +152,9 @@ export default function AdminDashboard() {
         const checkAuthAndFetch = async () => {
             setLoading(true);
             try {
-                // PRIMERO: Verificar si hay una sesión bypass de demo
-                const isDemoSession = document.cookie.includes('saracalls-demo-session=true') ||
-                    localStorage.getItem('saracalls-demo') === 'true' ||
-                    window.location.search.includes('demo=true');
-
-                if (isDemoSession) {
-                    console.log("🚀 SARA: Modo DEMO activado");
-                    setIsAuthorized(true);
-                    setIsDemo(true);
-                    setClientName("Demo Experience");
-
-                    // Recuperar industria persistente si existe
-                    const savedIndustry = localStorage.getItem('saracalls-demo-industry');
-                    if (savedIndustry) {
-                        setIndustry(savedIndustry as any);
-                    }
-
-                    setLoading(false);
-                    // Cargamos datos mock iniciales
-                    setCalls([
-                        { id: 1, customer_name: 'Juan Delgado', customer_phone: '+34 600... ', duration: '4m 20s', sentiment: 'Positivo', created_at: new Date().toISOString() },
-                        { id: 2, customer_name: 'Maria Rodriguez', customer_phone: '+34 611... ', duration: '2m 15s', sentiment: 'Confirmada', created_at: new Date().toISOString() }
-                    ]);
-                    // Pedidos para restaurante
-                    setOrders([
-                        { id: 1, customer_name: 'Juan Pérez', items: '3x Spicy Tuna, 1x Miso', status: 'Preparando', order_number: 1024 },
-                        { id: 2, customer_name: 'Maria Garcia', items: '2x California Roll', status: 'Listo', order_number: 1025 }
-                    ]);
-                    // Citas para barbería/clínica
-                    setAppointments([
-                        { id: 1, customer_name: 'Carlos Ruiz', service: 'Corte + Barba', status: 'Confirmada', appointment_date: new Date().toISOString() },
-                        { id: 2, customer_name: 'Elena Sanz', service: 'Limpieza Dental', status: 'Pendiente', appointment_date: new Date().toISOString() }
-                    ]);
-                    // Leads para Demo
-                    setLeads([
-                        { id: 1, name: 'Juan Manuel', phone: '+34 600 111 222', created_at: new Date().toISOString() },
-                        { id: 2, name: 'Sofía Martínez', phone: '+34 622 333 444', created_at: new Date().toISOString() }
-                    ]);
-                    return;
-                }
-
                 const { supabase } = await import("@/lib/supabase");
 
-                // 2. Verificar Sesión Real si no es demo
+                // 2. Verificar Sesión Real
                 const { data: { session } } = await supabase.auth.getSession();
 
                 if (!session) {
@@ -243,33 +202,12 @@ export default function AdminDashboard() {
                         }
                     }
 
-                    // Si no hay previewId, simplemente permitimos el acceso con datos vacíos o genéricos
+                    // Si no hay previewId, simplemente permitimos el acceso con datos vacíos
                     setClientName(`Showroom ${forceIndustry || 'General'}`);
-
-                    // Inyectar datos MOCK para que no se vea vacío el showroom
-                    setCalls([
-                        { id: 101, customer_name: 'Rubén García', customer_phone: '+34 655 123 456', duration: '3m 45s', sentiment: 'Positivo', created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-                        { id: 102, customer_name: 'Marta Sanz', customer_phone: '+34 677 888 999', duration: '5m 12s', sentiment: 'Confirmada', created_at: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-                        { id: 103, customer_name: 'Luis Méndez', customer_phone: '+34 600 000 111', duration: '1m 20s', sentiment: 'Neutral', created_at: new Date(Date.now() - 1000 * 60 * 240).toISOString() }
-                    ]);
-
-                    setLeads([
-                        { id: 201, name: 'Ana Belén', phone: '+34 611 222 333', created_at: new Date(Date.now() - 86400000).toISOString() },
-                        { id: 202, name: 'Pedro J.', phone: '+34 688 777 666', created_at: new Date(Date.now() - 86400000 * 2).toISOString() }
-                    ]);
-
-                    if (forceIndustry === 'restaurant' || forceIndustry === 'restaurant_res') {
-                        setOrders([
-                            { id: 301, customer_name: 'Sara M.', items: '2x Roll California, 1x Ramen Tonkotsu', status: 'Preparando', order_number: 108, total_price: 34.50 },
-                            { id: 302, customer_name: 'Jorge V.', items: '1x Nigiri Mix (12pcs)', status: 'Listo', order_number: 109, total_price: 22.00 }
-                        ]);
-                    } else {
-                        setAppointments([
-                            { id: 401, customer_name: 'Elena F.', service: forceIndustry === 'clinic' ? 'Limpieza Dental' : 'Corte + Barba', status: 'Confirmada', appointment_date: new Date(Date.now() + 3600000).toISOString() },
-                            { id: 402, customer_name: 'Carlos T.', service: forceIndustry === 'clinic' ? 'Consulta General' : 'Corte Estilo', status: 'Pendiente', appointment_date: new Date(Date.now() + 7200000).toISOString() }
-                        ]);
-                    }
-
+                    setCalls([]);
+                    setLeads([]);
+                    setOrders([]);
+                    setAppointments([]);
                     setIsAuthorized(true);
                     setLoading(false);
                     return;

@@ -119,7 +119,7 @@ export default function LandingPage() {
                         </p>
                         <div className="flex gap-4 justify-center lg:justify-start">
                             <Link href="/register" className="btn-neon px-5 py-3 text-[10px] md:px-8 md:py-4 md:text-sm">Empezar Ahora</Link>
-                            <button className="px-5 py-3 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-[10px] md:px-8 md:py-4 md:text-xs">Ver Demo</button>
+                            <Link href="/register" className="px-5 py-3 rounded-xl font-black border border-white/20 bg-white/5 hover:bg-white/10 transition-all uppercase tracking-widest text-[10px] md:px-8 md:py-4 md:text-xs">Probar Sistema</Link>
                         </div>
                     </motion.div>
 
