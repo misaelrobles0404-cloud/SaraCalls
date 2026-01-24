@@ -673,11 +673,25 @@ export default function SuperAdminDashboard() {
                                         color: 'orange'
                                     },
                                     {
+                                        id: 'delivery',
+                                        title: 'Entrega de Cuenta',
+                                        desc: 'Guía paso a paso para entregar el dashboard a tus clientes.',
+                                        icon: Key,
+                                        color: 'green'
+                                    },
+                                    {
                                         id: 'memory',
                                         title: 'Memoria de IA',
                                         desc: 'Entiende cómo Sara recuerda el contexto de llamadas pasadas.',
                                         icon: Database,
                                         color: 'blue'
+                                    },
+                                    {
+                                        id: 'strategy',
+                                        title: 'Estrategia de Agencia',
+                                        desc: 'Cómo escalar y vender SaraCalls a prospectos de alto valor.',
+                                        icon: Rocket,
+                                        color: 'purple'
                                     },
                                     {
                                         id: 'webhooks',
@@ -742,11 +756,19 @@ export default function SuperAdminDashboard() {
                                 <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                                     <div className="flex items-center gap-5">
                                         <div className="w-14 h-14 rounded-2xl bg-[#FD7202]/10 flex items-center justify-center text-[#FD7202]">
-                                            {selectedGuide === 'registration' ? <UserPlus2 size={24} /> : selectedGuide === 'memory' ? <Database size={24} /> : <Zap size={24} />}
+                                            {selectedGuide === 'registration' ? <UserPlus2 size={24} /> :
+                                                selectedGuide === 'memory' ? <Database size={24} /> :
+                                                    selectedGuide === 'delivery' ? <Key size={24} /> :
+                                                        selectedGuide === 'strategy' ? <Rocket size={24} /> :
+                                                            <Zap size={24} />}
                                         </div>
                                         <div>
                                             <h3 className="text-3xl font-black uppercase italic text-white leading-none">
-                                                {selectedGuide === 'registration' ? 'Guía de Registro' : selectedGuide === 'memory' ? 'Memoria de IA' : 'Configuración Retell'}
+                                                {selectedGuide === 'registration' ? 'Guía de Registro' :
+                                                    selectedGuide === 'memory' ? 'Memoria de IA' :
+                                                        selectedGuide === 'delivery' ? 'Entrega de Cuenta' :
+                                                            selectedGuide === 'strategy' ? 'Estrategia Pro' :
+                                                                'Configuración Retell'}
                                             </h3>
                                             <p className="text-xs font-bold text-gray-500 uppercase tracking-[0.2em] mt-2">Documentación Técnica SaraCalls</p>
                                         </div>
@@ -800,25 +822,87 @@ export default function SuperAdminDashboard() {
                                             </div>
                                         )}
 
-                                        {selectedGuide === 'memory' && (
+                                        {selectedGuide === 'delivery' && (
                                             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-sm">
                                                 <section>
-                                                    <h4 className="text-blue-400 text-xl font-bold uppercase italic mb-4">Arquitectura de Memoria</h4>
-                                                    <p className="text-gray-400 leading-relaxed">Sara utiliza un sistema híbrido:</p>
-                                                    <div className="space-y-4 mt-6">
+                                                    <h4 className="text-green-400 text-xl font-bold uppercase italic mb-4">Proceso de Entrega de Cuenta</h4>
+                                                    <p className="text-gray-400 leading-relaxed mb-6">Sigue estos pasos para que tu cliente pueda acceder a su dashboard:</p>
+                                                    <div className="space-y-4">
                                                         {[
-                                                            { t: "Captura de ID", d: "El webhook extrae el número de teléfono del llamante." },
-                                                            { t: "Cruce de Datos", d: "Busca en la tabla 'leads' del cliente específico." },
-                                                            { t: "Contextualización", d: "Inyecta el nombre y preferencias en el System Prompt de Retell." }
+                                                            { t: "Credenciales de Supabase", d: "Crea el usuario en Supabase Auth y asígnale una contraseña temporal." },
+                                                            { t: "Vincular UUID", d: "Asegúrate de que el 'auth_user_id' en la tabla 'clients' coincida con su UUID de Supabase." },
+                                                            { t: "URL de Acceso", d: "Envía a tu cliente la URL: your-domain.com/login" },
+                                                            { t: "Primera Sesión", d: "Recomienda al cliente revisar su configuración de API Master si necesita personalización extra." }
                                                         ].map((step, i) => (
                                                             <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/5">
-                                                                <div className="text-blue-400 font-black italic">0{i + 1}</div>
+                                                                <div className="text-green-400 font-black italic">STEP {i + 1}</div>
                                                                 <div>
                                                                     <p className="text-white font-bold text-xs">{step.t}</p>
                                                                     <p className="text-[10px] text-gray-500">{step.d}</p>
                                                                 </div>
                                                             </div>
                                                         ))}
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        )}
+
+                                        {selectedGuide === 'memory' && (
+                                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-sm">
+                                                <section>
+                                                    <h4 className="text-blue-400 text-xl font-bold uppercase italic mb-4">Funcionamiento de la Memoria</h4>
+                                                    <div className="grid md:grid-cols-2 gap-6">
+                                                        <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
+                                                            <p className="text-blue-400 font-bold text-xs uppercase mb-2">Memoria de Corto Plazo</p>
+                                                            <p className="text-[10px] text-gray-500 leading-relaxed">Sara mantiene el hilo de la conversación actual. Si un cliente dice "Ese plato que mencionaste", Sara sabe exactamente a qué se refiere.</p>
+                                                        </div>
+                                                        <div className="p-6 rounded-3xl bg-white/5 border border-white/5">
+                                                            <p className="text-blue-400 font-bold text-xs uppercase mb-2">Memoria de Largo Plazo</p>
+                                                            <p className="text-[10px] text-gray-500 leading-relaxed">Sara consulta Supabase para identificar al cliente por su número, ver su historial de pedidos y recordar sus preferencias habituales.</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+
+                                                <section>
+                                                    <h4 className="text-blue-400 text-sm font-bold uppercase mb-4">Flujo de Datos (Arquitectura)</h4>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                                            <p className="text-[10px] text-gray-400 font-mono">1. Retell captura from_number</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                                            <p className="text-[10px] text-gray-400 font-mono">2. Consulta dinámica a tabla 'leads'</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+                                                            <p className="text-[10px] text-gray-400 font-mono">3. Inyección de contexto al Prompt de Sara</p>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        )}
+
+                                        {selectedGuide === 'strategy' && (
+                                            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 text-sm">
+                                                <section>
+                                                    <h4 className="text-purple-400 text-xl font-bold uppercase italic mb-4">Estrategia de Cierre de Ventas</h4>
+                                                    <p className="text-gray-400 leading-relaxed mb-6">Cómo posicionar SaraCalls para maximizar tus ingresos de agencia:</p>
+                                                    <div className="grid gap-4">
+                                                        <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex gap-4">
+                                                            <TrendingUp className="text-purple-400" size={24} />
+                                                            <div>
+                                                                <p className="text-white font-bold text-xs">Vende el ROI, no la Tecnología</p>
+                                                                <p className="text-[10px] text-gray-500">Muestra cuántas llamadas perdidas se convierten en reservas reales gracias a la disponibilidad 24/7 de Sara.</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="p-6 rounded-3xl bg-white/5 border border-white/5 flex gap-4">
+                                                            <Zap className="text-purple-400" size={24} />
+                                                            <div>
+                                                                <p className="text-white font-bold text-xs">Demostraciones en Vivo</p>
+                                                                <p className="text-[10px] text-gray-500">Deja que el cliente llame a un número demo. La sorpresa al ser atendido por una voz humana que responde inteligentemente cierra el 80% de los tratos.</p>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </section>
                                             </div>
