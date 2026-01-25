@@ -816,7 +816,7 @@ export default function SuperAdminDashboard() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="space-y-10"
+                                className="space-y-10 pb-32"
                             >
                                 <div className="text-center max-w-2xl mx-auto">
                                     <h2 className="text-4xl font-black uppercase italic mb-4 text-[#FD7202]">Showroom de Industrias</h2>
