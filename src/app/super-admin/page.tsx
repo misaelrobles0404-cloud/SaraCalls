@@ -432,8 +432,8 @@ export default function SuperAdminDashboard() {
                                         { label: 'Clientes Activos', value: globalStats.activeClients, icon: Zap, color: 'purple' }
                                     ].map((stat, i) => (
                                         <div key={i} className="group relative p-8 rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 hover:ring-1 hover:ring-[#FD7202]/30 overflow-hidden">
-                                            <div className={`w-14 h-14 rounded-2xl bg-${stat.color === 'orange' ? '[#FD7202]/10' : stat.color + '-500/10'} flex items-center justify-center mb-6 border border-${stat.color === 'orange' ? '[#FD7202]/20' : stat.color + '-500/20'} transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.2)]`}>
-                                                <stat.icon size={28} className={`transition-all duration-300 group-hover:neon-text-${stat.color === 'blue' ? 'blue' : (stat.color === 'green' ? 'green' : (stat.color === 'purple' ? 'purple' : 'orange'))}`} />
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border transition-all duration-500 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(253,114,2,0.2)] ${stat.color === 'orange' ? 'bg-[#FD7202]/10 border-[#FD7202]/20' : `bg-${stat.color}-500/10 border-${stat.color}-500/20`}`}>
+                                                <stat.icon size={28} className={`transition-all duration-300 ${stat.color === 'orange' ? 'text-[#FD7202]' : `text-${stat.color}-500`}`} />
                                             </div>
                                             <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">{stat.label}</p>
                                             <h3 className="text-3xl font-black mt-2 italic tabular-nums">{stat.value}</h3>
@@ -783,7 +783,7 @@ export default function SuperAdminDashboard() {
                                             }}
                                             className="text-left group glass p-8 rounded-[32px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-500 relative overflow-hidden"
                                         >
-                                            <div className={`w-14 h-14 rounded-2xl bg-${guide.color === 'orange' ? '[#FD7202]/10' : guide.color + '-500/10'} flex items-center justify-center mb-6 border border-${guide.color === 'orange' ? '[#FD7202]/20' : guide.color + '-500/20'} group-hover:scale-110 transition-transform`}>
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 border group-hover:scale-110 transition-transform ${guide.color === 'orange' ? 'bg-[#FD7202]/10 border-[#FD7202]/20' : `bg-${guide.color}-500/10 border-${guide.color}-500/20`}`}>
                                                 <guide.icon size={28} className={guide.color === 'orange' ? 'text-[#FD7202]' : `text-${guide.color}-500`} />
                                             </div>
                                             <h3 className="text-lg font-black uppercase italic text-white mb-2">{guide.title}</h3>

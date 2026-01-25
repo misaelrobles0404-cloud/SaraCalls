@@ -591,7 +591,7 @@ export default function AdminDashboard() {
                                             className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5"
                                         >
                                             <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-500 shadow-xl`}
-                                                style={{ backgroundColor: `${CurrentTheme.primary}15`, borderColor: `${CurrentTheme.primary}33` }}>
+                                                style={{ backgroundColor: CurrentTheme.primary + '15', borderColor: CurrentTheme.primary + '33' }}>
                                                 <stat.icon size={20} style={{ color: CurrentTheme.primary }} className="group-hover:scale-110 transition-transform" />
                                             </div>
                                             <div className="space-y-1">
