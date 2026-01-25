@@ -539,19 +539,19 @@ export default function AdminDashboard() {
                                 </div>
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto no-scrollbar mask-gradient">
                                 {[
                                     { id: 'restaurant', label: 'Restaurante', icon: Utensils },
                                     { id: 'barber', label: 'Barbería', icon: Scissors },
                                     { id: 'clinic', label: 'Clínica', icon: Stethoscope },
-                                    { id: 'restaurant_res', label: 'Restaurante Gourmet', icon: Wine }
+                                    { id: 'restaurant_res', label: 'Gourmet', icon: Wine }
                                 ].map((ind) => (
                                     <button
                                         key={ind.id}
                                         onClick={() => setIndustry(ind.id as any)}
-                                        className={`px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
+                                        className={`flex-shrink-0 px-3 py-2 rounded-xl flex items-center gap-1.5 text-[9px] font-black uppercase tracking-wider transition-all ${industry === ind.id ? 'bg-[#FD7202] text-white' : 'bg-white/5 text-gray-500 hover:bg-white/10 hover:text-white'}`}
                                     >
-                                        <ind.icon size={14} /> {ind.label}
+                                        <ind.icon size={12} /> {ind.label}
                                     </button>
                                 ))}
                             </div>
