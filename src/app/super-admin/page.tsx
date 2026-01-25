@@ -1086,6 +1086,7 @@ export default function SuperAdminDashboard() {
                             </div>
                         )}
                     </AnimatePresence>
+                </div>
             </main>
 
             {/* Modal de Historial de Cliente */}
@@ -1177,7 +1178,5 @@ export default function SuperAdminDashboard() {
                     </div>
                 </AnimatePresence>
         </div>
-        </main >
-    </div >
-);
+    );
 }

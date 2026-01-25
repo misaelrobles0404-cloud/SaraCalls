@@ -1,0 +1,10 @@
+src/app/admin/page.tsx(520,18): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(1037,9): error TS1005: ')' expected.
+src/app/admin/page.tsx(1038,5): error TS1109: Expression expected.
+src/app/admin/page.tsx(1039,1): error TS1109: Expression expected.
+src/app/super-admin/page.tsx(415,18): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/super-admin/page.tsx(1178,17): error TS1005: ')' expected.
+src/app/super-admin/page.tsx(1180,9): error TS1005: ')' expected.
+src/app/super-admin/page.tsx(1181,8): error TS1109: Expression expected.
+src/app/super-admin/page.tsx(1182,5): error TS1109: Expression expected.
+src/app/super-admin/page.tsx(1183,1): error TS1109: Expression expected.

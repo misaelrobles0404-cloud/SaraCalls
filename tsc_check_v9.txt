@@ -1,0 +1,5 @@
+src/app/admin/page.tsx(1039,5): error TS1005: ')' expected.
+src/app/admin/page.tsx(1040,1): error TS1109: Expression expected.
+src/app/super-admin/page.tsx(1179,17): error TS1005: ')' expected.
+src/app/super-admin/page.tsx(1181,5): error TS1005: ')' expected.
+src/app/super-admin/page.tsx(1182,1): error TS1109: Expression expected.

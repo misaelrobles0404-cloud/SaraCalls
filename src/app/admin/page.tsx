@@ -51,6 +51,7 @@ import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
 import { ClientHeader } from "@/components/dashboard/ClientHeader";
 import { LeadsTable } from "@/components/dashboard/LeadsTable";
 import { CallsTable } from "@/components/dashboard/CallsTable";
+import { div, main } from "framer-motion/client";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -925,6 +926,7 @@ export default function AdminDashboard() {
                             </button>
                         </div>
                     </footer>
+                </div>
             </main>
 
             {/* Mobile Navigation Bar */}
@@ -1034,7 +1036,5 @@ export default function AdminDashboard() {
                 )}
             </AnimatePresence>
         </div>
-        </main >
-    </div >
-);
+    );
 }
