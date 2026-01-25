@@ -40,7 +40,7 @@ export function SuperAdminSidebar({ activeTab, setActiveTab, handleLogout, isOpe
                 />
             )}
 
-            <aside className={`w-64 border-r border-white/10 flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-3xl z-[110] transition-transform duration-300 lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`w-64 border-r border-white/10 flex flex-col p-6 fixed h-full bg-black/40 backdrop-blur-3xl z-[110] transition-transform duration-300 lg:translate-x-0 overflow-y-auto max-h-screen ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex items-center justify-between mb-10 px-2 lg:block">
                     <div className="flex items-center gap-3 transition-transform hover:scale-105 duration-300">
                         <BotMessageSquare className="text-[#FD7202] w-10 h-10 drop-shadow-[0_0_12px_rgba(253,114,2,0.6)]" />
