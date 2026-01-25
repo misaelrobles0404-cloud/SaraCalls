@@ -554,13 +554,6 @@ export default function AdminDashboard() {
                                         <ind.icon size={14} /> {ind.label}
                                     </button>
                                 ))}
-                                <div className="w-full sm:w-auto h-px sm:h-8 bg-[#FD7202]/20 mx-2"></div>
-                                <button
-                                    onClick={() => router.push('/super-admin')}
-                                    className="px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 shadow-lg hover:shadow-red-500/20"
-                                >
-                                    <LogOut size={14} className="rotate-180" /> Salir del Lab
-                                </button>
                             </div>
                         </motion.div>
                     )}
@@ -951,6 +944,16 @@ export default function AdminDashboard() {
                         <item.icon size={24} />
                     </button>
                 ))}
+
+                {/* Botón Salir Mobile - Solo Admins */}
+                {isAdminUser && (
+                    <button
+                        onClick={() => router.push('/super-admin')}
+                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20"
+                    >
+                        <LogOut size={24} className="rotate-180" />
+                    </button>
+                )}
             </nav>
             {/* Modal de Historial de Cliente */}
             <AnimatePresence>
