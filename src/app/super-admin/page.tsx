@@ -473,7 +473,7 @@ export default function SuperAdminDashboard() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-4 md:p-8"
                             >
                                 <div className="flex justify-between items-center mb-10">
                                     <h2 className="text-2xl font-black uppercase italic">Directorio de Clientes</h2>
@@ -495,18 +495,18 @@ export default function SuperAdminDashboard() {
                                         <tbody className="divide-y divide-white/5">
                                             {clients.map((client, idx) => (
                                                 <tr key={idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
-                                                    <td className="py-6 px-4">
-                                                        <div className="font-bold text-white uppercase tracking-tight text-lg group-hover:text-[#FD7202] transition-colors">{client.business_name}</div>
-                                                        <div className="text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em]">{client.client_id.slice(0, 8)}...</div>
+                                                    <td className="py-6 px-2 md:px-4">
+                                                        <div className="font-bold text-white uppercase tracking-tight text-sm md:text-lg group-hover:text-[#FD7202] transition-colors">{client.business_name}</div>
+                                                        <div className="text-[8px] md:text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em]">{client.client_id.slice(0, 8)}...</div>
                                                     </td>
-                                                    <td className="py-6 px-4">
-                                                        <span className="font-black text-xl text-[#FD7202] tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.2)]">{client.total_calls}</span>
-                                                        <span className="text-[10px] text-gray-500 ml-2 font-bold uppercase">Llamadas</span>
+                                                    <td className="py-6 px-2 md:px-4">
+                                                        <span className="font-black text-lg md:text-xl text-[#FD7202] tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.2)]">{client.total_calls}</span>
+                                                        <span className="text-[8px] md:text-[10px] text-gray-500 ml-1 md:ml-2 font-bold uppercase hidden sm:inline">Llamadas</span>
                                                     </td>
-                                                    <td className="py-6 px-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                                                    <td className="py-6 px-2 md:px-4 text-[9px] md:text-[10px] text-gray-400 font-bold uppercase tracking-widest hidden sm:table-cell">
                                                         {client.last_call ? new Date(client.last_call).toLocaleDateString() : 'Sin actividad'}
                                                     </td>
-                                                    <td className="py-5 px-4 text-right flex gap-2 justify-end">
+                                                    <td className="py-5 px-2 md:px-4 text-right flex flex-col sm:flex-row gap-2 justify-end">
                                                         <button
                                                             onClick={() => fetchClientHistory(client)}
                                                             className="px-4 py-2 bg-white/5 hover:bg-[#FD7202] rounded-xl text-gray-400 hover:text-white transition-all font-black uppercase text-[10px] tracking-widest inline-flex items-center gap-2"
