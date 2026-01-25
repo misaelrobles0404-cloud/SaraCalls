@@ -934,8 +934,7 @@ export default function AdminDashboard() {
                 {[
                     { id: 'overview', icon: LayoutDashboard },
                     { id: 'calls', icon: Phone },
-                    { id: 'leads', icon: Users },
-                    { id: 'settings', icon: Settings }
+                    { id: 'leads', icon: Users }
                 ].map((item) => (
                     <button
                         key={item.id}
