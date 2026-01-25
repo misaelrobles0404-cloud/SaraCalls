@@ -47,7 +47,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { div, main } from "framer-motion/client";
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
