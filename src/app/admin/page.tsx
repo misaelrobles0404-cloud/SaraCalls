@@ -554,6 +554,13 @@ export default function AdminDashboard() {
                                         <ind.icon size={12} /> {ind.label}
                                     </button>
                                 ))}
+                                <div className="w-full sm:w-auto h-px sm:h-8 bg-[#FD7202]/20 mx-2"></div>
+                                <button
+                                    onClick={() => router.push('/super-admin')}
+                                    className="px-4 py-2 rounded-xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest transition-all bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 shadow-lg hover:shadow-red-500/20"
+                                >
+                                    <LogOut size={14} className="rotate-180" /> Salir del Lab
+                                </button>
                             </div>
                         </motion.div>
                     )}
@@ -622,12 +629,6 @@ export default function AdminDashboard() {
                                                 <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button
-                                                    onClick={fetchHistory}
-                                                    className="px-4 py-2 rounded-xl bg-[#FD7202]/10 hover:bg-[#FD7202] text-[#FD7202] hover:text-white text-[10px] font-black uppercase tracking-widest transition-all border border-[#FD7202]/20"
-                                                >
-                                                    Ver Historial
-                                                </button>
                                                 <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
                                             </div>
                                         </div>
