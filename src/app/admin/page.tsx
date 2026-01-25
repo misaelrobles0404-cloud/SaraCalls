@@ -706,6 +706,19 @@ export default function AdminDashboard() {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
                             >
+                                <div className={`mb-8 p-8 rounded-[28px] bg-gradient-to-br ${CurrentTheme.gradient} relative overflow-hidden shadow-lg`}>
+                                    <div className="relative z-10 flex flex-row items-center justify-between gap-4">
+                                        <div>
+                                            <h2 className="text-3xl font-black uppercase italic text-white tracking-tight mb-2">Prospectos Web</h2>
+                                            <p className="text-[10px] font-bold text-white/90 uppercase tracking-[0.2em]">Oportunidades de Venta ({leads.length})</p>
+                                        </div>
+                                        <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl">
+                                            <UserPlus size={32} className="text-white drop-shadow-md" />
+                                        </div>
+                                    </div>
+                                    {/* Decorative Overlay */}
+                                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[60px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                                </div>
                                 <LeadsTable
                                     leads={leads}
                                     loading={loading}
