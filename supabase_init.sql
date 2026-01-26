@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS clients (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     business_name TEXT NOT NULL,
     industry TEXT,
+    retell_agent_id TEXT UNIQUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
