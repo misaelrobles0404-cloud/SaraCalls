@@ -1209,9 +1209,6 @@ export default function SuperAdminDashboard() {
                     </div>
                 )}
             </AnimatePresence>
-
-                )}
-        </AnimatePresence>
-        </div >
+        </div>
     );
 }
