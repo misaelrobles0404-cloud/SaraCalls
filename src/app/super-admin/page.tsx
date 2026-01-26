@@ -27,13 +27,14 @@ import {
     UserPlus2,
     Database,
     Smartphone,
+    Stethoscope,
+    Wine,
+    Plus,
     Rocket,
     ChevronDown,
     ArrowRight,
     Utensils,
-    Scissors,
-    Stethoscope,
-    Wine
+    Scissors
 } from "lucide-react";
 import { SuperAdminSidebar } from "@/components/dashboard/SuperAdminSidebar";
 import { SuperAdminHeader } from "@/components/dashboard/SuperAdminHeader";
@@ -74,6 +75,22 @@ export default function SuperAdminDashboard() {
     const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
     const [statusFilter, setStatusFilter] = useState<'Todos' | 'Nuevo' | 'Contactado' | 'Cerrado'>('Todos');
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    const updateAgentId = async (clientId: string, agentId: string) => {
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('clients')
+                .update({ retell_agent_id: agentId })
+                .eq('id', clientId);
+
+            if (error) throw error;
+            setClients(prev => prev.map(c => c.client_id === clientId ? { ...c, retell_agent_id: agentId } : c));
+        } catch (error: any) {
+            console.error("Error updating agent id:", error);
+            alert("Error al actualizar el ID: " + error.message);
+        }
+    };
 
     const fetchClientHistory = async (client: any) => {
         setLoadingHistory(true);
@@ -475,18 +492,20 @@ export default function SuperAdminDashboard() {
                                 exit={{ opacity: 0, x: -20 }}
                                 className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-4 md:p-8"
                             >
-                                <div className="flex justify-between items-center mb-10">
+                                <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
                                     <h2 className="text-2xl font-black uppercase italic">Directorio de Clientes</h2>
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                                        <input type="text" placeholder="Buscar Cliente..." className="bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm outline-none focus:border-[#FD7202]" />
+                                    <div className="flex items-center gap-4 w-full md:w-auto">
+                                        <div className="relative flex-grow md:w-64">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                                            <input type="text" placeholder="Buscar Cliente..." className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm outline-none focus:border-[#FD7202]" />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">
                                         <thead>
                                             <tr className="text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
-                                                <th className="pb-4 px-4">Empresa</th>
+                                                <th className="pb-4 px-4">Empresa / Agent ID</th>
                                                 <th className="pb-4 px-4">Llamadas</th>
                                                 <th className="pb-4 px-4">Última Actividad</th>
                                                 <th className="pb-4 px-4">Acciones</th>
@@ -495,9 +514,20 @@ export default function SuperAdminDashboard() {
                                         <tbody className="divide-y divide-white/5">
                                             {clients.map((client, idx) => (
                                                 <tr key={idx} className="hover:bg-white/[0.04] transition-all duration-300 group cursor-pointer border-l-2 border-transparent hover:border-[#FD7202]">
-                                                    <td className="py-6 px-2 md:px-4">
+                                                    <td className="py-6 px-2 md:px-4 min-w-[250px]">
                                                         <div className="font-bold text-white uppercase tracking-tight text-sm md:text-lg group-hover:text-[#FD7202] transition-colors">{client.business_name}</div>
-                                                        <div className="text-[8px] md:text-[9px] text-gray-500 uppercase font-bold tracking-[0.2em]">{client.client_id.slice(0, 8)}...</div>
+                                                        <div className="mt-2 flex items-center gap-2">
+                                                            <div className="bg-white/5 border border-white/10 rounded-lg px-2 py-1 flex items-center gap-2 flex-grow max-w-[200px]">
+                                                                <Zap size={10} className="text-orange-400" />
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Retell Agent ID"
+                                                                    defaultValue={client.retell_agent_id || ''}
+                                                                    onBlur={(e) => updateAgentId(client.client_id, e.target.value)}
+                                                                    className="bg-transparent border-none outline-none text-[9px] font-mono text-gray-400 w-full focus:text-white transition-colors"
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                     <td className="py-6 px-2 md:px-4">
                                                         <span className="font-black text-lg md:text-xl text-[#FD7202] tabular-nums drop-shadow-[0_0_8px_rgba(253,114,2,0.2)]">{client.total_calls}</span>
@@ -1179,6 +1209,9 @@ export default function SuperAdminDashboard() {
                     </div>
                 )}
             </AnimatePresence>
-        </div>
+
+                )}
+        </AnimatePresence>
+        </div >
     );
 }
