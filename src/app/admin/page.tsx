@@ -899,8 +899,8 @@ export default function AdminDashboard() {
                                                             <div className="bg-gradient-to-r from-transparent to-white/[0.03] p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-auto">
                                                                 <div>
                                                                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Precio Total</span>
-                                                                    <span className="text-3xl font-black text-white tabular-nums tracking-tighter">
-                                                                        ${order.total_price || (idx * 15 + 130).toFixed(2)}
+                                                                    <span className={`text-3xl font-black tabular-nums tracking-tighter ${order.total_price ? 'text-white' : 'text-red-500/50'}`}>
+                                                                        ${order.total_price || '0.00'}
                                                                     </span>
                                                                 </div>
                                                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${hasUtensils ? 'bg-orange-500/20 border-orange-500/30 text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-white/5 border-white/10 text-gray-600'}`}>

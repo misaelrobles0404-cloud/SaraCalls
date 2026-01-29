@@ -44,24 +44,33 @@ export async function POST(request: Request) {
             case 'appointment': table = 'appointments'; break;
             case 'order':
                 table = 'orders';
-                const itemsList = Array.isArray(finalData.items)
-                    ? finalData.items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n')
-                    : (finalData.items || 'Sin productos');
+
+                // Extraer datos de manera más robusta (para diferentes versiones de payloads de Retell)
+                const rawData = body.arguments ? (typeof body.arguments === 'string' ? JSON.parse(body.arguments) : body.arguments) : finalData;
+                const items = rawData.items || [];
+
+                let itemsList = 'Sin productos';
+                if (Array.isArray(items) && items.length > 0) {
+                    itemsList = items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n');
+                } else if (typeof items === 'string') {
+                    itemsList = items;
+                }
 
                 const finalNotes = `
-                    Tipo: ${finalData.order_type === 'delivery' ? 'A domicilio' : 'Recoger'}
-                    Dir: ${finalData.delivery_address || 'Sucursal'}
-                    Utensilios: ${finalData.utensils ? 'Sí' : 'No'}
-                    Comentarios: ${finalData.order_notes || ''}
+                    Tipo: ${rawData.order_type === 'delivery' ? 'A domicilio' : 'Recoger'}
+                    Dir: ${rawData.delivery_address || 'Sucursal'}
+                    Utensilios: ${rawData.utensils ? 'Sí' : 'No'}
+                    Comentarios: ${rawData.order_notes || ''}
                 `.replace(/\s+/g, ' ').trim();
 
                 dataToInsert = {
-                    client_id: urlClientId || finalData.client_id,
-                    customer_name: finalData.customer_name,
-                    customer_phone: finalData.phone_number,
+                    client_id: urlClientId || rawData.client_id,
+                    customer_name: rawData.customer_name,
+                    customer_phone: rawData.phone_number,
                     items: itemsList,
                     notes: finalNotes,
-                    status: 'Pendiente'
+                    status: 'Pendiente',
+                    total_price: rawData.total_price || null // Permitir que Sara envíe el precio
                 };
                 break;
             default:
