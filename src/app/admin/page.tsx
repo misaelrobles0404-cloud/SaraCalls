@@ -37,7 +37,8 @@ import {
     MessageSquare,
     X,
     MapPin,
-    ShoppingBag
+    ShoppingBag,
+    History
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -768,22 +769,71 @@ export default function AdminDashboard() {
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
-                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8"
+                                className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8 max-w-4xl"
                             >
                                 <div className="mb-8 flex flex-row items-center justify-between gap-4">
                                     <div>
-                                        <h2 className="text-3xl font-black uppercase italic text-white tracking-tight mb-2">Clientes</h2>
-                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Oportunidades de Venta ({leads.length})</p>
+                                        <h2 className="text-3xl font-black uppercase italic text-white tracking-tight mb-2">Mantenimiento</h2>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em]">Herramientas de limpieza de datos</p>
                                     </div>
                                     <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
-                                        <UserPlus size={32} style={{ color: CurrentTheme.primary }} />
+                                        <Database size={32} style={{ color: CurrentTheme.primary }} />
                                     </div>
                                 </div>
-                                <LeadsTable
-                                    leads={leads}
-                                    loading={loading}
-                                    onDelete={handleDeleteLead}
-                                />
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="glass rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                                            <Trash2 size={16} className="text-red-500" /> Pedidos y Cocina
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <button
+                                                onClick={() => handleDeleteOrdersByWeek()}
+                                                className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-red-500/20"
+                                            >
+                                                Borrar Pedidos Semanal
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteOrdersByMonth(1)}
+                                                className="w-full py-4 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-red-500/20"
+                                            >
+                                                Borrar Pedidos Mes Pasado
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="glass rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
+                                        <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4 flex items-center gap-2">
+                                            <History size={16} className="text-blue-500" /> Llamadas y Prospectos
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <button
+                                                onClick={() => handleDeleteCallsByMonth(1)}
+                                                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/10"
+                                            >
+                                                Borrar Llamadas Mes Pasado
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteLeadsByMonth(1)}
+                                                className="w-full py-4 bg-white/5 hover:bg-white/10 text-gray-300 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 border border-white/10"
+                                            >
+                                                Borrar Leads Mes Pasado
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 p-6 rounded-3xl bg-blue-500/5 border border-blue-500/10">
+                                    <div className="flex items-start gap-4">
+                                        <AlertCircle size={20} className="text-blue-400 shrink-0 mt-1" />
+                                        <div>
+                                            <h4 className="text-xs font-black uppercase text-blue-400 mb-1">Información de Seguridad</h4>
+                                            <p className="text-[10px] text-gray-500 font-bold uppercase tracking-tight leading-relaxed">
+                                                Las acciones de borrado son permanentes y no se pueden deshacer. Se recomienda realizar estas limpiezas al final de cada periodo contable para mantener el sistema ágil.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
                             </motion.div>
                         ) : activeTab === 'appointments' ? (
                             <motion.div
@@ -1028,38 +1078,6 @@ export default function AdminDashboard() {
                                         />
                                     </div>
                                     <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
-                                    <div className="pt-8 border-t border-white/5 space-y-6">
-                                        <div className="text-center">
-                                            <h3 className="text-xl font-black uppercase italic mb-2 text-red-500">Mantenimiento</h3>
-                                            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Borrado de datos históricos</p>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <button
-                                                onClick={() => handleDeleteCallsByMonth(1)}
-                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <Trash2 size={14} /> Borrar Llamadas Mes Pasado
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteLeadsByMonth(1)}
-                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <Trash2 size={14} /> Borrar Leads Mes Pasado
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteOrdersByWeek()}
-                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <Trash2 size={14} /> Borrar Pedidos Semanal
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteOrdersByMonth(1)}
-                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 col-span-2"
-                                            >
-                                                <Trash2 size={14} /> Borrar Pedidos Mes Pasado
-                                            </button>
-                                        </div>
-                                    </div>
                                 </div>
                             </motion.div>
                         )}
