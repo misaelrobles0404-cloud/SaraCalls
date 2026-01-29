@@ -45,7 +45,7 @@ export async function POST(request: Request) {
             case 'order':
                 table = 'orders';
                 const itemsList = Array.isArray(finalData.items)
-                    ? finalData.items.map((i: any) => `${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join(', ')
+                    ? finalData.items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n')
                     : (finalData.items || 'Sin productos');
 
                 const finalNotes = `

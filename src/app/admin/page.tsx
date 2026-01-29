@@ -35,7 +35,9 @@ import {
     Filter,
     ChevronDown,
     MessageSquare,
-    X
+    X,
+    MapPin,
+    ShoppingBag
 } from "lucide-react";
 import {
     Chart as ChartJS,
@@ -779,81 +781,137 @@ export default function AdminDashboard() {
                                                 <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
                                                 <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
                                             </div>
-                                        ) : orders.map((order: any, idx: number) => (
-                                            <div key={order.id || idx} className="group relative glass rounded-[32px] border border-white/5 bg-white/[0.02] p-6 transition-all duration-500 hover:bg-white/[0.04]">
-                                                <button
-                                                    onClick={() => deleteOrder(order.id)}
-                                                    className="absolute top-4 right-4 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                        ) : orders.map((order: any, idx: number) => {
+                                            const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
+                                            const hasUtensils = order.notes?.toLowerCase().includes('utensilios: sí');
+                                            const address = order.notes?.split('Dir: ')[1]?.split(' Utensilios:')[0] || 'Sucursal';
+                                            const comments = order.notes?.split('Comentarios: ')[1] || 'Sin comentarios adicionales';
+
+                                            return (
+                                                <motion.div
+                                                    layout
+                                                    key={order.id || idx}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="group relative glass rounded-[32px] border border-white/10 bg-white/[0.03] p-8 transition-all duration-500 hover:bg-white/[0.05] overflow-hidden"
                                                 >
-                                                    <Trash2 size={14} />
-                                                </button>
+                                                    <div className={`absolute top-0 left-0 w-1.5 h-full transition-all duration-500 ${order.status === 'Pendiente' ? 'bg-orange-500 shadow-[2px_0_15px_rgba(249,115,22,0.5)]' :
+                                                        order.status === 'Preparando' ? 'bg-blue-500 shadow-[2px_0_15px_rgba(59,130,246,0.5)]' :
+                                                            order.status === 'Listo' ? 'bg-green-500 shadow-[2px_0_15px_rgba(34,197,94,0.5)]' :
+                                                                'bg-purple-500 shadow-[2px_0_15px_rgba(168,85,247,0.5)]'
+                                                        }`}></div>
 
-                                                <div className="flex flex-col md:flex-row md:items-center gap-6">
-                                                    <div className="flex-shrink-0">
-                                                        <div className="text-3xl font-black text-blue-500 tabular-nums drop-shadow-[0_0_10px_rgba(59,130,246,0.3)]">
-                                                            #{order.order_number || idx + 100}
-                                                        </div>
-                                                        <div className="text-[10px] font-bold text-gray-600 uppercase tracking-widest mt-1">
-                                                            {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </div>
-                                                    </div>
+                                                    <button
+                                                        onClick={() => deleteOrder(order.id)}
+                                                        className="absolute top-6 right-6 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                    </button>
 
-                                                    <div className="flex-grow space-y-2">
-                                                        <div className="flex items-center gap-3">
-                                                            <h4 className="font-bold text-lg text-white">{order.customer_name}</h4>
-                                                            <span className="text-xs text-gray-500 font-medium">{order.customer_phone}</span>
-                                                        </div>
-                                                        <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                                                            <p className="text-sm text-gray-300 font-medium leading-relaxed italic">
-                                                                {order.items || 'Cargando detalle del pedido...'}
-                                                            </p>
-                                                        </div>
-                                                        {order.notes && (
-                                                            <div className="flex items-start gap-2 text-[10px] text-orange-400 font-bold uppercase tracking-tight">
-                                                                <AlertCircle size={12} className="mt-0.5" />
-                                                                <span>NOTA: {order.notes}</span>
+                                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                                                        <div className="lg:col-span-2 flex lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-4 border-b lg:border-b-0 lg:border-r border-white/5 pb-4 lg:pb-0 lg:pr-6 text-center lg:text-left">
+                                                            <div>
+                                                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Orden</span>
+                                                                <div className="text-4xl font-black text-white tabular-nums tracking-tighter">
+                                                                    #{order.order_number || idx + 101}
+                                                                </div>
                                                             </div>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="flex flex-col gap-3 min-w-[200px]">
-                                                        <div className="flex justify-between items-center mb-1">
-                                                            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Estado</span>
-                                                            <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-md ${order.status === 'Pendiente' ? 'bg-orange-500/10 text-orange-500' :
-                                                                order.status === 'Preparando' ? 'bg-blue-500/10 text-blue-500' :
-                                                                    order.status === 'Listo' ? 'bg-green-500/10 text-green-500' :
-                                                                        'bg-purple-500/10 text-purple-500'
-                                                                }`}>
-                                                                {order.status || 'Pendiente'}
-                                                            </span>
+                                                            <div>
+                                                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Entrada</span>
+                                                                <div className="flex items-center gap-2 text-gray-300 font-bold italic justify-center lg:justify-start">
+                                                                    <Clock size={14} className="text-blue-400" />
+                                                                    {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                </div>
+                                                            </div>
                                                         </div>
 
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            {[
-                                                                { label: 'Cocina', val: 'Preparando', color: 'blue' },
-                                                                { label: 'Listo', val: 'Listo', color: 'green' },
-                                                                { label: 'Entregado', val: 'Entregado', color: 'purple' },
-                                                                { label: 'Espera', val: 'Pendiente', color: 'orange' }
-                                                            ].map((st) => (
-                                                                <button
-                                                                    key={st.val}
-                                                                    onClick={() => updateOrderStatus(order.id, st.val)}
-                                                                    className={`px-2 py-2 rounded-xl text-[8px] font-black uppercase tracking-tighter transition-all ${order.status === st.val
-                                                                        ? `bg-${st.color}-500 text-white shadow-lg`
-                                                                        : `bg-white/5 text-gray-500 hover:bg-white/10 hover:text-gray-300`
-                                                                        }`}
-                                                                >
-                                                                    {st.label}
-                                                                </button>
-                                                            ))}
+                                                        <div className="lg:col-span-6 space-y-6">
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                <h4 className="text-2xl font-black italic uppercase tracking-tight text-white">{order.customer_name}</h4>
+                                                                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDelivery ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+                                                                    {isDelivery ? '🚀 A DOMICILIO' : '🥡 PARA RECOGER'}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="bg-black/40 rounded-3xl p-6 border border-white/5 relative overflow-hidden">
+                                                                <div className="absolute top-0 right-0 p-4 opacity-5">
+                                                                    <Utensils size={60} />
+                                                                </div>
+                                                                <p className="text-lg text-gray-100 font-bold leading-relaxed whitespace-pre-line italic relative z-10">
+                                                                    {order.items || 'Sin productos detallados'}
+                                                                </p>
+                                                            </div>
+
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                                    <MapPin size={16} className="text-gray-500 mt-0.5 shrink-0" />
+                                                                    <span className="text-[11px] text-gray-400 font-medium leading-tight">
+                                                                        <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Dirección</strong>
+                                                                        {address}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                                    <Phone size={16} className="text-gray-500 mt-0.5 shrink-0" />
+                                                                    <span className="text-[11px] text-gray-400 font-medium leading-tight">
+                                                                        <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Teléfono</strong>
+                                                                        {order.customer_phone || 'N/A'}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            {comments && comments !== 'Sin comentarios adicionales' && comments.trim() !== '' && (
+                                                                <div className="flex items-start gap-3 p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 text-orange-400">
+                                                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                                                    <p className="text-[11px] font-bold uppercase tracking-tight leading-relaxed">
+                                                                        NOTA: {comments}
+                                                                    </p>
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                        <div className="text-right mt-1">
-                                                            <span className="text-lg font-black text-white tabular-nums">${order.total_price || (idx * 15 + 20).toFixed(2)}</span>
+
+                                                        <div className="lg:col-span-4 flex flex-col justify-between h-auto lg:h-full space-y-6">
+                                                            <div>
+                                                                <div className="flex justify-between items-center mb-3 px-1 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                                                                    <span>Control de Estado</span>
+                                                                    <span className={order.status === 'Pendiente' ? 'text-orange-500' : 'text-blue-500'}>{order.status || 'Pendiente'}</span>
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-3">
+                                                                    {[
+                                                                        { label: '🔥 Cocina', val: 'Preparando', color: 'blue' },
+                                                                        { label: '✅ Listo', val: 'Listo', color: 'green' },
+                                                                        { label: '📦 Entregado', val: 'Entregado', color: 'purple' },
+                                                                        { label: '⏳ Espera', val: 'Pendiente', color: 'orange' }
+                                                                    ].map((st) => (
+                                                                        <button
+                                                                            key={st.val}
+                                                                            onClick={() => updateOrderStatus(order.id, st.val)}
+                                                                            className={`px-3 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${order.status === st.val
+                                                                                ? `bg-${st.color}-500 text-white border-transparent shadow-[0_5px_15px_rgba(0,0,0,0.3)] scale-[1.02]`
+                                                                                : `bg-white/5 text-gray-500 border-white/5 hover:border-white/10 hover:bg-white/10 hover:text-white`
+                                                                                }`}
+                                                                        >
+                                                                            {st.label}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="bg-gradient-to-r from-transparent to-white/[0.03] p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-auto">
+                                                                <div>
+                                                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Precio Total</span>
+                                                                    <span className="text-3xl font-black text-white tabular-nums tracking-tighter">
+                                                                        ${order.total_price || (idx * 15 + 130).toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${hasUtensils ? 'bg-orange-500/20 border-orange-500/30 text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-white/5 border-white/10 text-gray-600'}`}>
+                                                                    <ShoppingBag size={20} />
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                                </motion.div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </motion.div>
