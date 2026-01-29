@@ -68,6 +68,7 @@ export default function AdminDashboard() {
     const [leads, setLeads] = useState<any[]>([]);
     const [appointments, setAppointments] = useState<any[]>([]);
     const [orders, setOrders] = useState<any[]>([]);
+    const [orderView, setOrderView] = useState<'today' | 'history'>('today');
     const [loading, setLoading] = useState(true);
     const [industry, setIndustry] = useState<'barber' | 'restaurant' | 'clinic' | 'restaurant_res'>('restaurant');
 
@@ -499,6 +500,66 @@ export default function AdminDashboard() {
             alert("Error al eliminar: " + error.message);
         }
     };
+
+    const handleDeleteOrdersByMonth = async (monthsAgo: number) => {
+        if (isDemo) {
+            alert("No permitido en modo Demo");
+            return;
+        }
+        const targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() - monthsAgo);
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1).toISOString();
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+        const monthName = targetDate.toLocaleString('es-ES', { month: 'long' });
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODOS los pedidos de ${monthName}? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('client_id', clientId)
+                .gte('created_at', startOfMonth)
+                .lte('created_at', endOfMonth);
+
+            if (error) throw error;
+            alert(`Pedidos de ${monthName} eliminados con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete orders:", error);
+            alert("Error al eliminar: " + error.message);
+        }
+    };
+
+    const handleDeleteOrdersByWeek = async () => {
+        if (isDemo) {
+            alert("No permitido en modo Demo");
+            return;
+        }
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() - 7);
+        const sevenDaysAgo = targetDate.toISOString();
+
+        if (!confirm(`¿Estás seguro de que quieres borrar TODOS los pedidos de la última semana? Esta acción no se puede deshacer.`)) return;
+
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const { error } = await supabase
+                .from('orders')
+                .delete()
+                .eq('client_id', clientId)
+                .lte('created_at', sevenDaysAgo);
+
+            if (error) throw error;
+            alert(`Pedidos antiguos eliminados con éxito.`);
+            window.location.reload();
+        } catch (error: any) {
+            console.error("Error delete orders week:", error);
+            alert("Error al eliminar: " + error.message);
+        }
+    };
     const totalCallsCount = loading ? 0 : calls.length;
     const hoursSaved = Math.round((totalCallsCount * 5) / 60);
 
@@ -763,25 +824,38 @@ export default function AdminDashboard() {
                                 className="space-y-8"
                             >
                                 <div className="glass rounded-[36px] bg-white/[0.02] border border-white/5 p-8">
-                                    <div className="flex justify-between items-center mb-8">
+                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                                         <div>
-                                            <h2 className="text-2xl font-black uppercase italic">Monitor de Cocina</h2>
-                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Gestión de pedidos en tiempo real</p>
+                                            <h2 className="text-2xl font-black uppercase italic">{orderView === 'today' ? 'Monitor de Cocina' : 'Historial de Pedidos'}</h2>
+                                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                                                {orderView === 'today' ? 'Pedidos recibidos hoy' : 'Todos los pedidos registrados'}
+                                            </p>
                                         </div>
-                                        <div className="bg-[#00F0FF]/10 text-[#00F0FF] px-4 py-2 rounded-xl border border-[#00F0FF]/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
-                                            Monitor Activo
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setOrderView('today')}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${orderView === 'today' ? 'bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'bg-white/5 text-gray-500'}`}
+                                            >
+                                                Hoy
+                                            </button>
+                                            <button
+                                                onClick={() => setOrderView('history')}
+                                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${orderView === 'history' ? 'bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)]' : 'bg-white/5 text-gray-500'}`}
+                                            >
+                                                Historial
+                                            </button>
                                         </div>
                                     </div>
 
                                     <div className="grid gap-6">
                                         {loading ? (
                                             <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
-                                        ) : orders.length === 0 ? (
+                                        ) : (orderView === 'today' ? orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()) : orders).length === 0 ? (
                                             <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
                                                 <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
-                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
+                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos {orderView === 'today' ? 'para hoy' : ''}</p>
                                             </div>
-                                        ) : orders.map((order: any, idx: number) => {
+                                        ) : (orderView === 'today' ? orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()) : orders).map((order: any, idx: number) => {
                                             // Mejorar el parseo de notas multilínea
                                             const noteLines = order.notes?.split('\n') || [];
                                             const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
@@ -824,9 +898,14 @@ export default function AdminDashboard() {
                                                             </div>
                                                             <div>
                                                                 <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Entrada</span>
-                                                                <div className="flex items-center gap-2 text-gray-300 font-bold italic justify-center lg:justify-start">
-                                                                    <Clock size={14} className="text-blue-400" />
-                                                                    {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                <div className="flex flex-col gap-1 text-gray-300 font-bold italic justify-center lg:justify-start">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock size={14} className="text-blue-400" />
+                                                                        {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </div>
+                                                                    <div className="text-[9px] text-gray-500 font-bold not-italic">
+                                                                        {new Date(order.created_at || Date.now()).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -967,39 +1046,24 @@ export default function AdminDashboard() {
                                             >
                                                 <Trash2 size={14} /> Borrar Leads Mes Pasado
                                             </button>
+                                            <button
+                                                onClick={() => handleDeleteOrdersByWeek()}
+                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Trash2 size={14} /> Borrar Pedidos Semanal
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteOrdersByMonth(1)}
+                                                className="py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 col-span-2"
+                                            >
+                                                <Trash2 size={14} /> Borrar Pedidos Mes Pasado
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
-
-
                             </motion.div>
                         )}
                     </AnimatePresence>
-
-
-
-                    {/* Footer Status */}
-                    <footer className="mt-12 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 opacity-40 hover:opacity-100 transition-opacity">
-                        <p className="text-[9px] font-bold text-gray-500 uppercase tracking-[0.3em]">
-                            © 2026 SaraCalls.AI • Protocolo de Datos Seguro (SSL/AES-256)
-                        </p>
-                        <div className="flex gap-6 items-center">
-                            <div className="flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Servidor: CDMX-1</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Latencia: 24ms</span>
-                            </div>
-                            <button
-                                onClick={handleLogout}
-                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all text-[9px] font-black uppercase tracking-widest"
-                            >
-                                <LogOut size={12} /> Salir
-                            </button>
-                        </div>
-                    </footer>
                 </div>
             </main>
 
@@ -1029,6 +1093,7 @@ export default function AdminDashboard() {
                     </button>
                 )}
             </nav>
+
             {/* Modal de Historial de Cliente */}
             <AnimatePresence>
                 {selectedHistory && (
