@@ -20,6 +20,19 @@ export async function POST(request: Request) {
         // Si el body tiene un objeto 'call', probablemente es el webhook final de Retell
         const isFinalCall = !!body.call;
 
+        // Función para validar UUID
+        const isValidUUID = (uuid: string) => {
+            const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            return regex.test(uuid);
+        };
+
+        const finalClientId = (urlClientId || body.client_id || '3c9fbb10-4892-4134-8f7e-509ab36121b2').trim();
+
+        if (!isValidUUID(finalClientId)) {
+            console.error('❌ Invalid Client ID Format:', finalClientId);
+            return NextResponse.json({ error: 'Invalid client_id' }, { status: 400 });
+        }
+
         // Detectar si es una llamada a herramienta (Tool Call) o si solo enviaron argumentos
         const isToolCall = body.type === 'tool_call' || body.event_type === 'tool_call' || !!body.tool_call_id;
         const toolName = body.tool_name || body.tool_call?.name || body.arguments?.name || body.name;
@@ -38,7 +51,7 @@ export async function POST(request: Request) {
             }
         }
 
-        console.log(`🚀 Final Decision - Type: [${inferredType}] | Tool: [${toolName}] | Client: [${urlClientId}]`);
+        console.log(`🚀 Final Decision - Type: [${inferredType}] | Client: [${finalClientId}]`);
 
         let table = '';
         let dataToInsert: any = {};
@@ -48,8 +61,8 @@ export async function POST(request: Request) {
             table = 'calls';
             const callData = body.call || body;
             dataToInsert = {
-                client_id: urlClientId || callData.client_id || body.client_id || '3c9fbb10-4892-4134-8f7e-509ab36121b2', // Fallback al de Hikari si falla todo
-                call_id: callData.call_id || body.call_id,
+                client_id: finalClientId,
+                call_id: callData.call_id || body.call_id || 'Unknown',
                 customer_number: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
                 duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : (callData.duration ? callData.duration.toString() : '0'),
                 transcript: callData.transcript || 'Sin transcripción',
@@ -67,32 +80,31 @@ export async function POST(request: Request) {
                 rawData = typeof body.arguments === 'string' ? JSON.parse(body.arguments) : body.arguments;
             } else if (body.tool_call?.arguments) {
                 rawData = typeof body.tool_call.arguments === 'string' ? JSON.parse(body.tool_call.arguments) : body.tool_call.arguments;
-            } else if (body.data) {
-                rawData = body.data;
             }
 
             console.log('📦 Extracted Order Data:', JSON.stringify(rawData, null, 2));
 
-            const items = rawData.items || [];
-            let itemsList = 'Sin productos';
+            // Manejar tanto array como objeto único de productos
+            const itemsRaw = rawData.items || rawData;
+            const itemsArray = Array.isArray(itemsRaw) ? itemsRaw : [itemsRaw];
 
-            if (Array.isArray(items) && items.length > 0) {
-                itemsList = items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n');
-            } else if (typeof items === 'string') {
-                itemsList = items;
+            let itemsList = 'Sin productos';
+            if (itemsArray.length > 0 && itemsArray[0].item_name) {
+                itemsList = itemsArray.map((i: any) => `• ${i.quantity || 1}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n');
+            } else if (typeof rawData.items === 'string') {
+                itemsList = rawData.items;
             }
 
             const finalNotes = `
                 Tipo: ${(rawData.order_type === 'delivery' || rawData.tipo === 'domicilio') ? 'A domicilio' : 'Recoger'}
                 Dir: ${rawData.delivery_address || rawData.direccion || 'Sucursal'}
-                Utensilios: ${rawData.utensils ? 'Sí' : 'No'}
                 Comentarios: ${rawData.order_notes || rawData.notas || ''}
             `.replace(/\s+/g, ' ').trim();
 
             dataToInsert = {
-                client_id: urlClientId || rawData.client_id || body.client_id || '3c9fbb10-4892-4134-8f7e-509ab36121b2',
-                customer_name: rawData.customer_name || rawData.nombre || 'Cliente Sin Nombre',
-                customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || 'N/A',
+                client_id: finalClientId,
+                customer_name: rawData.customer_name || rawData.nombre || 'Cliente',
+                customer_phone: rawData.phone_number || rawData.telefono || body.user_number || 'N/A',
                 items: itemsList,
                 notes: finalNotes,
                 status: 'Pendiente',
@@ -103,7 +115,7 @@ export async function POST(request: Request) {
         else if (inferredType === 'lead') {
             table = 'leads';
             dataToInsert = {
-                client_id: urlClientId || body.client_id || '3c9fbb10-4892-4134-8f7e-509ab36121b2',
+                client_id: finalClientId,
                 first_name: body.first_name || body.name || 'Sin nombre',
                 last_name: body.last_name || '',
                 email: body.email || '',
@@ -113,8 +125,8 @@ export async function POST(request: Request) {
         }
 
         if (!table) {
-            console.warn('⚠️ Webhook bypassed: could not determine table for payload Keys:', Object.keys(body));
-            return NextResponse.json({ success: true, message: 'Bypassed - No table matched' });
+            console.warn('⚠️ Webhook bypassed: could not determine table for payload');
+            return NextResponse.json({ success: true, message: 'Bypassed' });
         }
 
         console.log(`📤 Final Insert to [${table}]:`, JSON.stringify(dataToInsert, null, 2));
@@ -125,7 +137,7 @@ export async function POST(request: Request) {
             .select();
 
         if (error) {
-            console.error(`❌ Supabase Error [${table}]:`, error);
+            console.error(`❌ Supabase Error [${table}]:`, JSON.stringify(error, null, 2));
             return NextResponse.json({ error: error.message, details: error }, { status: 500 });
         }
 
