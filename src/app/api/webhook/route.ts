@@ -9,75 +9,84 @@ export async function POST(request: Request) {
 
         console.log('📬 Webhook Received Body:', JSON.stringify(body, null, 2));
 
+        // Determinar el tipo de evento y los datos
         const url = new URL(request.url);
         const urlType = url.searchParams.get('type');
         const urlClientId = url.searchParams.get('client_id');
 
-        console.log(`🔍 Webhook Params - Type: ${urlType}, ClientID: ${urlClientId}`);
+        // Retell puede enviar el evento en body.event_type o body.type
+        const eventType = body.event_type || body.type;
 
-        // Determinar el tipo (Retell envía 'call' en el body si es el webhook final)
-        const finalType = urlType || (body.call ? 'call' : body.type);
-        const finalData = body.data || body;
+        // Si el body tiene un objeto 'call', probablemente es el webhook final de Retell
+        const isFinalCall = !!body.call;
+        const finalType = urlType || (isFinalCall ? 'call' : eventType);
 
-        if (!finalType) {
-            return NextResponse.json({ error: 'Missing type (order, call, lead)' }, { status: 400 });
-        }
+        console.log(`🚀 Processing [${finalType}] for Client [${urlClientId}]`);
 
         let table = '';
-        let dataToInsert = finalData;
+        let dataToInsert: any = {};
 
-        switch (finalType) {
-            case 'call':
-                table = 'calls';
-                if (body.call) {
-                    dataToInsert = {
-                        client_id: urlClientId,
-                        call_id: body.call.call_id,
-                        customer_number: body.call.user_number,
-                        duration: body.call.duration_ms ? (body.call.duration_ms / 1000).toString() : '0',
-                        transcript: body.call.transcript,
-                        status: body.call.call_status
-                    };
-                }
-                break;
-            case 'lead': table = 'leads'; break;
-            case 'appointment': table = 'appointments'; break;
-            case 'order':
-                table = 'orders';
+        if (finalType === 'call' || isFinalCall) {
+            table = 'calls';
+            const callData = body.call || body;
+            dataToInsert = {
+                client_id: urlClientId || callData.client_id,
+                call_id: callData.call_id,
+                customer_number: callData.user_number || callData.customer_number || 'Oculto',
+                duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : '0',
+                transcript: callData.transcript || 'Sin transcripción',
+                recording_url: callData.recording_url || '',
+                status: callData.call_status || 'completed'
+            };
+        }
+        else if (finalType === 'order') {
+            table = 'orders';
+            // Extraer argumentos: Retell a veces los mete en 'arguments' o 'args'
+            const args = body.arguments || body.args || (body.data?.arguments) || body;
+            const rawData = typeof args === 'string' ? JSON.parse(args) : args;
 
-                // Extraer datos de manera más robusta (para diferentes versiones de payloads de Retell)
-                const rawData = body.arguments ? (typeof body.arguments === 'string' ? JSON.parse(body.arguments) : body.arguments) : finalData;
-                const items = rawData.items || [];
+            console.log('📦 Extracted Order Data:', JSON.stringify(rawData, null, 2));
 
-                let itemsList = 'Sin productos';
-                if (Array.isArray(items) && items.length > 0) {
-                    itemsList = items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n');
-                } else if (typeof items === 'string') {
-                    itemsList = items;
-                }
+            const items = rawData.items || [];
+            let itemsList = 'Sin productos';
 
-                const finalNotes = `
-                    Tipo: ${rawData.order_type === 'delivery' ? 'A domicilio' : 'Recoger'}
-                    Dir: ${rawData.delivery_address || 'Sucursal'}
-                    Utensilios: ${rawData.utensils ? 'Sí' : 'No'}
-                    Comentarios: ${rawData.order_notes || ''}
-                `.replace(/\s+/g, ' ').trim();
+            if (Array.isArray(items) && items.length > 0) {
+                itemsList = items.map((i: any) => `• ${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join('\n');
+            } else if (typeof items === 'string') {
+                itemsList = items;
+            }
 
-                dataToInsert = {
-                    client_id: urlClientId || rawData.client_id,
-                    customer_name: rawData.customer_name,
-                    customer_phone: rawData.phone_number,
-                    items: itemsList,
-                    notes: finalNotes,
-                    status: 'Pendiente',
-                    total_price: rawData.total_price || null // Permitir que Sara envíe el precio
-                };
-                break;
-            default:
-                return NextResponse.json({ error: 'Invalid type: ' + finalType }, { status: 400 });
+            const finalNotes = `
+                Tipo: ${rawData.order_type === 'delivery' ? 'A domicilio' : 'Recoger'}
+                Dir: ${rawData.delivery_address || 'Sucursal'}
+                Utensilios: ${rawData.utensils ? 'Sí' : 'No'}
+                Comentarios: ${rawData.order_notes || ''}
+            `.replace(/\s+/g, ' ').trim();
+
+            dataToInsert = {
+                client_id: urlClientId || rawData.client_id,
+                customer_name: rawData.customer_name || 'Cliente Sin Nombre',
+                customer_phone: rawData.phone_number || body.user_number || 'N/A',
+                items: itemsList,
+                notes: finalNotes,
+                status: 'Pendiente',
+                total_price: rawData.total_price || null
+            };
+        }
+        else if (finalType === 'lead') {
+            table = 'leads';
+            dataToInsert = {
+                client_id: urlClientId,
+                ...body
+            };
         }
 
-        console.log(`📤 Inserting into [${table}]:`, dataToInsert);
+        if (!table) {
+            console.warn('⚠️ No table matched for event:', finalType);
+            return NextResponse.json({ error: 'Unsupported event type' }, { status: 400 });
+        }
+
+        console.log(`📤 Inserting into [${table}]:`, JSON.stringify(dataToInsert, null, 2));
 
         const { error, data: insertedData } = await supabase
             .from(table)
