@@ -19,9 +19,20 @@ export async function POST(request: Request) {
 
         // Si el body tiene un objeto 'call', probablemente es el webhook final de Retell
         const isFinalCall = !!body.call;
-        const finalType = urlType || (isFinalCall ? 'call' : eventType);
 
-        console.log(`🚀 Processing [${finalType}] for Client [${urlClientId}]`);
+        // Detectar si es una llamada a herramienta (Tool Call) de Retell
+        const isToolCall = body.type === 'tool_call' || body.event_type === 'tool_call' || !!body.tool_call_id;
+        const toolName = body.tool_name || body.tool_call?.name || body.arguments?.name;
+
+        // Determinar el tipo final de manera inteligente
+        let finalType = urlType;
+        if (!finalType) {
+            if (isFinalCall) finalType = 'call';
+            else if (isToolCall || toolName === 'registra_pedido') finalType = 'order';
+            else finalType = eventType;
+        }
+
+        console.log(`🚀 Processing [${finalType}] | Tool: [${toolName}] | Client: [${urlClientId}]`);
 
         let table = '';
         let dataToInsert: any = {};
@@ -31,7 +42,7 @@ export async function POST(request: Request) {
             const callData = body.call || body;
             dataToInsert = {
                 client_id: urlClientId || callData.client_id,
-                call_id: callData.call_id,
+                call_id: callData.call_id || body.call_id,
                 customer_number: callData.user_number || callData.customer_number || 'Oculto',
                 duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : '0',
                 transcript: callData.transcript || 'Sin transcripción',
@@ -39,10 +50,11 @@ export async function POST(request: Request) {
                 status: callData.call_status || 'completed'
             };
         }
-        else if (finalType === 'order') {
+        else if (finalType === 'order' || toolName === 'registra_pedido') {
             table = 'orders';
-            // Extraer argumentos: Retell a veces los mete en 'arguments' o 'args'
-            const args = body.arguments || body.args || (body.data?.arguments) || body;
+
+            // Extraer argumentos de cualquier lugar posible (body.arguments, body.args, body.data.args, etc)
+            const args = body.arguments || body.args || body.tool_call?.arguments || (body.data?.arguments) || body;
             const rawData = typeof args === 'string' ? JSON.parse(args) : args;
 
             console.log('📦 Extracted Order Data:', JSON.stringify(rawData, null, 2));
@@ -57,20 +69,20 @@ export async function POST(request: Request) {
             }
 
             const finalNotes = `
-                Tipo: ${rawData.order_type === 'delivery' ? 'A domicilio' : 'Recoger'}
-                Dir: ${rawData.delivery_address || 'Sucursal'}
+                Tipo: ${(rawData.order_type === 'delivery' || rawData.tipo === 'domicilio') ? 'A domicilio' : 'Recoger'}
+                Dir: ${rawData.delivery_address || rawData.direccion || 'Sucursal'}
                 Utensilios: ${rawData.utensils ? 'Sí' : 'No'}
-                Comentarios: ${rawData.order_notes || ''}
+                Comentarios: ${rawData.order_notes || rawData.notas || ''}
             `.replace(/\s+/g, ' ').trim();
 
             dataToInsert = {
-                client_id: urlClientId || rawData.client_id,
-                customer_name: rawData.customer_name || 'Cliente Sin Nombre',
-                customer_phone: rawData.phone_number || body.user_number || 'N/A',
+                client_id: urlClientId || rawData.client_id || body.client_id,
+                customer_name: rawData.customer_name || rawData.nombre || 'Cliente Sin Nombre',
+                customer_phone: rawData.phone_number || rawData.telefono || body.user_number || 'N/A',
                 items: itemsList,
                 notes: finalNotes,
                 status: 'Pendiente',
-                total_price: rawData.total_price || null
+                total_price: rawData.total_price || rawData.precio_total || null
             };
         }
         else if (finalType === 'lead') {
