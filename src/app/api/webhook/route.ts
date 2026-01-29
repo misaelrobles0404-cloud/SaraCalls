@@ -7,31 +7,43 @@ export async function POST(request: Request) {
         const { supabase } = await import('@/lib/supabase');
         const body = await request.json();
 
-        // Obtener parámetros de la URL (?type=...&client_id=...)
+        console.log('📬 Webhook Received Body:', JSON.stringify(body, null, 2));
+
         const url = new URL(request.url);
         const urlType = url.searchParams.get('type');
         const urlClientId = url.searchParams.get('client_id');
 
-        // Determinar el tipo (prioridad: URL > Body)
-        const finalType = urlType || body.type;
+        console.log(`🔍 Webhook Params - Type: ${urlType}, ClientID: ${urlClientId}`);
 
-        // Determinar los datos (si no viene envuelto en 'data', usamos el body completo)
+        // Determinar el tipo (Retell envía 'call' en el body si es el webhook final)
+        const finalType = urlType || (body.call ? 'call' : body.type);
         const finalData = body.data || body;
 
-        if (!finalType || !finalData) {
-            return NextResponse.json({ error: 'Missing type or data' }, { status: 400 });
+        if (!finalType) {
+            return NextResponse.json({ error: 'Missing type (order, call, lead)' }, { status: 400 });
         }
 
         let table = '';
         let dataToInsert = finalData;
 
         switch (finalType) {
-            case 'call': table = 'calls'; break;
+            case 'call':
+                table = 'calls';
+                if (body.call) {
+                    dataToInsert = {
+                        client_id: urlClientId,
+                        call_id: body.call.call_id,
+                        customer_number: body.call.user_number,
+                        duration: body.call.duration_ms ? (body.call.duration_ms / 1000).toString() : '0',
+                        transcript: body.call.transcript,
+                        status: body.call.call_status
+                    };
+                }
+                break;
             case 'lead': table = 'leads'; break;
             case 'appointment': table = 'appointments'; break;
             case 'order':
                 table = 'orders';
-                // Transformar el JSON complejo de Retell al formato simple de la DB
                 const itemsList = Array.isArray(finalData.items)
                     ? finalData.items.map((i: any) => `${i.quantity}x ${i.item_name}${i.notes ? ` (${i.notes})` : ''}`).join(', ')
                     : (finalData.items || 'Sin productos');
@@ -44,7 +56,7 @@ export async function POST(request: Request) {
                 `.replace(/\s+/g, ' ').trim();
 
                 dataToInsert = {
-                    client_id: finalData.client_id || urlClientId,
+                    client_id: urlClientId || finalData.client_id,
                     customer_name: finalData.customer_name,
                     customer_phone: finalData.phone_number,
                     items: itemsList,
@@ -53,8 +65,10 @@ export async function POST(request: Request) {
                 };
                 break;
             default:
-                return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+                return NextResponse.json({ error: 'Invalid type: ' + finalType }, { status: 400 });
         }
+
+        console.log(`📤 Inserting into [${table}]:`, dataToInsert);
 
         const { error, data: insertedData } = await supabase
             .from(table)
@@ -62,20 +76,12 @@ export async function POST(request: Request) {
             .select();
 
         if (error) {
-            console.error(`❌ Webhook Supabase Error [${table}]:`, error);
-            return NextResponse.json({
-                error: error.message,
-                details: error,
-                table: table
-            }, { status: 500 });
+            console.error(`❌ Supabase Error [${table}]:`, error);
+            return NextResponse.json({ error: error.message, details: error }, { status: 500 });
         }
 
-        console.log(`✅ Webhook Success: Data inserted into ${table}`, insertedData);
-        return NextResponse.json({
-            success: true,
-            message: `Data inserted into ${table}`,
-            data: insertedData
-        });
+        console.log(`✅ Success inserting into ${table}`);
+        return NextResponse.json({ success: true, table, data: insertedData });
 
     } catch (error) {
         console.error('Webhook Error:', error);
