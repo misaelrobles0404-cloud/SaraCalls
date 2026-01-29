@@ -109,7 +109,7 @@ export async function POST(request: Request) {
                 items: itemsList,
                 notes: finalNotes,
                 status: 'Pendiente',
-                total_price: rawData.total_price || rawData.precio_total || null
+                total_price: rawData.total_price || rawData.total || rawData.amount || rawData.precio_total || rawData.precio || null
             };
         }
         // Caso 3: LEADS (Genérico)
