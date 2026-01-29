@@ -95,16 +95,17 @@ export async function POST(request: Request) {
                 itemsList = rawData.items;
             }
 
-            const finalNotes = `
-                Tipo: ${(rawData.order_type === 'delivery' || rawData.tipo === 'domicilio') ? 'A domicilio' : 'Recoger'}
-                Dir: ${rawData.delivery_address || rawData.direccion || 'Sucursal'}
-                Comentarios: ${rawData.order_notes || rawData.notas || ''}
-            `.replace(/\s+/g, ' ').trim();
+            const finalNotes = [
+                `Tipo: ${(rawData.order_type === 'delivery' || rawData.tipo === 'domicilio') ? 'A domicilio' : 'Recoger'}`,
+                `Dir: ${rawData.delivery_address || rawData.direccion || 'Sucursal'}`,
+                `Comentarios: ${rawData.order_notes || rawData.notas || ''}`,
+                `Utensilios: ${rawData.utensils ? 'Sí' : 'No'}`
+            ].join('\n');
 
             dataToInsert = {
                 client_id: finalClientId,
                 customer_name: rawData.customer_name || rawData.nombre || 'Cliente',
-                customer_phone: rawData.phone_number || rawData.telefono || body.user_number || 'N/A',
+                customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || body.customer_number || 'N/A',
                 items: itemsList,
                 notes: finalNotes,
                 status: 'Pendiente',

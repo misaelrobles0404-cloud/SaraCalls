@@ -782,10 +782,16 @@ export default function AdminDashboard() {
                                                 <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos registrados</p>
                                             </div>
                                         ) : orders.map((order: any, idx: number) => {
+                                            // Mejorar el parseo de notas multilínea
+                                            const noteLines = order.notes?.split('\n') || [];
                                             const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
                                             const hasUtensils = order.notes?.toLowerCase().includes('utensilios: sí');
-                                            const address = order.notes?.split('Dir: ')[1]?.split(' Utensilios:')[0] || 'Sucursal';
-                                            const comments = order.notes?.split('Comentarios: ')[1] || 'Sin comentarios adicionales';
+
+                                            const addressLine = noteLines.find((l: string) => l.startsWith('Dir: ')) || '';
+                                            const address = addressLine.replace('Dir: ', '') || 'Sucursal';
+
+                                            const commentLine = noteLines.find((l: string) => l.startsWith('Comentarios: ')) || '';
+                                            const comments = commentLine.replace('Comentarios: ', '') || 'Sin comentarios adicionales';
 
                                             return (
                                                 <motion.div
