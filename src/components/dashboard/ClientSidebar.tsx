@@ -6,7 +6,8 @@ import {
     Users,
     Calendar,
     LogOut,
-    X
+    X,
+    Database
 } from "lucide-react";
 
 interface ClientSidebarProps {
@@ -39,7 +40,7 @@ export function ClientSidebar({
     const menuItems = [
         { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'calls', icon: Phone, label: 'Llamadas' },
-        { id: 'leads', icon: Users, label: 'Clientes' },
+        { id: 'leads', icon: Database, label: 'Mantenimiento' },
         industry === 'restaurant' ?
             { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' } :
             { id: 'appointments', icon: Calendar, label: industry === 'restaurant_res' ? 'Reservas' : 'Citas' }
