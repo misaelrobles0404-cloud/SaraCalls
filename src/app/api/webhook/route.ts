@@ -56,16 +56,26 @@ export async function POST(request: Request) {
                 return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
         }
 
-        const { error } = await supabase
+        const { error, data: insertedData } = await supabase
             .from(table)
-            .insert([dataToInsert]);
+            .insert([dataToInsert])
+            .select();
 
         if (error) {
-            console.error('Supabase Error:', error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
+            console.error(`❌ Webhook Supabase Error [${table}]:`, error);
+            return NextResponse.json({
+                error: error.message,
+                details: error,
+                table: table
+            }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true, message: `Data inserted into ${table}` });
+        console.log(`✅ Webhook Success: Data inserted into ${table}`, insertedData);
+        return NextResponse.json({
+            success: true,
+            message: `Data inserted into ${table}`,
+            data: insertedData
+        });
 
     } catch (error) {
         console.error('Webhook Error:', error);
