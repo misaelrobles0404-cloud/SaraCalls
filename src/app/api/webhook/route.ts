@@ -102,14 +102,24 @@ export async function POST(request: Request) {
                 `Utensilios: ${rawData.utensils ? 'Sí' : 'No'}`
             ].join('\n');
 
+            // Detección ultra-robusta de precio
+            const detectedPrice = [
+                rawData.total_price,
+                rawData.total,
+                rawData.amount,
+                rawData.precio_total,
+                rawData.precio,
+                rawData.total_amount
+            ].find(v => v !== undefined && v !== null);
+
             dataToInsert = {
                 client_id: finalClientId,
                 customer_name: rawData.customer_name || rawData.nombre || 'Cliente',
                 customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || body.customer_number || 'N/A',
                 items: itemsList,
-                notes: finalNotes,
+                notes: finalNotes + (detectedPrice === undefined || detectedPrice === null || detectedPrice === 0 ? `\n\n⚠️ DEBUG JSON: ${JSON.stringify(rawData)}` : ''),
                 status: 'Pendiente',
-                total_price: rawData.total_price || rawData.total || rawData.amount || rawData.precio_total || rawData.precio || null
+                total_price: detectedPrice
             };
         }
         // Caso 3: LEADS (Genérico)
