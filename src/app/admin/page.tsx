@@ -1080,9 +1080,25 @@ export default function AdminDashboard() {
                             >
                                 <h2 className="text-2xl font-black uppercase italic mb-8">Configuración del Sistema</h2>
                                 <div className="space-y-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
-                                        <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
+                                            <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                        </div>
+
+                                        <div className="p-4 rounded-2xl bg-[#FD7202]/5 border border-[#FD7202]/10 space-y-2">
+                                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2">
+                                                <Database size={12} className="text-orange-500" /> Webhook de Sincronización
+                                            </label>
+                                            <div className="flex gap-2">
+                                                <code className="flex-grow bg-black/40 p-3 rounded-lg text-[10px] text-orange-400 break-all select-all outline-none border border-orange-500/20">
+                                                    {typeof window !== 'undefined' ? window.location.origin : ''}/api/webhook?client_id={clientId}
+                                                </code>
+                                            </div>
+                                            <p className="text-[9px] text-gray-500 font-medium px-1 leading-relaxed">
+                                                Copia esta URL y pégala en <strong>Retell AI Dashboard {"->"} Webhooks</strong> para que Sara registre todas las llamadas y pedidos automáticamente en este panel.
+                                            </p>
+                                        </div>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>

@@ -60,13 +60,22 @@ export async function POST(request: Request) {
         if (inferredType === 'call' || isFinalCall) {
             table = 'calls';
             const callData = body.call || body;
+            const analysis = callData.analysis || {};
+
+            // Intentar extraer nombre del cliente del análisis si no viene directo
+            const customerName = analysis.customer_name ||
+                analysis.custom_analysis_data?.customer_name ||
+                (typeof analysis.call_summary === 'string' && analysis.call_summary.includes('Nombre:') ? analysis.call_summary.split('Nombre:')[1].split('\n')[0].trim() : '');
+
             dataToInsert = {
                 client_id: finalClientId,
-                call_id: callData.call_id || body.call_id || 'Unknown',
-                customer_number: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
+                retell_call_id: callData.call_id || body.call_id || 'Unknown',
+                customer_phone: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
+                customer_name: customerName || 'Desconocido',
                 duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : (callData.duration ? callData.duration.toString() : '0'),
                 transcript: callData.transcript || 'Sin transcripción',
                 recording_url: callData.recording_url || '',
+                sentiment: analysis.user_sentiment || analysis.sentiment || 'Procesada',
                 status: callData.call_status || 'completed'
             };
         }
