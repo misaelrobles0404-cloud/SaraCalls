@@ -40,7 +40,11 @@ export function ClientSidebar({
     const menuItems = [
         { id: 'overview', icon: LayoutDashboard, label: 'Dashboard' },
         { id: 'calls', icon: Phone, label: 'Llamadas' },
-        { id: 'leads', icon: Database, label: 'Mantenimiento' },
+        {
+            id: 'leads',
+            icon: industry === 'restaurant' ? Database : Users,
+            label: industry === 'restaurant' ? 'Mantenimiento' : 'Clientes'
+        },
         industry === 'restaurant' ?
             { id: 'orders', icon: LayoutDashboard, label: 'Pedidos' } :
             { id: 'appointments', icon: Calendar, label: industry === 'restaurant_res' ? 'Reservas' : 'Citas' }
