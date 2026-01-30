@@ -123,7 +123,7 @@ export async function POST(request: Request) {
 
             dataToInsert = {
                 client_id: finalClientId,
-                customer_name: rawData.customer_name || rawData.nombre || 'Cliente',
+                customer_name: (rawData.customer_name || rawData.nombre || body.customer_name || body.name || body.analysis?.customer_name || 'Cliente').trim(),
                 customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || body.customer_number || 'N/A',
                 items: itemsList,
                 notes: finalNotes + (detectedPrice === undefined || detectedPrice === null || detectedPrice === 0 ? `\n\n⚠️ DEBUG JSON: ${JSON.stringify(rawData)}` : ''),
