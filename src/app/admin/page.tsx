@@ -82,6 +82,29 @@ export default function AdminDashboard() {
     const [selectedHistory, setSelectedHistory] = useState<any>(null);
     const [historyData, setHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
     const [loadingHistory, setLoadingHistory] = useState(false);
+    const [expandedDates, setExpandedDates] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (orderView === 'history' && expandedDates.length === 0 && orders.length > 0) {
+            const deliveredOrders = orders.filter(o => o.status === 'Entregado');
+            if (deliveredOrders.length > 0) {
+                const firstDate = new Date(deliveredOrders.sort((a, b) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                )[0].created_at).toLocaleDateString('es-MX', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                });
+                setExpandedDates([firstDate]);
+            }
+        }
+    }, [orderView, orders]);
+
+    const toggleDate = (date: string) => {
+        setExpandedDates(prev =>
+            prev.includes(date) ? prev.filter(d => d !== date) : [...prev, date]
+        );
+    };
 
     const fetchHistory = async () => {
         if (!clientId && !isDemo) return;
@@ -1085,18 +1108,42 @@ export default function AdminDashboard() {
                                                     groups[date].push(o);
                                                 });
 
-                                                return Object.entries(groups).map(([date, items]) => (
-                                                    <div key={date} className="space-y-6">
-                                                        <div className="flex items-center gap-4 px-4 py-2">
-                                                            <div className="h-px flex-grow bg-white/5"></div>
-                                                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 whitespace-nowrap">{date}</h3>
-                                                            <div className="h-px flex-grow bg-white/5"></div>
+                                                return Object.entries(groups).map(([date, items]) => {
+                                                    const isExpanded = expandedDates.includes(date);
+                                                    return (
+                                                        <div key={date} className="space-y-4">
+                                                            <button
+                                                                onClick={() => toggleDate(date)}
+                                                                className="w-full flex items-center gap-4 px-4 py-2 group hover:bg-white/[0.02] transition-all rounded-2xl"
+                                                            >
+                                                                <div className="h-px flex-grow bg-white/5 group-hover:bg-white/10"></div>
+                                                                <div className="flex items-center gap-2">
+                                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 group-hover:text-gray-300 whitespace-nowrap">{date}</h3>
+                                                                    <ChevronDown
+                                                                        size={12}
+                                                                        className={`text-gray-600 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                                                                    />
+                                                                </div>
+                                                                <div className="h-px flex-grow bg-white/5 group-hover:bg-white/10"></div>
+                                                            </button>
+                                                            <AnimatePresence>
+                                                                {isExpanded && (
+                                                                    <motion.div
+                                                                        initial={{ height: 0, opacity: 0 }}
+                                                                        animate={{ height: "auto", opacity: 1 }}
+                                                                        exit={{ height: 0, opacity: 0 }}
+                                                                        transition={{ duration: 0.3 }}
+                                                                        className="overflow-hidden"
+                                                                    >
+                                                                        <div className="grid gap-6 pt-2">
+                                                                            {items.map((order, idx) => renderOrderCard(order, idx))}
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
                                                         </div>
-                                                        <div className="grid gap-6">
-                                                            {items.map((order, idx) => renderOrderCard(order, idx))}
-                                                        </div>
-                                                    </div>
-                                                ));
+                                                    );
+                                                });
                                             }
                                         })()}
                                     </div>
