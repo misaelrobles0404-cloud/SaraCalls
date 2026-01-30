@@ -47,7 +47,7 @@ import {
     Legend
 } from 'chart.js';
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { ClientSidebar } from "@/components/dashboard/ClientSidebar";
@@ -906,159 +906,199 @@ export default function AdminDashboard() {
                                     <div className="grid gap-6">
                                         {loading ? (
                                             <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
-                                        ) : (orderView === 'today'
-                                            ? orders.filter(o => o.status !== 'Entregado') // Monitor: Solo pendientes
-                                            : orders.filter(o => o.status === 'Entregado') // Historial: Solo entregados
-                                        ).length === 0 ? (
-                                            <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
-                                                <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
-                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos {orderView === 'today' ? 'en espera' : 'completados'}</p>
-                                            </div>
-                                        ) : (orderView === 'today'
-                                            ? orders.filter(o => o.status !== 'Entregado') // Monitor: Sin sorting adicional (newest first de DB)
-                                            : orders.filter(o => o.status === 'Entregado') // History: Solo entregados
-                                        ).map((order: any, idx: number) => {
-                                            // Mejorar el parseo de notas multilínea
-                                            const noteLines = order.notes?.split('\n') || [];
-                                            const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
-                                            const hasUtensils = order.notes?.toLowerCase().includes('utensilios: sí');
+                                        ) : (() => {
+                                            const renderOrderCard = (order: any, idx: number) => {
+                                                const noteLines = order.notes?.split('\n') || [];
+                                                const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
+                                                const hasUtensils = order.notes?.toLowerCase().includes('utensilios: sí');
 
-                                            const addressLine = noteLines.find((l: string) => l.startsWith('Dir: ')) || '';
-                                            const address = addressLine.replace('Dir: ', '') || 'Sucursal';
+                                                const addressLine = noteLines.find((l: string) => l.startsWith('Dir: ')) || '';
+                                                const address = addressLine.replace('Dir: ', '') || 'Sucursal';
 
-                                            const commentLine = noteLines.find((l: string) => l.startsWith('Comentarios: ')) || '';
-                                            const comments = commentLine.replace('Comentarios: ', '') || 'Sin comentarios adicionales';
+                                                const commentLine = noteLines.find((l: string) => l.startsWith('Comentarios: ')) || '';
+                                                const comments = commentLine.replace('Comentarios: ', '') || 'Sin comentarios adicionales';
 
-                                            return (
-                                                <motion.div
-                                                    layout
-                                                    key={order.id || idx}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    className="group relative glass rounded-[32px] border border-white/10 bg-white/[0.03] p-8 transition-all duration-500 hover:bg-white/[0.05] overflow-hidden"
-                                                >
-                                                    <div className={`absolute top-0 left-0 w-1.5 h-full transition-all duration-500 ${order.status === 'Pendiente' ? 'bg-orange-500 shadow-[2px_0_15px_rgba(249,115,22,0.5)]' :
-                                                        order.status === 'Preparando' ? 'bg-blue-500 shadow-[2px_0_15px_rgba(59,130,246,0.5)]' :
-                                                            order.status === 'Listo' ? 'bg-green-500 shadow-[2px_0_15px_rgba(34,197,94,0.5)]' :
-                                                                'bg-purple-500 shadow-[2px_0_15px_rgba(168,85,247,0.5)]'
-                                                        }`}></div>
-
-                                                    <button
-                                                        onClick={() => deleteOrder(order.id)}
-                                                        className="absolute top-6 right-6 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                                return (
+                                                    <motion.div
+                                                        layout
+                                                        key={order.id || idx}
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="group relative glass rounded-[32px] border border-white/10 bg-white/[0.03] p-8 transition-all duration-500 hover:bg-white/[0.05] overflow-hidden"
                                                     >
-                                                        <Trash2 size={16} />
-                                                    </button>
+                                                        <div className={`absolute top-0 left-0 w-1.5 h-full transition-all duration-500 ${order.status === 'Pendiente' ? 'bg-orange-500 shadow-[2px_0_15px_rgba(249,115,22,0.5)]' :
+                                                            order.status === 'Preparando' ? 'bg-blue-500 shadow-[2px_0_15px_rgba(59,130,246,0.5)]' :
+                                                                order.status === 'Listo' ? 'bg-green-500 shadow-[2px_0_15px_rgba(34,197,94,0.5)]' :
+                                                                    'bg-purple-500 shadow-[2px_0_15px_rgba(168,85,247,0.5)]'
+                                                            }`}></div>
 
-                                                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                                                        <div className="lg:col-span-2 flex lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-4 border-b lg:border-b-0 lg:border-r border-white/5 pb-4 lg:pb-0 lg:pr-6 text-center lg:text-left">
-                                                            <div>
-                                                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Orden</span>
-                                                                <div className="text-4xl font-black text-white tabular-nums tracking-tighter">
-                                                                    #{order.order_number || idx + 101}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Entrada</span>
-                                                                <div className="flex flex-col gap-1 text-gray-300 font-bold italic justify-center lg:justify-start">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Clock size={14} className="text-blue-400" />
-                                                                        {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        <button
+                                                            onClick={() => deleteOrder(order.id)}
+                                                            className="absolute top-6 right-6 p-2 rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 z-20"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+
+                                                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                                                            <div className="lg:col-span-2 flex lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-4 border-b lg:border-b-0 lg:border-r border-white/5 pb-4 lg:pb-0 lg:pr-6 text-center lg:text-left">
+                                                                <div>
+                                                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Orden</span>
+                                                                    <div className="text-4xl font-black text-white tabular-nums tracking-tighter">
+                                                                        #{order.order_number || idx + 101}
                                                                     </div>
-                                                                    <div className="text-[9px] text-gray-500 font-bold not-italic">
-                                                                        {new Date(order.created_at || Date.now()).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                                                </div>
+                                                                <div>
+                                                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Entrada</span>
+                                                                    <div className="flex flex-col gap-1 text-gray-300 font-bold italic justify-center lg:justify-start">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Clock size={14} className="text-blue-400" />
+                                                                            {new Date(order.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                        </div>
+                                                                        <div className="text-[9px] text-gray-500 font-bold not-italic">
+                                                                            {new Date(order.created_at || Date.now()).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
 
-                                                        <div className="lg:col-span-6 space-y-6">
-                                                            <div className="flex flex-wrap items-center gap-3">
-                                                                <h4 className="text-2xl font-black italic uppercase tracking-tight text-white">{order.customer_name}</h4>
-                                                                <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDelivery ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
-                                                                    {isDelivery ? '🚀 A DOMICILIO' : '🥡 PARA RECOGER'}
+                                                            <div className="lg:col-span-6 space-y-6">
+                                                                <div className="flex flex-wrap items-center gap-3">
+                                                                    <h4 className="text-2xl font-black italic uppercase tracking-tight text-white">{order.customer_name}</h4>
+                                                                    <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDelivery ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
+                                                                        {isDelivery ? '🚀 A DOMICILIO' : '🥡 PARA RECOGER'}
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <div className="bg-black/40 rounded-3xl p-6 border border-white/5 relative overflow-hidden">
-                                                                <div className="absolute top-0 right-0 p-4 opacity-5">
-                                                                    <Utensils size={60} />
-                                                                </div>
-                                                                <p className="text-lg text-gray-100 font-bold leading-relaxed whitespace-pre-line italic relative z-10">
-                                                                    {order.items || 'Sin productos detallados'}
-                                                                </p>
-                                                            </div>
-
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                                                                    <MapPin size={16} className="text-gray-500 mt-0.5 shrink-0" />
-                                                                    <span className="text-[11px] text-gray-400 font-medium leading-tight">
-                                                                        <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Dirección</strong>
-                                                                        {address}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
-                                                                    <Phone size={16} className="text-gray-500 mt-0.5 shrink-0" />
-                                                                    <span className="text-[11px] text-gray-400 font-medium leading-tight">
-                                                                        <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Teléfono</strong>
-                                                                        {order.customer_phone || 'N/A'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-
-                                                            {comments && comments !== 'Sin comentarios adicionales' && comments.trim() !== '' && (
-                                                                <div className="flex items-start gap-3 p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 text-orange-400">
-                                                                    <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                                                                    <p className="text-[11px] font-bold uppercase tracking-tight leading-relaxed">
-                                                                        NOTA: {comments}
+                                                                <div className="bg-black/40 rounded-3xl p-6 border border-white/5 relative overflow-hidden">
+                                                                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                                                                        <Utensils size={60} />
+                                                                    </div>
+                                                                    <p className="text-lg text-gray-100 font-bold leading-relaxed whitespace-pre-line italic relative z-10">
+                                                                        {order.items || 'Sin productos detallados'}
                                                                     </p>
                                                                 </div>
-                                                            )}
-                                                        </div>
 
-                                                        <div className="lg:col-span-4 flex flex-col justify-between h-auto lg:h-full space-y-6">
-                                                            <div>
-                                                                <div className="flex justify-between items-center mb-3 px-1 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
-                                                                    <span>Control de Estado</span>
-                                                                    <span className={order.status === 'Pendiente' ? 'text-orange-500' : 'text-blue-500'}>{order.status || 'Pendiente'}</span>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                                        <MapPin size={16} className="text-gray-500 mt-0.5 shrink-0" />
+                                                                        <span className="text-[11px] text-gray-400 font-medium leading-tight">
+                                                                            <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Dirección</strong>
+                                                                            {address}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                                        <Phone size={16} className="text-gray-500 mt-0.5 shrink-0" />
+                                                                        <span className="text-[11px] text-gray-400 font-medium leading-tight">
+                                                                            <strong className="text-gray-300 uppercase block mb-0.5 text-[9px] tracking-wider">Teléfono</strong>
+                                                                            {order.customer_phone || 'N/A'}
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
-                                                                <div className="grid grid-cols-2 gap-3">
-                                                                    {[
-                                                                        { label: '🔥 Cocina', val: 'Preparando', color: 'blue' },
-                                                                        { label: '✅ Listo', val: 'Listo', color: 'green' },
-                                                                        { label: '📦 Entregado', val: 'Entregado', color: 'purple' },
-                                                                        { label: '⏳ Espera', val: 'Pendiente', color: 'orange' }
-                                                                    ].map((st) => (
-                                                                        <button
-                                                                            key={st.val}
-                                                                            onClick={() => updateOrderStatus(order.id, st.val)}
-                                                                            className={`px-3 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${order.status === st.val
-                                                                                ? `bg-${st.color}-500 text-white border-transparent shadow-[0_5px_15px_rgba(0,0,0,0.3)] scale-[1.02]`
-                                                                                : `bg-white/5 text-gray-500 border-white/5 hover:border-white/10 hover:bg-white/10 hover:text-white`
-                                                                                }`}
-                                                                        >
-                                                                            {st.label}
-                                                                        </button>
-                                                                    ))}
-                                                                </div>
+
+                                                                {comments && comments !== 'Sin comentarios adicionales' && comments.trim() !== '' && (
+                                                                    <div className="flex items-start gap-3 p-4 rounded-2xl bg-orange-500/5 border border-orange-500/10 text-orange-400">
+                                                                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                                                                        <p className="text-[11px] font-bold uppercase tracking-tight leading-relaxed">
+                                                                            NOTA: {comments}
+                                                                        </p>
+                                                                    </div>
+                                                                )}
                                                             </div>
 
-                                                            <div className="bg-gradient-to-r from-transparent to-white/[0.03] p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-auto">
+                                                            <div className="lg:col-span-4 flex flex-col justify-between h-auto lg:h-full space-y-6">
                                                                 <div>
-                                                                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Precio Total</span>
-                                                                    <span className={`text-3xl font-black tabular-nums tracking-tighter ${order.total_price ? 'text-white' : 'text-red-500/50'}`}>
-                                                                        ${order.total_price || '0.00'}
-                                                                    </span>
+                                                                    <div className="flex justify-between items-center mb-3 px-1 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">
+                                                                        <span>Control de Estado</span>
+                                                                        <span className={order.status === 'Pendiente' ? 'text-orange-500' : 'text-blue-500'}>{order.status || 'Pendiente'}</span>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-2 gap-3">
+                                                                        {[
+                                                                            { label: '🔥 Cocina', val: 'Preparando', color: 'blue' },
+                                                                            { label: '✅ Listo', val: 'Listo', color: 'green' },
+                                                                            { label: '📦 Entregado', val: 'Entregado', color: 'purple' },
+                                                                            { label: '⏳ Espera', val: 'Pendiente', color: 'orange' }
+                                                                        ].map((st) => (
+                                                                            <button
+                                                                                key={st.val}
+                                                                                onClick={() => updateOrderStatus(order.id, st.val)}
+                                                                                className={`px-3 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border ${order.status === st.val
+                                                                                    ? `bg-${st.color}-500 text-white border-transparent shadow-[0_5px_15px_rgba(0,0,0,0.3)] scale-[1.02]`
+                                                                                    : `bg-white/5 text-gray-500 border-white/5 hover:border-white/10 hover:bg-white/10 hover:text-white`
+                                                                                    }`}
+                                                                            >
+                                                                                {st.label}
+                                                                            </button>
+                                                                        ))}
+                                                                    </div>
                                                                 </div>
-                                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${hasUtensils ? 'bg-orange-500/20 border-orange-500/30 text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-white/5 border-white/10 text-gray-600'}`}>
-                                                                    <ShoppingBag size={20} />
+
+                                                                <div className="bg-gradient-to-r from-transparent to-white/[0.03] p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-auto">
+                                                                    <div>
+                                                                        <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest block mb-1">Precio Total</span>
+                                                                        <span className={`text-3xl font-black tabular-nums tracking-tighter ${order.total_price ? 'text-white' : 'text-red-500/50'}`}>
+                                                                            ${order.total_price || '0.00'}
+                                                                        </span>
+                                                                    </div>
+                                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-colors ${hasUtensils ? 'bg-orange-500/20 border-orange-500/30 text-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.1)]' : 'bg-white/5 border-white/10 text-gray-600'}`}>
+                                                                        <ShoppingBag size={20} />
+                                                                    </div>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                    </motion.div>
+                                                );
+                                            };
+
+                                            if (orderView === 'today') {
+                                                const monitorOrders = orders.filter(o => o.status !== 'Entregado');
+                                                if (monitorOrders.length === 0) {
+                                                    return (
+                                                        <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
+                                                            <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
+                                                            <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos en espera</p>
+                                                        </div>
+                                                    );
+                                                }
+                                                return monitorOrders.map((order, idx) => renderOrderCard(order, idx));
+                                            } else {
+                                                const deliveredOrders = orders
+                                                    .filter(o => o.status === 'Entregado')
+                                                    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+                                                if (deliveredOrders.length === 0) {
+                                                    return (
+                                                        <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
+                                                            <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
+                                                            <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos completados</p>
+                                                        </div>
+                                                    );
+                                                }
+
+                                                const groups: { [key: string]: any[] } = {};
+                                                deliveredOrders.forEach(o => {
+                                                    const date = new Date(o.created_at).toLocaleDateString('es-MX', {
+                                                        weekday: 'long',
+                                                        day: 'numeric',
+                                                        month: 'long'
+                                                    });
+                                                    if (!groups[date]) groups[date] = [];
+                                                    groups[date].push(o);
+                                                });
+
+                                                return Object.entries(groups).map(([date, items]) => (
+                                                    <div key={date} className="space-y-6">
+                                                        <div className="flex items-center gap-4 px-4 py-2">
+                                                            <div className="h-px flex-grow bg-white/5"></div>
+                                                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500 whitespace-nowrap">{date}</h3>
+                                                            <div className="h-px flex-grow bg-white/5"></div>
+                                                        </div>
+                                                        <div className="grid gap-6">
+                                                            {items.map((order, idx) => renderOrderCard(order, idx))}
                                                         </div>
                                                     </div>
-                                                </motion.div>
-                                            );
-                                        })}
+                                                ));
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             </motion.div>
@@ -1109,126 +1149,132 @@ export default function AdminDashboard() {
                                 </div>
                             </motion.div>
                         )}
-                    </AnimatePresence>
-                </div>
-            </main>
+                    </AnimatePresence >
+                </div >
+            </main >
 
             {/* Mobile Navigation Bar */}
-            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
-                {[
-                    { id: 'overview', icon: LayoutDashboard },
-                    { id: 'calls', icon: Phone },
-                    { id: 'leads', icon: industry === 'restaurant' ? Database : Users }
-                ].map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setActiveTab(item.id as any)}
-                        className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
-                    >
-                        <item.icon size={24} />
-                    </button>
-                ))}
+            < nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50" >
+                {
+                    [
+                        { id: 'overview', icon: LayoutDashboard },
+                        { id: 'calls', icon: Phone },
+                        { id: 'leads', icon: industry === 'restaurant' ? Database : Users }
+                    ].map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id as any)}
+                            className={`p-2 rounded-xl transition-all ${activeTab === item.id ? 'bg-[#FD7202] text-white shadow-[0_0_15px_rgba(253,114,2,0.4)]' : 'text-gray-500'}`}
+                        >
+                            <item.icon size={24} />
+                        </button>
+                    ))
+                }
 
                 {/* Botón Salir Mobile - Solo Admins */}
-                {isAdminUser && (
-                    <button
-                        onClick={() => router.push('/super-admin')}
-                        className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20"
-                    >
-                        <LogOut size={24} className="rotate-180" />
-                    </button>
-                )}
-            </nav>
+                {
+                    isAdminUser && (
+                        <button
+                            onClick={() => router.push('/super-admin')}
+                            className="p-2 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20"
+                        >
+                            <LogOut size={24} className="rotate-180" />
+                        </button>
+                    )
+                }
+            </nav >
 
             {/* Modal de Historial de Cliente */}
             <AnimatePresence>
-                {selectedHistory && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setSelectedHistory(null)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                        ></motion.div>
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
-                        >
-                            <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                                <div>
-                                    <h3 className="text-2xl font-black uppercase italic text-[#FD7202]">{selectedHistory.business_name}</h3>
-                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Historial del Cliente</p>
-                                </div>
-                                <button
-                                    onClick={() => setSelectedHistory(null)}
-                                    className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 transition-all"
-                                >
-                                    <X size={20} />
-                                </button>
-                            </div>
-
-                            <div className="flex-grow overflow-y-auto p-8 space-y-10">
-                                {loadingHistory ? (
-                                    <div className="flex items-center justify-center py-20">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div>
+                {
+                    selectedHistory && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => setSelectedHistory(null)}
+                                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                            ></motion.div>
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                className="relative w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-[40px] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+                            >
+                                <div className="p-8 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                                    <div>
+                                        <h3 className="text-2xl font-black uppercase italic text-[#FD7202]">{selectedHistory.business_name}</h3>
+                                        <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Historial del Cliente</p>
                                     </div>
-                                ) : (
-                                    <>
-                                        {/* Llamadas Recientes */}
-                                        <div className="space-y-4">
-                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                                                <PhoneCall size={14} className="text-[#FD7202]" /> Últimas Llamadas (Pedidos)
-                                            </h4>
-                                            {historyData.calls.length === 0 ? (
-                                                <p className="text-xs text-gray-600 italic">No hay registros de llamadas recientes.</p>
-                                            ) : (
-                                                <div className="grid grid-cols-1 gap-3">
-                                                    {historyData.calls.map((call, i) => (
-                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center group hover:bg-white/[0.05] transition-all">
-                                                            <div>
-                                                                <p className="text-xs font-bold text-white uppercase">{call.customer_name || 'Desconocido'}</p>
-                                                                <p className="text-[10px] text-gray-500">{new Date(call.created_at).toLocaleString()}</p>
-                                                            </div>
-                                                            <div className="text-right">
-                                                                <span className="text-[10px] font-black text-[#FD7202] uppercase">{call.duration}</span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
+                                    <button
+                                        onClick={() => setSelectedHistory(null)}
+                                        className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-gray-400 transition-all"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
 
-                                        {/* Prospectos Generados */}
-                                        <div className="space-y-4">
-                                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                                                <UserPlus size={14} className="text-[#FD7202]" /> Prospectos Vinculados
-                                            </h4>
-                                            {historyData.leads.length === 0 ? (
-                                                <p className="text-xs text-gray-600 italic">No hay prospectos vinculados.</p>
-                                            ) : (
-                                                <div className="grid grid-cols-1 gap-3">
-                                                    {historyData.leads.map((lead, i) => (
-                                                        <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center">
-                                                            <div>
-                                                                <p className="text-xs font-bold text-white uppercase">{lead.name || lead.first_name + ' ' + lead.last_name}</p>
-                                                                <p className="text-[10px] text-gray-500">{lead.phone || lead.email}</p>
-                                                            </div>
-                                                            <span className="px-2 py-1 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-lg">Activo</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                <div className="flex-grow overflow-y-auto p-8 space-y-10">
+                                    {loadingHistory ? (
+                                        <div className="flex items-center justify-center py-20">
+                                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div>
                                         </div>
-                                    </>
-                                )}
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-        </div>
+                                    ) : (
+                                        <>
+                                            {/* Llamadas Recientes */}
+                                            <div className="space-y-4">
+                                                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                    <PhoneCall size={14} className="text-[#FD7202]" /> Últimas Llamadas (Pedidos)
+                                                </h4>
+                                                {historyData.calls.length === 0 ? (
+                                                    <p className="text-xs text-gray-600 italic">No hay registros de llamadas recientes.</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        {historyData.calls.map((call, i) => (
+                                                            <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center group hover:bg-white/[0.05] transition-all">
+                                                                <div>
+                                                                    <p className="text-xs font-bold text-white uppercase">{call.customer_name || 'Desconocido'}</p>
+                                                                    <p className="text-[10px] text-gray-500">{new Date(call.created_at).toLocaleString()}</p>
+                                                                </div>
+                                                                <div className="text-right">
+                                                                    <span className="text-[10px] font-black text-[#FD7202] uppercase">{call.duration}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Prospectos Generados */}
+                                            <div className="space-y-4">
+                                                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                                                    <UserPlus size={14} className="text-[#FD7202]" /> Prospectos Vinculados
+                                                </h4>
+                                                {historyData.leads.length === 0 ? (
+                                                    <p className="text-xs text-gray-600 italic">No hay prospectos vinculados.</p>
+                                                ) : (
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        {historyData.leads.map((lead, i) => (
+                                                            <div key={i} className="p-4 bg-white/[0.03] rounded-2xl border border-white/5 flex justify-between items-center">
+                                                                <div>
+                                                                    <p className="text-xs font-bold text-white uppercase">{lead.name || lead.first_name + ' ' + lead.last_name}</p>
+                                                                    <p className="text-[10px] text-gray-500">{lead.phone || lead.email}</p>
+                                                                </div>
+                                                                <span className="px-2 py-1 bg-green-500/10 text-green-500 text-[8px] font-black uppercase rounded-lg">Activo</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </motion.div>
+                        </div>
+                    )
+                }
+            </AnimatePresence >
+        </div >
     );
 }
