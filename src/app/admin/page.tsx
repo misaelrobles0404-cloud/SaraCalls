@@ -1057,7 +1057,10 @@ export default function AdminDashboard() {
                                             };
 
                                             if (orderView === 'today') {
-                                                const monitorOrders = orders.filter(o => o.status !== 'Entregado');
+                                                const monitorOrders = orders.filter(o =>
+                                                    o.status !== 'Entregado' &&
+                                                    new Date(o.created_at).toDateString() === new Date().toDateString()
+                                                );
                                                 if (monitorOrders.length === 0) {
                                                     return (
                                                         <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
