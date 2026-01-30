@@ -906,12 +906,18 @@ export default function AdminDashboard() {
                                     <div className="grid gap-6">
                                         {loading ? (
                                             <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>
-                                        ) : (orderView === 'today' ? orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()) : orders).length === 0 ? (
+                                        ) : (orderView === 'today'
+                                            ? orders.filter(o => o.status !== 'Entregado') // Monitor: Solo pendientes
+                                            : orders.filter(o => o.status === 'Entregado') // Historial: Solo entregados
+                                        ).length === 0 ? (
                                             <div className="py-20 text-center glass rounded-[32px] border border-white/5 bg-white/[0.01]">
                                                 <Utensils size={48} className="mx-auto text-gray-700 mb-4 opacity-20" />
-                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos {orderView === 'today' ? 'para hoy' : ''}</p>
+                                                <p className="text-gray-500 uppercase text-xs font-bold tracking-widest">No hay pedidos {orderView === 'today' ? 'en espera' : 'completados'}</p>
                                             </div>
-                                        ) : (orderView === 'today' ? orders.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()) : orders).map((order: any, idx: number) => {
+                                        ) : (orderView === 'today'
+                                            ? orders.filter(o => o.status !== 'Entregado') // Monitor: Sin sorting adicional (newest first de DB)
+                                            : orders.filter(o => o.status === 'Entregado') // History: Solo entregados
+                                        ).map((order: any, idx: number) => {
                                             // Mejorar el parseo de notas multilínea
                                             const noteLines = order.notes?.split('\n') || [];
                                             const isDelivery = order.notes?.toLowerCase().includes('a domicilio');
