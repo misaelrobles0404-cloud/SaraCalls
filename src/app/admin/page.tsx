@@ -84,22 +84,6 @@ export default function AdminDashboard() {
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
 
-    useEffect(() => {
-        if (orderView === 'history' && expandedDates.length === 0 && orders.length > 0) {
-            const deliveredOrders = orders.filter(o => o.status === 'Entregado');
-            if (deliveredOrders.length > 0) {
-                const firstDate = new Date(deliveredOrders.sort((a, b) =>
-                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-                )[0].created_at).toLocaleDateString('es-MX', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long'
-                });
-                setExpandedDates([firstDate]);
-            }
-        }
-    }, [orderView, orders]);
-
     const toggleDate = (date: string) => {
         setExpandedDates(prev =>
             prev.includes(date) ? prev.filter(d => d !== date) : [...prev, date]
