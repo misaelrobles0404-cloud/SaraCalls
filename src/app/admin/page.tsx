@@ -170,83 +170,68 @@ export default function AdminDashboard() {
                 const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
                     session.user.email === "misaelrobles0404@gmail.com";
 
+                let targetClientId = '';
+                let targetClientName = '';
+                let targetIndustry = 'restaurant';
+                let targetLogo = '';
+
                 if (isAdmin) {
                     setIsAdminUser(true);
-                    console.log("🚀 SARA: Super Admin detectado en panel de cliente.");
-
-                    // Permitir visualizar un cliente específico vía URL si viene el ID
                     const params = new URLSearchParams(window.location.search);
-
-                    // Prioridad 1: Industria forzada vía URL (Para Showroom)
                     const forceIndustry = params.get('industry');
-                    if (forceIndustry) {
-                        setIndustry(forceIndustry as any);
-                    }
-
                     const previewId = params.get('preview_client_id');
+
                     if (previewId) {
-                        const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single() as any;
+                        const { data: pClient } = await supabase.from('clients').select('*').eq('id', previewId).single();
                         if (pClient) {
-                            setClientId(pClient.id);
-                            setClientName(pClient.business_name + " (Vista Previa)");
-                            setIndustry(pClient.industry as any);
-                            if (pClient.logo_url) setLogoUrl(pClient.logo_url);
-                            // Cargar datos de este cliente...
-                            const [pCalls, pLeads, pApps, pOrders] = await Promise.all([
-                                supabase.from('calls').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false }),
-                                supabase.from('leads').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false }),
-                                supabase.from('appointments').select('*').eq('client_id', pClient.id).order('appointment_date', { ascending: true }),
-                                supabase.from('orders').select('*').eq('client_id', pClient.id).order('created_at', { ascending: false })
-                            ]);
-                            if (pCalls.data) setCalls(pCalls.data);
-                            if (pLeads.data) setLeads(pLeads.data);
-                            if (pApps.data) setAppointments(pApps.data);
-                            if (pOrders.data) setOrders(pOrders.data);
-                            setIsAuthorized(true);
-                            setLoading(false);
-                            return;
+                            targetClientId = pClient.id;
+                            targetClientName = pClient.business_name + " (Vista Previa)";
+                            targetIndustry = pClient.industry as any;
+                            targetLogo = pClient.logo_url || '';
                         }
+                    } else {
+                        // Modo Showroom sin cliente específico
+                        setClientName(`Showroom ${forceIndustry || 'General'}`);
+                        if (forceIndustry) setIndustry(forceIndustry as any);
+                        setCalls([]);
+                        setLeads([]);
+                        setOrders([]);
+                        setAppointments([]);
+                        setIsAuthorized(true);
+                        setLoading(false);
+                        return;
+                    }
+                } else {
+                    // 2. Obtener Client ID vinculado al Auth User ID para clientes normales
+                    const { data: clientData, error: clientError } = await supabase
+                        .from('clients')
+                        .select('id, business_name, industry, logo_url')
+                        .eq('auth_user_id', session.user.id)
+                        .single();
+
+                    if (clientError || !clientData) {
+                        console.error("Cliente no vinculado o no encontrado:", clientError);
+                        setLoading(false);
+                        return;
                     }
 
-                    // Si no hay previewId, simplemente permitimos el acceso con datos vacíos
-                    setClientName(`Showroom ${forceIndustry || 'General'}`);
-                    setCalls([]);
-                    setLeads([]);
-                    setOrders([]);
-                    setAppointments([]);
-                    setIsAuthorized(true);
-                    setLoading(false);
-                    return;
+                    targetClientId = clientData.id;
+                    targetClientName = clientData.business_name;
+                    targetIndustry = clientData.industry as any;
+                    targetLogo = clientData.logo_url || '';
                 }
 
-                setIsAuthorized(true);
+                setClientId(targetClientId);
+                setClientName(targetClientName);
+                if (targetIndustry) setIndustry(targetIndustry as any);
+                if (targetLogo) setLogoUrl(targetLogo);
 
-                // 2. Obtener Client ID vinculado al Auth User ID
-                const { data: clientData, error: clientError } = await supabase
-                    .from('clients')
-                    .select('id, business_name, industry, logo_url')
-                    .eq('auth_user_id', session.user.id)
-                    .single();
-
-                if (clientError || !clientData) {
-                    console.error("Cliente no vinculado o no encontrado:", clientError);
-                    // Si el usuario existe pero no tiene empresa vinculada, podemos mostrar un estado vacío o error
-                    setLoading(false);
-                    return;
-                }
-
-                const currentClientId = clientData.id;
-                setClientId(currentClientId);
-                setClientName(clientData.business_name);
-                if (clientData.industry) setIndustry(clientData.industry as any);
-                if (clientData.logo_url) setLogoUrl(clientData.logo_url);
-
-                // 3. Cargar Datos Filtrados por Cliente
+                // 3. Cargar Datos Filtrados
                 const [callsRes, leadsRes, appointmentsRes, ordersRes] = await Promise.all([
-                    supabase.from('calls').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
-                    supabase.from('leads').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false }),
-                    supabase.from('appointments').select('*').eq('client_id', currentClientId).order('appointment_date', { ascending: true }),
-                    supabase.from('orders').select('*').eq('client_id', currentClientId).order('created_at', { ascending: false })
+                    supabase.from('calls').select('*').eq('client_id', targetClientId).order('created_at', { ascending: false }),
+                    supabase.from('leads').select('*').eq('client_id', targetClientId).order('created_at', { ascending: false }),
+                    supabase.from('appointments').select('*').eq('client_id', targetClientId).order('appointment_date', { ascending: true }),
+                    supabase.from('orders').select('*').eq('client_id', targetClientId).order('created_at', { ascending: false })
                 ]);
 
                 if (callsRes.data) setCalls(callsRes.data);
@@ -254,17 +239,17 @@ export default function AdminDashboard() {
                 if (appointmentsRes.data) setAppointments(appointmentsRes.data);
                 if (ordersRes.data) setOrders(ordersRes.data);
 
-                // Mock orders removed, now uses database data
+                setIsAuthorized(true);
 
-                // 4. Suscripción Realtime Dinámica para todas las tablas
-                const channelId = `client_data_${currentClientId}`;
+                // 4. Suscripción Realtime Dinámica
+                const channelId = `client_data_${targetClientId}`;
                 const subscription = supabase
                     .channel(channelId)
                     .on('postgres_changes', {
                         event: '*',
                         schema: 'public',
                         table: 'calls',
-                        filter: `client_id=eq.${currentClientId}`
+                        filter: `client_id=eq.${targetClientId}`
                     }, payload => {
                         if (payload.eventType === 'INSERT') {
                             setCalls(prev => [payload.new, ...prev].slice(0, 50));
@@ -278,7 +263,7 @@ export default function AdminDashboard() {
                         event: '*',
                         schema: 'public',
                         table: 'leads',
-                        filter: `client_id=eq.${currentClientId}`
+                        filter: `client_id=eq.${targetClientId}`
                     }, payload => {
                         if (payload.eventType === 'INSERT') {
                             setLeads(prev => [payload.new, ...prev].slice(0, 50));
@@ -292,7 +277,7 @@ export default function AdminDashboard() {
                         event: '*',
                         schema: 'public',
                         table: 'appointments',
-                        filter: `client_id=eq.${currentClientId}`
+                        filter: `client_id=eq.${targetClientId}`
                     }, payload => {
                         if (payload.eventType === 'INSERT') {
                             setAppointments(prev => [...prev, payload.new].sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime()));
@@ -306,7 +291,7 @@ export default function AdminDashboard() {
                         event: '*',
                         schema: 'public',
                         table: 'orders',
-                        filter: `client_id=eq.${currentClientId}`
+                        filter: `client_id=eq.${targetClientId}`
                     }, payload => {
                         if (payload.eventType === 'INSERT') {
                             setOrders(prev => [payload.new, ...prev]);
