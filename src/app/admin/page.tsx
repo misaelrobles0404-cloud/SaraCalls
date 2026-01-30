@@ -974,6 +974,11 @@ export default function AdminDashboard() {
                                                                     <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${isDelivery ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]' : 'bg-green-500/10 text-green-400 border-green-500/20'}`}>
                                                                         {isDelivery ? '🚀 A DOMICILIO' : '🥡 PARA RECOGER'}
                                                                     </div>
+                                                                    {(comments.includes('[PROMO 2x1]') || (order.items && order.items.includes('[PROMO 2x1]'))) && (
+                                                                        <div className="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 border border-pink-500/30 animate-pulse shadow-[0_0_15px_rgba(236,72,153,0.2)]">
+                                                                            🏷️ PROMO 2X1
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 <div className="bg-black/40 rounded-3xl p-6 border border-white/5 relative overflow-hidden">
