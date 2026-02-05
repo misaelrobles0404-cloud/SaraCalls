@@ -63,7 +63,7 @@ export const dynamic = 'force-dynamic';
 export default function AdminDashboard() {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'calls' | 'leads' | 'appointments' | 'orders' | 'settings' | 'unique_clients'>('overview');
     const [isPlaying, setIsPlaying] = useState<number | null>(null);
     const [calls, setCalls] = useState<any[]>([]);
     const [leads, setLeads] = useState<any[]>([]);
@@ -1253,7 +1253,7 @@ export default function AdminDashboard() {
                                         </div>
                                     </div>
                                 </motion.div>
-                            ) : (
+                            ) : activeTab === 'settings' ? (
                                 <motion.div
                                     key="settings"
                                     initial={{ opacity: 0, scale: 0.98 }}
