@@ -582,6 +582,7 @@ export default function AdminDashboard() {
 
             <main className="lg:pl-64 min-h-screen w-full">
                 <div className="max-w-7xl mx-auto p-4 lg:p-8 relative">
+                    {/* SaraCalls Admin Dashboard v1.2 */}
                     {/* Decorative Glow Dinámico */}
                     <div className={`absolute top-0 right-0 w-[500px] h-[500px] ${CurrentTheme.glow} blur-[120px] rounded-full pointer-events-none -z-10 animate-pulse`}></div>
 
