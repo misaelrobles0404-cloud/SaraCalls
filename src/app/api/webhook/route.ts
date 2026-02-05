@@ -70,10 +70,10 @@ export async function POST(request: Request) {
                 retell_call_id: callData.call_id || body.call_id,
                 customer_phone: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
                 customer_name: customerName || 'Desconocido',
-                duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : (callData.duration ? callData.duration.toString() : '0'),
+                duration: callData.duration_ms ? (callData.duration_ms / 1000) : (callData.duration || 0),
                 transcript: callData.transcript || 'Sin transcripción',
                 recording_url: callData.recording_url || '',
-                sentiment: analysis.user_sentiment || analysis.sentiment || 'En curso'
+                sentiment: analysis.user_sentiment || analysis.sentiment || (eventType === 'call_analyzed' ? 'Neutro' : 'En curso')
             };
 
             if (callToUpsert.retell_call_id) {
