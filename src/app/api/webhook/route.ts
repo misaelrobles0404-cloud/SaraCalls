@@ -75,6 +75,9 @@ export async function POST(request: Request) {
                 durationSeconds = (callData.end_timestamp - callData.start_timestamp) / 1000;
             }
 
+            const isCallFinished = !!callData.end_timestamp || eventType === 'call_analyzed';
+            const defaultStatus = isCallFinished ? 'Completada' : 'En curso';
+
             const callToUpsert = {
                 client_id: finalClientId,
                 retell_call_id: callData.call_id || body.call_id,
@@ -83,7 +86,7 @@ export async function POST(request: Request) {
                 duration: durationSeconds,
                 transcript: callData.transcript || 'Sin transcripción',
                 recording_url: callData.recording_url || '',
-                sentiment: analysis.user_sentiment || analysis.sentiment || (eventType === 'call_analyzed' ? 'Neutro' : 'En curso')
+                sentiment: analysis.user_sentiment || analysis.sentiment || defaultStatus
             };
 
             if (callToUpsert.retell_call_id) {
