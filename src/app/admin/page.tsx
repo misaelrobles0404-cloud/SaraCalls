@@ -1299,7 +1299,7 @@ export default function AdminDashboard() {
                                         <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
                                     </div>
                                 </motion.div>
-                            )}
+                            ) : null}
                         </AnimatePresence>
                     </div>
                 </main>
