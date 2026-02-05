@@ -554,7 +554,14 @@ export default function AdminDashboard() {
         }
     };
     const totalCallsCount = loading ? 0 : calls.length;
-    const hoursSaved = Math.round((totalCallsCount * 5) / 60);
+    // Calcular tiempo real ahorrado (Suma de duraciones de llamadas)
+    const totalDurationSeconds = calls.reduce((acc, call) => acc + (Number(call.duration) || 0), 0);
+    const timeSavedDisplay = totalDurationSeconds < 3600
+        ? `${Math.round(totalDurationSeconds / 60)}m`
+        : `${(totalDurationSeconds / 3600).toFixed(1)}h`;
+
+    // Calcular Clientes Únicos
+    const uniqueCustomers = new Set(calls.map(c => c.customer_phone)).size;
 
     if (!isAuthorized && !loading) return <div className="min-h-screen bg-[#050505] flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FD7202]"></div></div>;
 
@@ -646,8 +653,8 @@ export default function AdminDashboard() {
                                         industry === 'restaurant' ?
                                             { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
                                             { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
-                                        { label: 'Nuevos Leads', value: loading ? null : leads.length.toString(), trend: '+24%', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
-                                        { label: 'Tiempo Ahorrado', value: loading ? null : `${hoursSaved}h`, trend: '∞', color: 'purple', icon: Clock, tab: 'overview' }
+                                        { label: 'Clientes Únicos', value: loading ? null : uniqueCustomers.toString(), trend: 'Detectados', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
+                                        { label: 'Tiempo Hablado', value: loading ? null : timeSavedDisplay, trend: 'Total', color: 'purple', icon: Clock, tab: 'overview' }
                                     ].map((stat, i) => (
                                         <button
                                             key={i}
