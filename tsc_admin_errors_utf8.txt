@@ -1,0 +1,50 @@
+﻿src/app/admin/page.tsx(562,10): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(576,14): error TS17008: JSX element 'main' has no corresponding closing tag.
+src/app/admin/page.tsx(577,18): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(633,22): error TS17008: JSX element 'AnimatePresence' has no corresponding closing tag.
+src/app/admin/page.tsx(882,30): error TS17008: JSX element 'motion.div' has no corresponding closing tag.
+src/app/admin/page.tsx(889,34): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(913,38): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(929,54): error TS17008: JSX element 'motion.div' has no corresponding closing tag.
+src/app/admin/page.tsx(949,58): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/app/admin/page.tsx(1039,88): error TS1003: Identifier expected.
+src/app/admin/page.tsx(1050,91): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,99): error TS1351: An identifier or keyword cannot immediately follow a numeric literal.
+src/app/admin/page.tsx(1050,102): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,115): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,130): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,149): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,150): error TS1005: ',' expected.
+src/app/admin/page.tsx(1050,157): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,86): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,93): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,100): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,111): error TS1351: An identifier or keyword cannot immediately follow a numeric literal.
+src/app/admin/page.tsx(1054,114): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,119): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,134): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,151): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,158): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,178): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,179): error TS1005: ',' expected.
+src/app/admin/page.tsx(1054,194): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,85): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,103): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,126): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,141): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,142): error TS1005: ',' expected.
+src/app/admin/page.tsx(1116,156): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,41): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,47): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,60): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,77): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,78): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,90): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,185): error TS1005: ',' expected.
+src/app/admin/page.tsx(1206,187): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/admin/page.tsx(1207,25): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/app/admin/page.tsx(1209,71): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/admin/page.tsx(1211,17): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/admin/page.tsx(1224,67): error TS17002: Expected corresponding JSX closing tag for 'div'.
+src/app/admin/page.tsx(1319,1): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+src/app/admin/page.tsx(1320,1): error TS1005: '</' expected.
