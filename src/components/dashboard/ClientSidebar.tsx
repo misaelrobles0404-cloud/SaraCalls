@@ -75,7 +75,7 @@ export function ClientSidebar({
                         )}
                         <div>
                             <span className="text-xl font-black tracking-tight block leading-none">SaraCalls.<span style={{ color: currentTheme.primary }}>ai</span></span>
-                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio</span>
+                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Control de Negocio v2.0</span>
                         </div>
                     </div>
 
