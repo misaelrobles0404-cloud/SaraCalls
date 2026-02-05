@@ -38,7 +38,9 @@ import {
     X,
     MapPin,
     ShoppingBag,
-    History
+    History,
+    TrendingUp,
+    Activity
 } from "lucide-react";
 import {
     Chart as ChartJS,
