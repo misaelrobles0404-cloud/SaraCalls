@@ -56,34 +56,43 @@ export async function POST(request: Request) {
         let table = '';
         let dataToInsert: any = {};
 
-        // Caso 1: REGISTRO DE LLAMADA (Webhook Final)
-        if (inferredType === 'call' || isFinalCall) {
-            table = 'calls';
-            const callData = body.call || body;
+        // --- 1. PROCESAR DATOS DE LA LLAMADA (Siempre que sea posible) ---
+        const callData = body.call || (body.call_id ? body : null);
+        if (callData) {
+            console.log(`🔍 Processing Call Data for ID: ${callData.call_id || body.call_id}`);
             const analysis = callData.analysis || {};
-
-            // Intentar extraer nombre del cliente del análisis si no viene directo
             const customerName = analysis.customer_name ||
                 analysis.custom_analysis_data?.customer_name ||
                 (typeof analysis.call_summary === 'string' && analysis.call_summary.includes('Nombre:') ? analysis.call_summary.split('Nombre:')[1].split('\n')[0].trim() : '');
 
-            dataToInsert = {
+            const callToUpsert = {
                 client_id: finalClientId,
-                retell_call_id: callData.call_id || body.call_id || 'Unknown',
+                retell_call_id: callData.call_id || body.call_id,
                 customer_phone: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
                 customer_name: customerName || 'Desconocido',
                 duration: callData.duration_ms ? (callData.duration_ms / 1000).toFixed(1) : (callData.duration ? callData.duration.toString() : '0'),
                 transcript: callData.transcript || 'Sin transcripción',
                 recording_url: callData.recording_url || '',
-                sentiment: analysis.user_sentiment || analysis.sentiment || 'Procesada',
-                status: callData.call_status || 'completed'
+                sentiment: analysis.user_sentiment || analysis.sentiment || 'En curso'
             };
-        }
-        // Caso 2: PEDIDO DE COMIDA (Tool Call)
-        else if (inferredType === 'order' || toolName === 'registra_pedido') {
-            table = 'orders';
 
-            // Extraer argumentos de donde sea que estén (Retell es muy inconsistente aquí)
+            if (callToUpsert.retell_call_id) {
+                console.log(`📤 Upserting Call [${callToUpsert.retell_call_id}] to DB`);
+                const { error: callError } = await supabase
+                    .from('calls')
+                    .upsert([callToUpsert], { onConflict: 'retell_call_id' });
+
+                if (callError) {
+                    console.error('❌ Error upserting call:', JSON.stringify(callError));
+                } else {
+                    console.log('✅ Call upserted successfully');
+                }
+            }
+        }
+
+        // --- 2. PROCESAR PEDIDOS (Tool Call o Heurística) ---
+        if (inferredType === 'order' || toolName === 'registra_pedido') {
+            console.log('📦 Processing Order tool call/event...');
             let rawData = body;
             if (body.arguments) {
                 rawData = typeof body.arguments === 'string' ? JSON.parse(body.arguments) : body.arguments;
@@ -91,9 +100,6 @@ export async function POST(request: Request) {
                 rawData = typeof body.tool_call.arguments === 'string' ? JSON.parse(body.tool_call.arguments) : body.tool_call.arguments;
             }
 
-            console.log('📦 Extracted Order Data:', JSON.stringify(rawData, null, 2));
-
-            // Manejar tanto array como objeto único de productos
             const itemsRaw = rawData.items || rawData;
             const itemsArray = Array.isArray(itemsRaw) ? itemsRaw : [itemsRaw];
 
@@ -111,61 +117,59 @@ export async function POST(request: Request) {
                 `Utensilios: ${rawData.utensils ? 'Sí' : 'No'}`
             ].join('\n');
 
-            // Detección ultra-robusta de precio
-            const detectedPrice = [
-                rawData.total_price,
-                rawData.total,
-                rawData.amount,
-                rawData.precio_total,
-                rawData.precio,
-                rawData.total_amount
-            ].find(v => v !== undefined && v !== null);
+            const detectedPrice = [rawData.total_price, rawData.total, rawData.amount, rawData.precio_total, rawData.precio, rawData.total_amount].find(v => v !== undefined && v !== null);
 
-            dataToInsert = {
+            const orderToInsert = {
                 client_id: finalClientId,
-                customer_name: (rawData.customer_name || rawData.nombre || body.customer_name || body.name || body.analysis?.customer_name || 'Cliente').trim(),
+                customer_name: (rawData.customer_name || rawData.nombre || body.customer_name || body.name || callData?.analysis?.customer_name || 'Cliente').trim(),
                 customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || body.customer_number || 'N/A',
                 items: itemsList,
                 notes: finalNotes + (detectedPrice === undefined || detectedPrice === null || detectedPrice === 0 ? `\n\n⚠️ DEBUG JSON: ${JSON.stringify(rawData)}` : ''),
                 status: 'Pendiente',
                 total_price: detectedPrice
             };
+
+            console.log('📤 Inserting Order to DB');
+            const { error: orderError, data: orderData } = await supabase.from('orders').insert([orderToInsert]).select();
+            if (orderError) {
+                console.error('❌ Error inserting order:', JSON.stringify(orderError));
+                return NextResponse.json({ error: orderError.message }, { status: 500 });
+            }
+            console.log('✅ Order inserted successfully');
+            return NextResponse.json({ success: true, type: 'order', data: orderData });
         }
-        // Caso 3: LEADS (Genérico)
-        else if (inferredType === 'lead') {
-            table = 'leads';
-            dataToInsert = {
+
+        // --- 3. PROCESAR LEADS ---
+        if (inferredType === 'lead') {
+            console.log('👤 Processing Lead event...');
+            const leadToInsert = {
                 client_id: finalClientId,
-                first_name: body.first_name || body.name || 'Sin nombre',
-                last_name: body.last_name || '',
+                name: body.first_name || body.name || 'Sin nombre',
                 email: body.email || '',
                 phone: body.phone || body.user_number || '',
                 status: 'Nuevo'
             };
+
+            const { error: leadError, data: leadData } = await supabase.from('leads').insert([leadToInsert]).select();
+            if (leadError) {
+                console.error('❌ Error inserting lead:', JSON.stringify(leadError));
+                return NextResponse.json({ error: leadError.message }, { status: 500 });
+            }
+            console.log('✅ Lead inserted successfully');
+            return NextResponse.json({ success: true, type: 'lead', data: leadData });
         }
 
-        if (!table) {
-            console.warn('⚠️ Webhook bypassed: could not determine table for payload');
-            return NextResponse.json({ success: true, message: 'Bypassed' });
+        // Si llegó aquí y hubo datos de llamada, ya se upsertó arriba.
+        if (callData) {
+            console.log('📞 Returning success for call-only webhook');
+            return NextResponse.json({ success: true, type: 'call' });
         }
 
-        console.log(`📤 Final Insert to [${table}]:`, JSON.stringify(dataToInsert, null, 2));
-
-        const { error, data: insertedData } = await supabase
-            .from(table)
-            .insert([dataToInsert])
-            .select();
-
-        if (error) {
-            console.error(`❌ Supabase Error [${table}]:`, JSON.stringify(error, null, 2));
-            return NextResponse.json({ error: error.message, details: error }, { status: 500 });
-        }
-
-        console.log(`✅ Success inserting into ${table}`);
-        return NextResponse.json({ success: true, table, data: insertedData });
+        console.warn('⚠️ Webhook bypassed: nothing relevant to process');
+        return NextResponse.json({ success: true, message: 'Bypassed' });
 
     } catch (error) {
-        console.error('Webhook Error:', error);
+        console.error('🔥 Critical Webhook Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

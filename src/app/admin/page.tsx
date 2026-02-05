@@ -694,29 +694,91 @@ export default function AdminDashboard() {
                                                 <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
                                             ) : calls.length === 0 ? (
                                                 <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
-                                            ) : calls.slice(0, 3).map((call, idx) => (
-                                                <div key={call.id || idx} className="group flex items-center gap-5 p-6 rounded-[24px] bg-white/[0.02] border border-white/5 transition-all duration-500 hover:bg-white/[0.04]"
-                                                    style={{ '--hover-border': CurrentTheme.primary } as any}>
-                                                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-all duration-500">
-                                                        <Mic size={20} className="text-gray-500 transition-all" style={{ color: CurrentTheme.primary }} />
-                                                    </div>
-                                                    <div className="flex-grow">
-                                                        <div className="flex items-center gap-3 mb-1">
-                                                            <h4 className="font-bold text-lg">{call.customer_name || 'Desconocido'}</h4>
-                                                            <span className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{call.sentiment || 'Procesada'}</span>
+                                            ) : calls.slice(0, 4).map((call, idx) => (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    transition={{ delay: idx * 0.05 }}
+                                                    whileHover={{ y: -4 }}
+                                                    key={call.id || idx}
+                                                    className="group relative flex items-center gap-6 p-6 rounded-[32px] bg-white/[0.01] backdrop-blur-md border border-white/10 transition-all duration-700 hover:bg-white/[0.03] hover:border-white/20"
+                                                >
+                                                    {/* Background Glow Effect */}
+                                                    <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                                                    {/* Icon Section */}
+                                                    <div className="relative z-10">
+                                                        <div className="w-16 h-16 rounded-[24px] bg-[#0a0a0a] flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-all duration-500 shadow-2xl relative overflow-hidden">
+                                                            <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${CurrentTheme.primary}, transparent)` }}></div>
+                                                            <Mic size={24} className="relative z-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12" style={{ color: CurrentTheme.primary }} />
                                                         </div>
-                                                        <p className="text-xs text-gray-500 font-medium">{call.customer_phone} • {call.duration} • {new Date(call.created_at).toLocaleDateString()}</p>
+                                                        {call.sentiment === 'En curso' && (
+                                                            <div className="absolute -top-1 -right-1 flex h-4 w-4">
+                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#0a0a0a]"></span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div className="flex gap-2">
+
+                                                    {/* Info Section */}
+                                                    <div className="flex-grow min-w-0 relative z-10">
+                                                        <div className="flex items-center gap-3 mb-2">
+                                                            <h4 className="font-extrabold text-xl text-white/90 group-hover:text-white transition-colors tracking-tight truncate">
+                                                                {call.customer_name || 'Desconocido'}
+                                                            </h4>
+                                                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-700 ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20 group-hover:shadow-[0_0_15px_rgba(34,197,94,0.2)]' :
+                                                                call.sentiment === 'En curso' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20' :
+                                                                    'bg-white/5 text-gray-400 border-white/10 group-hover:bg-white/10'
+                                                                }`}>
+                                                                <div className={`w-1.5 h-1.5 rounded-full ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-400' :
+                                                                    call.sentiment === 'En curso' ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'
+                                                                    }`}></div>
+                                                                {call.sentiment || 'Procesada'}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                                                            <div className="flex items-center gap-1.5 text-gray-400">
+                                                                <span className="opacity-50">Tel:</span>
+                                                                <span>{call.customer_phone}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <span className="opacity-50">Dur:</span>
+                                                                <span style={{ color: CurrentTheme.primary }}>{call.duration ? `${Math.round(call.duration)}s` : '0s'}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5">
+                                                                <Calendar size={12} className="opacity-50" />
+                                                                <span>{new Date(call.created_at).toLocaleDateString()}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Actions Section */}
+                                                    <div className="relative z-10">
                                                         <button
                                                             onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
-                                                            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${isPlaying === idx ? 'text-white shadow-lg' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+                                                            className={`w-14 h-14 rounded-3xl flex items-center justify-center transition-all duration-700 transform ${isPlaying === idx
+                                                                ? 'text-white shadow-[0_0_30px_rgba(253,114,2,0.5)] scale-95'
+                                                                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-90 shadow-xl'
+                                                                }`}
                                                             style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
                                                         >
-                                                            {isPlaying === idx ? <Volume2 size={20} /> : <Play size={20} />}
+                                                            {isPlaying === idx ? (
+                                                                <div className="flex items-end gap-1 h-4">
+                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0s]"></div>
+                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.2s]"></div>
+                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.4s]"></div>
+                                                                </div>
+                                                            ) : (
+                                                                <Play size={24} className="ml-1" fill="currentColor" />
+                                                            )}
                                                         </button>
                                                     </div>
-                                                </div>
+
+                                                    {/* Decorative Elements */}
+                                                    <div className="absolute top-0 right-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                                                    <div className="absolute bottom-0 left-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     </div>
@@ -843,7 +905,7 @@ export default function AdminDashboard() {
                                         <LeadsTable
                                             leads={leads}
                                             loading={loading}
-                                            onDelete={handleDeleteLead}
+                                            onDelete={deleteLead}
                                         />
                                     </>
                                 )}
@@ -1188,12 +1250,12 @@ export default function AdminDashboard() {
                                 </div>
                             </motion.div>
                         )}
-                    </AnimatePresence >
-                </div >
-            </main >
+                    </AnimatePresence>
+                </div>
+            </main>
 
             {/* Mobile Navigation Bar */}
-            < nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50" >
+            <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-2xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-50">
                 {
                     [
                         { id: 'overview', icon: LayoutDashboard },
@@ -1221,7 +1283,7 @@ export default function AdminDashboard() {
                         </button>
                     )
                 }
-            </nav >
+            </nav>
 
             {/* Modal de Historial de Cliente */}
             <AnimatePresence>
@@ -1313,7 +1375,7 @@ export default function AdminDashboard() {
                         </div>
                     )
                 }
-            </AnimatePresence >
-        </div >
+            </AnimatePresence>
+        </div>
     );
 }
