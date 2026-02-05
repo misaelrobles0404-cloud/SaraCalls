@@ -65,12 +65,22 @@ export async function POST(request: Request) {
                 analysis.custom_analysis_data?.customer_name ||
                 (typeof analysis.call_summary === 'string' && analysis.call_summary.includes('Nombre:') ? analysis.call_summary.split('Nombre:')[1].split('\n')[0].trim() : '');
 
+            // Calcular duración robusta
+            let durationSeconds = 0;
+            if (callData.duration_ms) {
+                durationSeconds = callData.duration_ms / 1000;
+            } else if (callData.duration) {
+                durationSeconds = Number(callData.duration);
+            } else if (callData.start_timestamp && callData.end_timestamp) {
+                durationSeconds = (callData.end_timestamp - callData.start_timestamp) / 1000;
+            }
+
             const callToUpsert = {
                 client_id: finalClientId,
                 retell_call_id: callData.call_id || body.call_id,
                 customer_phone: callData.user_number || callData.customer_number || callData.from_number || 'Oculto',
                 customer_name: customerName || 'Desconocido',
-                duration: callData.duration_ms ? (callData.duration_ms / 1000) : (callData.duration || 0),
+                duration: durationSeconds,
                 transcript: callData.transcript || 'Sin transcripción',
                 recording_url: callData.recording_url || '',
                 sentiment: analysis.user_sentiment || analysis.sentiment || (eventType === 'call_analyzed' ? 'Neutro' : 'En curso')

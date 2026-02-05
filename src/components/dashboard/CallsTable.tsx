@@ -20,7 +20,7 @@ export function CallsTable({ calls, loading, currentTheme }: CallsTableProps) {
                 <thead>
                     <tr className="text-gray-500 text-[10px] font-bold uppercase tracking-widest border-b border-white/5">
                         <th className="pb-4 px-4">Cliente</th>
-                        <th className="pb-4 px-4">Sentimiento</th>
+                        <th className="pb-4 px-4">Estado</th>
                         <th className="pb-4 px-4">Duración</th>
                         <th className="pb-4 px-4">Acciones</th>
                     </tr>
