@@ -446,6 +446,7 @@ export default function AdminDashboard() {
             try {
                 const { supabase } = await import("@/lib/supabase");
                 const { error } = await supabase
+                    .from('calls')
                     .delete()
                     .eq('client_id', clientId)
                     .gte('created_at', startOfMonth)
@@ -655,12 +656,34 @@ export default function AdminDashboard() {
                                             { label: 'Clientes Únicos', value: loading ? null : uniqueCustomers.toString(), trend: 'Detectados', color: CurrentTheme.accent, icon: UserPlus, tab: 'unique_clients' },
                                             { label: 'Tiempo Ahorrado', value: loading ? null : timeSavedDisplay, trend: 'En Gestión', color: 'purple', icon: Clock, tab: 'overview' }
                                         ].map((stat, i) => (
-                                            // ... (rest of the map function is unchanged, but I need to be careful with context)
                                             <button
                                                 key={i}
                                                 onClick={() => setActiveTab(stat.tab as any)}
-// ...
-                                    ))}
+                                                className={`relative overflow-hidden rounded-[32px] p-8 transition-all duration-500 text-left group hover:scale-[1.02] border ${activeTab === stat.tab ? `bg-white/[0.08] border-${stat.color}-500/50 shadow-[0_0_30px_rgba(253,114,2,0.15)]` : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10'}`}
+                                            >
+                                                <div className={`absolute top-0 right-0 p-8 opacity-20 group-hover:opacity-40 transition-opacity duration-500 text-${stat.color}-500`}>
+                                                    <stat.icon size={64} strokeWidth={1} />
+                                                </div>
+                                                <div className="relative z-10">
+                                                    <div className={`w-12 h-12 rounded-2xl bg-${stat.color}-500/20 flex items-center justify-center mb-6 text-${stat.color}-500 group-hover:scale-110 transition-transform duration-500`}>
+                                                        <stat.icon size={24} />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h3 className="text-3xl font-black italic tracking-tighter text-white">
+                                                            {stat.value || <div className="h-8 w-24 bg-white/10 rounded animate-pulse"></div>}
+                                                        </h3>
+                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{stat.label}</p>
+                                                    </div>
+                                                    {stat.trend && (
+                                                        <div className={`mt-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-500' : 'bg-white/5 text-gray-400'
+                                                            }`}>
+                                                            {stat.trend.includes('+') ? <TrendingUp size={12} /> : <Activity size={12} />}
+                                                            {stat.trend}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        ))}
                                     </div>
 
                                     <div className="grid lg:grid-cols-3 gap-8">
