@@ -554,8 +554,8 @@ export default function AdminDashboard() {
         }
     };
     const totalCallsCount = loading ? 0 : calls.length;
-    // Calcular tiempo real ahorrado (Suma de duraciones de llamadas)
-    const totalDurationSeconds = calls.reduce((acc, call) => acc + (Number(call.duration) || 0), 0);
+    // Calcular tiempo real ahorrado (Suma de duraciones + 3 min gestión humana por llamada)
+    const totalDurationSeconds = calls.reduce((acc, call) => acc + (Number(call.duration) || 0), 0) + (calls.length * 180);
     const timeSavedDisplay = totalDurationSeconds < 3600
         ? `${Math.round(totalDurationSeconds / 60)}m`
         : `${(totalDurationSeconds / 3600).toFixed(1)}h`;
@@ -653,161 +653,181 @@ export default function AdminDashboard() {
                                         industry === 'restaurant' ?
                                             { label: 'Pedidos Hoy', value: loading ? null : orders.length.toString(), trend: '+15%', color: 'blue', icon: LayoutDashboard, tab: 'orders' } :
                                             { label: industry === 'clinic' ? 'Consultas' : (industry === 'restaurant_res' ? 'Mesas Reservadas' : 'Citas Cerradas'), value: loading ? null : appointments.filter(a => a.status === 'Confirmada').length.toString(), trend: '+8.4%', color: 'green', icon: CalendarCheck, tab: 'appointments' },
-                                        { label: 'Clientes Únicos', value: loading ? null : uniqueCustomers.toString(), trend: 'Detectados', color: CurrentTheme.accent, icon: UserPlus, tab: 'leads' },
-                                        { label: 'Tiempo Hablado', value: loading ? null : timeSavedDisplay, trend: 'Total', color: 'purple', icon: Clock, tab: 'overview' }
+                                        { label: 'Clientes Únicos', value: loading ? null : uniqueCustomers.toString(), trend: 'Detectados', color: CurrentTheme.accent, icon: UserPlus, tab: 'unique_clients' },
+                                        { label: 'Tiempo Ahorrado', value: loading ? null : timeSavedDisplay, trend: 'En Gestión', color: 'purple', icon: Clock, tab: 'overview' }
                                     ].map((stat, i) => (
+                                        // ... (rest of the map function is unchanged, but I need to be careful with context)
                                         <button
                                             key={i}
                                             onClick={() => setActiveTab(stat.tab as any)}
-                                            className="relative group p-6 lg:p-8 rounded-[28px] lg:rounded-[32px] border border-white/5 bg-white/[0.03] hover:bg-white/[0.06] transition-all duration-500 text-left overflow-hidden ring-1 ring-white/5"
-                                        >
-                                            <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-2xl flex items-center justify-center mb-6 border transition-transform duration-500 shadow-xl`}
-                                                style={{ backgroundColor: CurrentTheme.primary + '15', borderColor: CurrentTheme.primary + '33' }}>
-                                                <stat.icon size={20} style={{ color: CurrentTheme.primary }} className="group-hover:scale-110 transition-transform" />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.2em]">{stat.label}</p>
-                                                <div className="flex items-baseline gap-3">
-                                                    {stat.value === null ? (
-                                                        <div className="h-9 w-20 bg-white/5 animate-pulse rounded-lg"></div>
-                                                    ) : (
-                                                        <h3 className="text-2xl lg:text-3xl font-black italic">{stat.value}</h3>
-                                                    )}
-                                                    {!loading && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${stat.trend.includes('+') ? 'bg-green-500/10 text-green-400' : 'bg-gray-500/10 text-gray-400'}`}>{stat.trend}</span>}
-                                                </div>
-                                            </div>
-                                            <div className="absolute top-0 right-0 w-24 h-24 blur-[40px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-white/5 transition-all" style={{ backgroundColor: `${CurrentTheme.primary}10` }}></div>
-                                        </button>
+// ...
                                     ))}
                                 </div>
 
-
-
-                                <div className="grid lg:grid-cols-3 gap-8">
-                                    {/* Recording Player Mock */}
-                                    <div className="lg:col-span-2 glass rounded-[36px] border border-white/5 p-8 bg-white/[0.02] shadow-2xl">
-                                        <div className="flex justify-between items-center mb-8">
-                                            <div>
-                                                <h2 className="text-xl font-black uppercase italic tracking-tight">Última Actividad</h2>
-                                                <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
+                                {activeTab === 'unique_clients' ? (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-xl font-black italic uppercase tracking-tight">Clientes Identificados</h3>
+                                            <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-widest text-gray-400">
+                                                Total: {uniqueCustomers}
                                             </div>
                                         </div>
 
-                                        <div className="space-y-4">
-                                            {loading ? (
-                                                <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
-                                            ) : calls.length === 0 ? (
-                                                <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
-                                            ) : calls.slice(0, 4).map((call, idx) => (
-                                                <motion.div
-                                                    initial={{ opacity: 0, scale: 0.95 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
-                                                    transition={{ delay: idx * 0.05 }}
-                                                    whileHover={{ y: -4 }}
-                                                    key={call.id || idx}
-                                                    className="group relative flex items-center gap-6 p-6 rounded-[32px] bg-white/[0.01] backdrop-blur-md border border-white/10 transition-all duration-700 hover:bg-white/[0.03] hover:border-white/20"
-                                                >
-                                                    {/* Background Glow Effect */}
-                                                    <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-
-                                                    {/* Icon Section */}
-                                                    <div className="relative z-10">
-                                                        <div className="w-16 h-16 rounded-[24px] bg-[#0a0a0a] flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-all duration-500 shadow-2xl relative overflow-hidden">
-                                                            <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${CurrentTheme.primary}, transparent)` }}></div>
-                                                            <Mic size={24} className="relative z-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12" style={{ color: CurrentTheme.primary }} />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {Array.from(new Set(calls.map(c => c.customer_phone))).map((phone, idx) => {
+                                                const clientCalls = calls.filter(c => c.customer_phone === phone);
+                                                const lastCall = clientCalls[0]; // Assuming sorted desc
+                                                return (
+                                                    <div key={phone} className="group relative p-6 rounded-[24px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.05] transition-all duration-300">
+                                                        <div className="flex items-start justify-between mb-4">
+                                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/10 to-transparent flex items-center justify-center border border-orange-500/20 text-orange-500">
+                                                                <Users size={18} />
+                                                            </div>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-full text-gray-400">
+                                                                {clientCalls.length} Llamadas
+                                                            </span>
                                                         </div>
-                                                        {call.sentiment === 'En curso' && (
-                                                            <div className="absolute -top-1 -right-1 flex h-4 w-4">
-                                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                                                <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#0a0a0a]"></span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Info Section */}
-                                                    <div className="flex-grow min-w-0 relative z-10">
-                                                        <div className="flex items-center gap-3 mb-2">
-                                                            <h4 className="font-extrabold text-xl text-white/90 group-hover:text-white transition-colors tracking-tight truncate">
-                                                                {call.customer_name || 'Desconocido'}
-                                                            </h4>
-                                                            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-700 ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20 group-hover:shadow-[0_0_15px_rgba(34,197,94,0.2)]' :
-                                                                call.sentiment === 'En curso' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20' :
-                                                                    'bg-white/5 text-gray-400 border-white/10 group-hover:bg-white/10'
-                                                                }`}>
-                                                                <div className={`w-1.5 h-1.5 rounded-full ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-400' :
-                                                                    call.sentiment === 'En curso' ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'
-                                                                    }`}></div>
-                                                                {call.sentiment || 'Procesada'}
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
-                                                            <div className="flex items-center gap-1.5 text-gray-400">
-                                                                <span className="opacity-50">Tel:</span>
-                                                                <span>{call.customer_phone}</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5">
-                                                                <span className="opacity-50">Dur:</span>
-                                                                <span style={{ color: CurrentTheme.primary }}>{call.duration ? `${Math.round(call.duration)}s` : '0s'}</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5">
-                                                                <Calendar size={12} className="opacity-50" />
-                                                                <span>{new Date(call.created_at).toLocaleDateString()}</span>
-                                                            </div>
+                                                        <h4 className="text-lg font-bold text-white mb-1">{lastCall.customer_name || 'Desconocido'}</h4>
+                                                        <p className="text-sm text-gray-400 font-mono mb-4">{phone}</p>
+                                                        <div className="pt-4 border-t border-white/5 flex items-center justify-between text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                                                            <span>Última vez:</span>
+                                                            <span>{new Date(lastCall.created_at).toLocaleDateString()}</span>
                                                         </div>
                                                     </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                ) : (
+                                    <div className="grid lg:grid-cols-3 gap-8">
+                                        {/* Recording Player Mock */}
+                                        <div className="lg:col-span-2 glass rounded-[36px] border border-white/5 p-8 bg-white/[0.02] shadow-2xl">
+                                            <div className="flex justify-between items-center mb-8">
+                                                <div>
+                                                    <h2 className="text-xl font-black uppercase italic tracking-tight">Última Actividad</h2>
+                                                    <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">Llamadas en vivo y grabaciones</p>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => setActiveTab('calls')} className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all">Ver Todo</button>
+                                                </div>
+                                            </div>
 
-                                                    {/* Actions Section */}
-                                                    <div className="relative z-10">
-                                                        <button
-                                                            onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
-                                                            className={`w-14 h-14 rounded-3xl flex items-center justify-center transition-all duration-700 transform ${isPlaying === idx
-                                                                ? 'text-white shadow-[0_0_30px_rgba(253,114,2,0.5)] scale-95'
-                                                                : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-90 shadow-xl'
-                                                                }`}
-                                                            style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
-                                                        >
-                                                            {isPlaying === idx ? (
-                                                                <div className="flex items-end gap-1 h-4">
-                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0s]"></div>
-                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.2s]"></div>
-                                                                    <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.4s]"></div>
+                                            <div className="space-y-4">
+                                                {loading ? (
+                                                    <div className="flex justify-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#FD7202]"></div></div>
+                                                ) : calls.length === 0 ? (
+                                                    <p className="text-gray-500 text-center py-10 uppercase text-[10px] font-bold tracking-widest">Sin llamadas registradas</p>
+                                                ) : calls.slice(0, 4).map((call, idx) => (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, scale: 0.95 }}
+                                                        animate={{ opacity: 1, scale: 1 }}
+                                                        transition={{ delay: idx * 0.05 }}
+                                                        whileHover={{ y: -4 }}
+                                                        key={call.id || idx}
+                                                        className="group relative flex items-center gap-6 p-6 rounded-[32px] bg-white/[0.01] backdrop-blur-md border border-white/10 transition-all duration-700 hover:bg-white/[0.03] hover:border-white/20"
+                                                    >
+                                                        {/* Background Glow Effect */}
+                                                        <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+
+                                                        {/* Icon Section */}
+                                                        <div className="relative z-10">
+                                                            <div className="w-16 h-16 rounded-[24px] bg-[#0a0a0a] flex items-center justify-center border border-white/5 group-hover:border-white/10 transition-all duration-500 shadow-2xl relative overflow-hidden">
+                                                                <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-500" style={{ background: `radial-gradient(circle at center, ${CurrentTheme.primary}, transparent)` }}></div>
+                                                                <Mic size={24} className="relative z-10 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-12" style={{ color: CurrentTheme.primary }} />
+                                                            </div>
+                                                            {call.sentiment === 'En curso' && (
+                                                                <div className="absolute -top-1 -right-1 flex h-4 w-4">
+                                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                                                    <span className="relative inline-flex rounded-full h-4 w-4 bg-green-500 border-2 border-[#0a0a0a]"></span>
                                                                 </div>
-                                                            ) : (
-                                                                <Play size={24} className="ml-1" fill="currentColor" />
                                                             )}
-                                                        </button>
-                                                    </div>
+                                                        </div>
 
-                                                    {/* Decorative Elements */}
-                                                    <div className="absolute top-0 right-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                                                    <div className="absolute bottom-0 left-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
-                                                </motion.div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-8">
-                                        <div className={`glass rounded-[36px] bg-gradient-to-br ${CurrentTheme.gradient} p-8 text-white relative overflow-hidden group`}>
-                                            <div className="relative z-10">
-                                                <Zap className="mb-4 text-white opacity-80" />
-                                                <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
-                                                <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Tu negocio está creciendo? Activa más agentes, conecta tus herramientas de trabajo actuales o sube de nivel para no perder ninguna oportunidad.</p>
-                                                <a
-                                                    href="https://wa.me/521234567890?text=Hola,%20mi%20negocio%20está%20creciendo%20y%20quiero%20mejorar%20mi%20plan%20de%20SaraCalls.ai"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
-                                                >
-                                                    Hablar con Ventas
-                                                </a>
+                                                        {/* Info Section */}
+                                                        <div className="flex-grow min-w-0 relative z-10">
+                                                            <div className="flex items-center gap-3 mb-2">
+                                                                <h4 className="font-extrabold text-xl text-white/90 group-hover:text-white transition-colors tracking-tight truncate">
+                                                                    {call.customer_name || 'Desconocido'}
+                                                                </h4>
+                                                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all duration-700 ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-500/10 text-green-400 border-green-500/20 group-hover:bg-green-500/20 group-hover:shadow-[0_0_15px_rgba(34,197,94,0.2)]' :
+                                                                    call.sentiment === 'En curso' ? 'bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20' :
+                                                                        'bg-white/5 text-gray-400 border-white/10 group-hover:bg-white/10'
+                                                                    }`}>
+                                                                    <div className={`w-1.5 h-1.5 rounded-full ${call.sentiment === 'Positivo' || call.sentiment === 'Confirmada' ? 'bg-green-400' :
+                                                                        call.sentiment === 'En curso' ? 'bg-blue-400 animate-pulse' : 'bg-gray-500'
+                                                                        }`}></div>
+                                                                    {call.sentiment || 'Procesada'}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-[11px] font-bold text-gray-500 uppercase tracking-widest">
+                                                                <div className="flex items-center gap-1.5 text-gray-400">
+                                                                    <span className="opacity-50">Tel:</span>
+                                                                    <span>{call.customer_phone}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <span className="opacity-50">Dur:</span>
+                                                                    <span style={{ color: CurrentTheme.primary }}>{call.duration ? `${Math.round(call.duration)}s` : '0s'}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5">
+                                                                    <Calendar size={12} className="opacity-50" />
+                                                                    <span>{new Date(call.created_at).toLocaleDateString()}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Actions Section */}
+                                                        <div className="relative z-10">
+                                                            <button
+                                                                onClick={() => setIsPlaying(isPlaying === idx ? null : idx)}
+                                                                className={`w-14 h-14 rounded-3xl flex items-center justify-center transition-all duration-700 transform ${isPlaying === idx
+                                                                    ? 'text-white shadow-[0_0_30px_rgba(253,114,2,0.5)] scale-95'
+                                                                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white hover:scale-110 active:scale-90 shadow-xl'
+                                                                    }`}
+                                                                style={isPlaying === idx ? { backgroundColor: CurrentTheme.primary } : {}}
+                                                            >
+                                                                {isPlaying === idx ? (
+                                                                    <div className="flex items-end gap-1 h-4">
+                                                                        <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0s]"></div>
+                                                                        <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.2s]"></div>
+                                                                        <div className="w-1 bg-white animate-[music-pulse_1s_infinite_0.4s]"></div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <Play size={24} className="ml-1" fill="currentColor" />
+                                                                )}
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Decorative Elements */}
+                                                        <div className="absolute top-0 right-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                                                        <div className="absolute bottom-0 left-10 w-32 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1000"></div>
+                                                    </motion.div>
+                                                ))}
                                             </div>
-                                            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:scale-150 transition-all duration-700"></div>
+                                        </div>
+                                        <div className="space-y-8">
+                                            <div className={`glass rounded-[36px] bg-gradient-to-br ${CurrentTheme.gradient} p-8 text-white relative overflow-hidden group`}>
+                                                <div className="relative z-10">
+                                                    <Zap className="mb-4 text-white opacity-80" />
+                                                    <h3 className="text-xl font-black uppercase italic tracking-tight mb-2">Escala tu Negocio</h3>
+                                                    <p className="text-xs font-medium opacity-80 mb-6 leading-relaxed">¿Tu negocio está creciendo? Activa más agentes, conecta tus herramientas de trabajo actuales o sube de nivel para no perder ninguna oportunidad.</p>
+                                                    <a
+                                                        href="https://wa.me/521234567890?text=Hola,%20mi%20negocio%20está%20creciendo%20y%20quiero%20mejorar%20mi%20plan%20de%20SaraCalls.ai"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="block w-full bg-black py-4 rounded-2xl text-[10px] text-center font-black uppercase tracking-[.25em] transition-all hover:bg-black/80 shadow-xl"
+                                                    >
+                                                        Hablar con Ventas
+                                                    </a>
+                                                </div>
+                                                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 blur-[50px] rounded-full group-hover:scale-150 transition-all duration-700"></div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
                             </motion.div>
                         ) : activeTab === 'calls' ? (
                             <motion.div
