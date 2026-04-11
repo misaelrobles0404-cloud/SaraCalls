@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     try {
-        const { supabase } = await import('@/lib/supabase');
+        const supabase = createSupabaseServerClient();
         const body = await request.json();
 
         console.log('📬 Webhook Received Body:', JSON.stringify(body, null, 2));
@@ -137,10 +138,14 @@ export async function POST(request: Request) {
                 customer_name: (rawData.customer_name || rawData.nombre || body.customer_name || body.name || callData?.analysis?.customer_name || 'Cliente').trim(),
                 customer_phone: rawData.phone_number || rawData.telefono || body.user_number || body.from_number || body.customer_number || 'N/A',
                 items: itemsList,
-                notes: finalNotes + (detectedPrice === undefined || detectedPrice === null || detectedPrice === 0 ? `\n\n⚠️ DEBUG JSON: ${JSON.stringify(rawData)}` : ''),
+                notes: finalNotes,
                 status: 'Pendiente',
-                total_price: detectedPrice
+                total_price: detectedPrice ?? 0
             };
+
+            if (detectedPrice === undefined || detectedPrice === null || detectedPrice === 0) {
+                console.warn('⚠️ Pedido sin precio detectado. Raw data:', JSON.stringify(rawData));
+            }
 
             console.log('📤 Inserting Order to DB');
             const { error: orderError, data: orderData } = await supabase.from('orders').insert([orderToInsert]).select();

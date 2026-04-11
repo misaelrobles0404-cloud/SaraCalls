@@ -85,6 +85,9 @@ export default function AdminDashboard() {
     const [historyData, setHistoryData] = useState<{ calls: any[], leads: any[] }>({ calls: [], leads: [] });
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [expandedDates, setExpandedDates] = useState<string[]>([]);
+    const [settingsRetellKey, setSettingsRetellKey] = useState<string>("");
+    const [settingsMakeWebhook, setSettingsMakeWebhook] = useState<string>("");
+    const [savingSettings, setSavingSettings] = useState(false);
 
     const toggleDate = (date: string) => {
         setExpandedDates(prev =>
@@ -176,8 +179,8 @@ export default function AdminDashboard() {
                     return;
                 }
 
-                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
-                    session.user.email === "misaelrobles0404@gmail.com";
+                const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '').split(',').map(e => e.trim());
+                const isAdmin = adminEmails.includes(session.user.email || '');
 
                 let targetClientId = '';
                 let targetClientName = '';
@@ -362,6 +365,40 @@ export default function AdminDashboard() {
         // Limpiar cookie de demo si existe
         document.cookie = "saracalls-demo-session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         window.location.href = "/login";
+    };
+
+    const handleSaveAdminSettings = async () => {
+        if (!clientId || isDemo) {
+            alert(isDemo ? "Función deshabilitada en Demo." : "No se encontró el ID del cliente.");
+            return;
+        }
+        setSavingSettings(true);
+        try {
+            const { supabase } = await import("@/lib/supabase");
+            const updateData: Record<string, string> = {};
+            if (settingsRetellKey) updateData.retell_agent_id = settingsRetellKey;
+            if (settingsMakeWebhook) updateData.make_webhook_url = settingsMakeWebhook;
+            if (logoUrl) updateData.logo_url = logoUrl;
+
+            if (Object.keys(updateData).length === 0) {
+                alert("No hay cambios para guardar.");
+                setSavingSettings(false);
+                return;
+            }
+
+            const { error } = await supabase
+                .from('clients')
+                .update(updateData)
+                .eq('id', clientId);
+
+            if (error) throw error;
+            alert("Configuración guardada correctamente.");
+        } catch (error: any) {
+            console.error("Error guardando settings:", error);
+            alert("Error al guardar: " + error.message);
+        } finally {
+            setSavingSettings(false);
+        }
     };
 
     // Calcular horas ahorradas (Cada llamada se estima en 5 minutos de trabajo humano administrativo)
@@ -1339,8 +1376,14 @@ export default function AdminDashboard() {
                                 <div className="space-y-6">
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI API Key</label>
-                                            <input type="password" placeholder="retell_..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                            <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Retell AI Agent ID</label>
+                                            <input
+                                                type="text"
+                                                value={settingsRetellKey}
+                                                onChange={(e) => setSettingsRetellKey(e.target.value)}
+                                                placeholder="agent_..."
+                                                className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
+                                            />
                                         </div>
 
                                         <div className="p-4 rounded-2xl bg-[#FD7202]/5 border border-[#FD7202]/10 space-y-2">
@@ -1359,7 +1402,13 @@ export default function AdminDashboard() {
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Make Webhook URL</label>
-                                        <input type="text" placeholder="https://hook.make.com/..." className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none" />
+                                        <input
+                                            type="text"
+                                            value={settingsMakeWebhook}
+                                            onChange={(e) => setSettingsMakeWebhook(e.target.value)}
+                                            placeholder="https://hook.make.com/..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
+                                        />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest px-1">Logo del Negocio (URL)</label>
@@ -1371,7 +1420,17 @@ export default function AdminDashboard() {
                                             className="w-full bg-white/5 border border-white/10 rounded-xl p-4 focus:border-[#FD7202] transition-colors outline-none"
                                         />
                                     </div>
-                                    <button className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4">Guardar Cambios</button>
+                                    <button
+                                        onClick={handleSaveAdminSettings}
+                                        disabled={savingSettings}
+                                        className="w-full bg-[#FD7202] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-orange-600 transition-colors mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {savingSettings ? (
+                                            <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Guardando...</>
+                                        ) : (
+                                            'Guardar Cambios'
+                                        )}
+                                    </button>
                                 </div>
                             </motion.div>
                         ) : null}

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function POST(req: Request) {
     try {
@@ -15,7 +16,7 @@ export async function POST(req: Request) {
             ubicacion: `${city}, ${country}`
         });
 
-        const { supabase } = await import('@/lib/supabase');
+        const supabase = createSupabaseServerClient();
 
         // 2. Guardar en Supabase
         const { error: dbError } = await supabase

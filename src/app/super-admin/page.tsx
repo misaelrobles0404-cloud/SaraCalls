@@ -165,8 +165,8 @@ export default function SuperAdminDashboard() {
                     return;
                 }
 
-                const isAdmin = session.user.email === "misaerobles0404@gmail.com" ||
-                    session.user.email === "misaelrobles0404@gmail.com";
+                const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '').split(',').map(e => e.trim());
+                const isAdmin = adminEmails.includes(session.user.email || '');
 
                 if (!isAdmin) {
                     console.error("Acceso denegado: No es administrador");
