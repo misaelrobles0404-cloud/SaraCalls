@@ -59,7 +59,8 @@ export async function middleware(req: NextRequest) {
     }
 
     if (user) {
-        const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '').split(',').map(e => e.trim());
+        const adminEmailsQuery = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || 'misaerobles0404@gmail.com,misaelrobles0404@gmail.com';
+        const adminEmails = adminEmailsQuery.split(',').map(e => e.trim());
         const isAdmin = adminEmails.includes(user.email || '');
 
         if (isLoginPage) {

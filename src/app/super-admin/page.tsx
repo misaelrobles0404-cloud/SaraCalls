@@ -165,7 +165,8 @@ export default function SuperAdminDashboard() {
                     return;
                 }
 
-                const adminEmails = (process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || '').split(',').map(e => e.trim());
+                const adminEmailsQuery = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAILS || 'misaerobles0404@gmail.com,misaelrobles0404@gmail.com';
+                const adminEmails = adminEmailsQuery.split(',').map(e => e.trim());
                 const isAdmin = adminEmails.includes(session.user.email || '');
 
                 if (!isAdmin) {
